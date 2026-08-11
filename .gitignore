@@ -1,0 +1,27 @@
+# Node / Expo
+node_modules/
+.expo/
+dist/
+web-build/
+*.log
+
+# Env & secrets
+.env
+.env.*
+!.env.example
+
+# Native
+ios/
+android/
+*.keystore
+*.p8
+*.p12
+*.mobileprovision
+
+# EAS
+.easignore
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
