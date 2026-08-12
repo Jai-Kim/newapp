@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Storyloom — build plan & progress</title>
+<style>
+  :root{
+    --ink:#1c1b19; --muted:#6b6a64; --hint:#8a8981; --line:#e6e4dc;
+    --card:#faf9f6; --page:#ffffff;
+    --done-bg:#e1f5ee; --done-line:#9fe1cb; --done-ink:#0f6e56;
+    --active-bg:#faeeda; --active-line:#fac775; --active-ink:#854f0b;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0; background:var(--page); color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+    line-height:1.6; padding:32px;}
+  .wrap{max-width:860px; margin:0 auto; display:flex; flex-direction:column; gap:22px;}
+  .head{display:flex; align-items:flex-start; justify-content:space-between; gap:16px; flex-wrap:wrap;}
+  h1{font-size:24px; font-weight:600; margin:0;}
+  .tag{font-size:16px; color:var(--muted);}
+  .pill{display:inline-flex; align-items:center; gap:8px; background:var(--done-bg);
+    border:1px solid var(--done-line); color:var(--done-ink); border-radius:999px;
+    padding:6px 14px; font-size:14px; white-space:nowrap;}
+  .grid4{display:grid; grid-template-columns:repeat(4,1fr); gap:10px;}
+  .grid2{display:grid; grid-template-columns:repeat(2,1fr); gap:10px;}
+  .cell{background:var(--card); border:1px solid var(--line); border-radius:12px; padding:12px;}
+  .k{font-size:12px; color:var(--hint); margin-bottom:4px;}
+  .v{font-size:14px;}
+  .label{font-size:12px; color:var(--hint); margin-bottom:10px;}
+  .phases{display:flex; gap:8px; flex-wrap:wrap;}
+  .phase{flex:1; min-width:150px; border-radius:12px; padding:12px; border:1px solid var(--line); background:var(--card);}
+  .phase .t{font-size:14px; font-weight:600; margin-bottom:4px;}
+  .phase .s{font-size:12px; color:var(--muted);}
+  .done{background:var(--done-bg); border-color:var(--done-line);}
+  .done .t,.done .s{color:var(--done-ink);}
+  .active{background:var(--active-bg); border-color:var(--active-line);}
+  .active .t,.active .s{color:var(--active-ink);}
+  .sec-h{display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;}
+  .sec-h h2{font-size:18px; font-weight:600; margin:0;}
+  .count{font-size:12px; color:var(--active-ink); background:var(--active-bg);
+    border:1px solid var(--active-line); border-radius:999px; padding:3px 10px;}
+  .spike{background:var(--card); border:1px solid var(--line); border-left:3px solid var(--active-line);
+    border-radius:0 12px 12px 0; padding:12px;}
+  .spike .t{font-size:14px; font-weight:600; margin-bottom:4px;}
+  .spike .s{font-size:12px; color:var(--muted);}
+  .foot{font-size:12px; color:var(--hint);}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="head">
+    <div>
+      <h1>Storyloom</h1>
+      <div class="tag">The bedtime storybook that remembers.</div>
+    </div>
+    <span class="pill">&#10003;&nbsp; Foundation done &middot; Week 1 next</span>
+  </div>
+
+  <div class="grid4">
+    <div class="cell"><div class="k">Moat</div><div class="v">Cross-night memory: a story world that persists</div></div>
+    <div class="cell"><div class="k">Who</div><div class="v">Parents of ages 3&ndash;6; first 100 via friends &amp; family</div></div>
+    <div class="cell"><div class="k">Model</div><div class="v">Freemium &rarr; subscription &rarr; print keepsakes</div></div>
+    <div class="cell"><div class="k">First store</div><div class="v">Google Play, iOS close behind</div></div>
+  </div>
+
+  <div>
+    <div class="label">Progress &middot; phase 2 of 5 complete</div>
+    <div class="phases">
+      <div class="phase done"><div class="t">&#10003; Concept</div><div class="s">Idea locked &amp; sharpened</div></div>
+      <div class="phase done"><div class="t">&#10003; Foundation</div><div class="s">Research + docs, PR #1 merged</div></div>
+      <div class="phase active"><div class="t">&#9654; Week 1 gate</div><div class="s">De-risk spikes A&ndash;D</div></div>
+      <div class="phase"><div class="t">Weeks 2&ndash;3</div><div class="s">Build core loop + product</div></div>
+      <div class="phase"><div class="t">Week 4</div><div class="s">Ship to Google Play</div></div>
+    </div>
+  </div>
+
+  <div>
+    <div class="sec-h">
+      <h2>Up next &mdash; Week 1 build/no-build gate</h2>
+      <span class="count">0 / 4 passed</span>
+    </div>
+    <div class="grid2">
+      <div class="spike"><div class="t">A &middot; Character consistency</div><div class="s">Same child across &ge;3 scenes a parent accepts</div></div>
+      <div class="spike"><div class="t">B &middot; Cross-night memory</div><div class="s">Ch. 2 remembers Ch. 1 from the database</div></div>
+      <div class="spike"><div class="t">C &middot; Unit economics</div><div class="s">Real $/chapter &rarr; set price + free tier</div></div>
+      <div class="spike"><div class="t">D &middot; Safety</div><div class="s">Sensitive topics safe; parent-preview gate</div></div>
+    </div>
+  </div>
+
+  <div class="foot">Snapshot &middot; updated as phases complete. Source of truth: docs/ROADMAP.md &amp; docs/WEEK-1-SPIKES.md.</div>
+
+</div>
+</body>
+</html>
