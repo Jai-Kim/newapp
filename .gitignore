@@ -27,6 +27,9 @@ yarn-error.log
 # EAS
 .easignore
 
+# Supabase CLI local state (project ref, service versions) — written by `link`
+supabase/.temp/
+
 # OS / editor
 .DS_Store
 .idea/
