@@ -11,6 +11,8 @@
 import Anthropic from "npm:@anthropic-ai/sdk@0.70.0";
 import { createClient } from "jsr:@supabase/supabase-js@2";
 
+import { handlePreflight, jsonResponse } from "../_shared/cors.ts";
+
 interface ProviderCheck {
   ok: boolean;
   detail: string;
@@ -141,7 +143,12 @@ function checkImageProvider(): Promise<ProviderCheck> {
   });
 }
 
-Deno.serve(async () => {
+Deno.serve(async (req: Request) => {
+  const preflight = handlePreflight(req);
+  if (preflight) {
+    return preflight;
+  }
+
   const [supabase, anthropic, image] = await Promise.all([
     checkSupabase(),
     checkAnthropic(),
@@ -152,7 +159,7 @@ Deno.serve(async () => {
   const ok = supabase.ok && anthropic.ok && image.ok;
 
   // 503 when a provider is down so `supabase functions invoke` fails loudly.
-  return Response.json({ ok, checks } satisfies HealthCheckResponse, {
+  return jsonResponse({ ok, checks } satisfies HealthCheckResponse, {
     status: ok ? 200 : 503,
   });
 });
