@@ -119,7 +119,13 @@ function checkImageProvider(): Promise<ProviderCheck> {
         throw new Error(`Gemini returned ${res.status} ${res.statusText}`);
       }
       const body = (await res.json()) as { models?: unknown[] };
-      return `Gemini reachable; ${body.models?.length ?? 0} models visible`;
+      // NOTE: this only proves the key is valid and the API is reachable. It
+      // does NOT prove we can generate an image — a free-tier key lists models
+      // happily while every image model has a generation quota of 0. Spike A
+      // hit exactly that. Verifying generation would cost money per call, so
+      // the check stays cheap and the wording stays honest.
+      return `Gemini key valid; ${body.models?.length ?? 0} models listed `
+        + `(reachability only — does not prove image-generation quota)`;
     }
 
     if (provider === "replicate") {
@@ -134,7 +140,9 @@ function checkImageProvider(): Promise<ProviderCheck> {
         throw new Error(`Replicate returned ${res.status} ${res.statusText}`);
       }
       const body = (await res.json()) as { username?: string };
-      return `Replicate reachable as "${body.username ?? "unknown"}"`;
+      // Same caveat as the Gemini path: token validity, not generation quota.
+      return `Replicate token valid as "${body.username ?? "unknown"}" `
+        + `(reachability only — does not prove generation quota)`;
     }
 
     throw new Error(
