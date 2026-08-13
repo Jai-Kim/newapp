@@ -8,10 +8,19 @@ import sys
 import time
 import urllib.request
 
-REPO = pathlib.Path("/Users/jaikim/newapp")
-OUT = REPO / "docs/spikes/spike-a"
+REPO = pathlib.Path(__file__).resolve().parents[3]
+
+# Which image model to test. Spike A starts on the cheaper Nano Banana and
+# escalates to Nano Banana Pro only if the character drifts, so outputs are
+# kept in per-model directories and never overwrite each other.
+MODEL = os.environ.get("SPIKE_A_MODEL", "gemini-2.5-flash-image")
+SHORT = {
+    "gemini-2.5-flash-image": "nano-banana",
+    "gemini-3-pro-image": "nano-banana-pro",
+}.get(MODEL, MODEL)
+
+OUT = REPO / "docs/spikes/spike-a" / SHORT
 LOG = OUT / "metrics.jsonl"
-MODEL = "gemini-3-pro-image"
 
 
 def env(name):
