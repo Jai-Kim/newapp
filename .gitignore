@@ -40,3 +40,7 @@ supabase/.temp/
 
 expo-env.d.ts
 # @end expo-cli
+
+# Python bytecode (spike harnesses)
+__pycache__/
+*.pyc
