@@ -10,10 +10,24 @@ export type AgeBand = '3-4' | '5-6' | '7-8';
 export type ThreadStatus = 'open' | 'resolved';
 export type WorldItemType = 'place' | 'object' | 'lore';
 
+/** Which language leads on the page. Both are always rendered (ADR-0001 §3). */
+export type Language = 'en' | 'ko';
+
 /** Locked reference image + descriptor. Reused for every render so faces never drift. */
 export type VisualRef = {
   image_path: string;
   descriptor: string;
+};
+
+/**
+ * A child's character reference, split so wardrobe can vary per scene while the
+ * face cannot. Spike A found the image model over-preserves: given a locked
+ * whole-character reference it kept the outfit even when the scene called for a
+ * swimsuit. Separating the two is the fix (ADR-0001 §5).
+ */
+export type CharacterRef = {
+  identity: VisualRef;
+  wardrobe_default: string;
 };
 
 export type Family = {
@@ -28,7 +42,8 @@ export type Child = {
   family_id: string;
   first_name: string;
   age_band: AgeBand;
-  character_ref: VisualRef | null;
+  primary_language: Language;
+  character_ref: CharacterRef | null;
   interests: string[] | null;
   created_at: string;
 };
@@ -65,24 +80,40 @@ export type Thread = {
   created_at: string;
 };
 
-export type Illustration = {
+/**
+ * One page of a chapter, in both languages. `en` and `ko` narrate the SAME
+ * events so the two stay aligned in a dual-language book — they are composed
+ * natively, not translated (ADR-0001 §2).
+ */
+export type ChapterPage = {
   page: number;
-  image_path: string;
-  prompt: string;
+  en: string;
+  ko: string;
+  /** Scene description for the illustrator. */
+  scene: string;
+  /**
+   * Clothing for this page only. Deliberately separate from the character's
+   * locked identity, which never changes — this is what lets a scene put the
+   * child in pyjamas or a swimsuit without the face drifting (ADR-0001 §5).
+   */
+  wardrobe: string;
+  /** Filled in once the page has been illustrated. */
+  image_path?: string;
 };
 
 export type Chapter = {
   id: string;
   child_id: string;
   number: number;
-  title: string | null;
+  title_en: string | null;
+  title_ko: string | null;
   lesson: string | null;
   situation: string | null;
-  body: string;
+  pages: ChapterPage[];
+  /** English canonical — drives retrieval and the embedding (ADR-0001 §4). */
   summary: string;
   /** pgvector column. Not selected by the client — retrieval happens server-side. */
   embedding: number[] | null;
-  illustrations: Illustration[] | null;
   created_at: string;
 };
 
