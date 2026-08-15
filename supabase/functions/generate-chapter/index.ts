@@ -9,6 +9,8 @@
 
 import { createClient } from "jsr:@supabase/supabase-js@2";
 
+import { handlePreflight, jsonResponse } from "../_shared/cors.ts";
+
 interface GenerateRequest {
   child_id: string;
   lesson: string;      // the value/situation the parent chose for tonight
@@ -16,6 +18,11 @@ interface GenerateRequest {
 }
 
 Deno.serve(async (req: Request) => {
+  const preflight = handlePreflight(req);
+  if (preflight) {
+    return preflight;
+  }
+
   try {
     const { child_id, lesson, situation } = (await req.json()) as GenerateRequest;
 
@@ -60,9 +67,11 @@ Deno.serve(async (req: Request) => {
     // 5. ILLUSTRATE (async is fine) -----------------------------------------
     // TODO: for each scene, call the image model with locked character refs.
 
-    return Response.json({ ok: true, number: nextNumber, chapter: generated });
+    return jsonResponse({ ok: true, number: nextNumber, chapter: generated });
   } catch (err) {
-    return Response.json({ ok: false, error: String(err) }, { status: 500 });
+    // Error responses need the CORS headers too, otherwise a browser caller
+    // sees an opaque CORS failure instead of the real error message.
+    return jsonResponse({ ok: false, error: String(err) }, { status: 500 });
   }
 });
 
