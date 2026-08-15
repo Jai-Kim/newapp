@@ -1,6 +1,7 @@
 -- Storyloom — Story Bible schema (the persistent-memory moat)
 -- Run in the Supabase SQL editor (or via the CLI) on a fresh project.
 -- Embedding dimension below assumes a 1536-dim model; change if you pick another.
+-- Bilingual (EN+KO) is built in: chapters store page-aligned dual-language content.
 
 create extension if not exists vector;
 
@@ -14,13 +15,14 @@ create table if not exists families (
 
 -- The child hero. Minimal PII by design (first name + age band only).
 create table if not exists children (
-  id             uuid primary key default gen_random_uuid(),
-  family_id      uuid not null references families(id) on delete cascade,
-  first_name     text not null,
-  age_band       text not null check (age_band in ('3-4','5-6','7-8')),
-  character_ref  jsonb,          -- locked character sheet: {image_path, descriptor}
-  interests      text[],
-  created_at     timestamptz not null default now()
+  id                uuid primary key default gen_random_uuid(),
+  family_id         uuid not null references families(id) on delete cascade,
+  first_name        text not null,
+  age_band          text not null check (age_band in ('3-4','5-6','7-8')),
+  primary_language  text not null default 'en' check (primary_language in ('en','ko')),
+  character_ref     jsonb,       -- { identity: {image_path, descriptor}, wardrobe_default: text }
+  interests         text[],
+  created_at        timestamptz not null default now()
 );
 
 -- Recurring cast (companions, side characters).
@@ -30,7 +32,7 @@ create table if not exists characters (
   name                  text not null,
   role                  text,
   traits                text,
-  visual_ref            jsonb,   -- locked reference: {image_path, descriptor}
+  visual_ref            jsonb,   -- { identity: {image_path, descriptor} } (locked)
   first_appeared_chapter int,
   created_at            timestamptz not null default now()
 );
@@ -57,18 +59,18 @@ create table if not exists threads (
   created_at        timestamptz not null default now()
 );
 
--- The chapters themselves. summary + embedding power retrieval.
+-- The chapters themselves. Dual-language, page-aligned. summary + embedding power retrieval.
 create table if not exists chapters (
   id            uuid primary key default gen_random_uuid(),
   child_id      uuid not null references children(id) on delete cascade,
   number        int not null,
-  title         text,
+  title_en      text,
+  title_ko      text,
   lesson        text,
   situation     text,
-  body          text not null,
-  summary       text not null,
+  pages         jsonb not null,  -- [{page, en, ko, scene, wardrobe, image_path}]
+  summary       text not null,   -- English canonical, for retrieval + embedding
   embedding     vector(1536),
-  illustrations jsonb,          -- [{page, image_path, prompt}]
   created_at    timestamptz not null default now(),
   unique (child_id, number)
 );
@@ -91,8 +93,8 @@ create index if not exists idx_world_child             on world (child_id);
 create index if not exists idx_chapters_embedding
   on chapters using ivfflat (embedding vector_cosine_ops) with (lists = 100);
 
--- RLS: enable and restrict every row to the owning family. Policies below are a
--- starting point; Claude Code should verify against Supabase auth in Spike 0.
+-- RLS: enable and restrict every row to the owning family. Full child-ownership
+-- policies live in policies.sql (applied separately).
 alter table families       enable row level security;
 alter table children       enable row level security;
 alter table characters     enable row level security;
@@ -104,10 +106,8 @@ alter table lessons_taught enable row level security;
 create policy "family owns self" on families
   for all using (auth_user_id = auth.uid());
 
--- Child-scoped tables: allow when the child belongs to the caller's family.
 create policy "own children" on children
   for all using (family_id in (select id from families where auth_user_id = auth.uid()));
 
--- NOTE: repeat an equivalent child-ownership policy for characters, world,
--- threads, chapters, lessons_taught (join child_id -> children -> families).
--- Left explicit for Claude Code to generate + test in Spike 0.
+-- NOTE: characters, world, threads, chapters, lessons_taught child-ownership
+-- policies are in policies.sql.
