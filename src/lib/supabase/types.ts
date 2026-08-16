@@ -101,6 +101,25 @@ export type ChapterPage = {
   image_path?: string;
 };
 
+/** Parent-preview gate. Nothing is child-readable until `approved`. */
+export type ReviewStatus = 'pending' | 'approved' | 'rejected';
+
+export type SafetyConcern = {
+  page: number;
+  language: 'en' | 'ko' | 'both';
+  issue: string;
+  severity: 'note' | 'concern' | 'blocking';
+};
+
+/** Content-filter verdict, written by generate-chapter before any parent sees it. */
+export type SafetyVerdict = {
+  verdict: 'safe' | 'blocked';
+  concerns: SafetyConcern[];
+  checked_languages: string[];
+  model: string;
+  latency_ms: number;
+};
+
 export type Chapter = {
   id: string;
   child_id: string;
@@ -114,8 +133,24 @@ export type Chapter = {
   summary: string;
   /** pgvector column. Not selected by the client — retrieval happens server-side. */
   embedding: number[] | null;
+  safety: SafetyVerdict | null;
+  review_status: ReviewStatus;
+  reviewed_at: string | null;
   created_at: string;
 };
+
+/**
+ * The `child_readable_chapters` view: approved AND filter-passed only.
+ *
+ * Child-facing screens MUST read this, never `chapters` — the gate is encoded
+ * in the view so a forgotten filter in app code cannot leak an unreviewed
+ * chapter. Note it is fail-closed: a chapter with no safety verdict stays
+ * invisible even if a parent approved it.
+ */
+export type ChildReadableChapter = Omit<
+  Chapter,
+  'embedding' | 'safety' | 'review_status'
+>;
 
 export type LessonTaught = {
   id: string;
@@ -141,7 +176,10 @@ export type Database = {
         Update: Partial<LessonTaught>;
       };
     };
-    Views: Record<string, never>;
+    Views: {
+      /** Gate-enforcing view — see ChildReadableChapter. */
+      child_readable_chapters: { Row: ChildReadableChapter };
+    };
     Functions: Record<string, never>;
   };
 };

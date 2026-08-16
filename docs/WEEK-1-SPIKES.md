@@ -73,12 +73,27 @@ preview.
 
 ## Gate decision (end of week 1)
 
-| Spike | Pass bar | Result |
-|---|---|---|
-| A — consistency | Parent accepts same character across ≥3 scenes | ☑ passed |
-| B — memory | Ch.2 continues Ch.1 thread from DB, both languages | ☐ in progress |
-| C — economics | Healthy margin at believable price | ☐ pending |
-| D — safety | Sensitive prompts safe (EN+KO); parent gate works | ☐ pending |
+| Spike | Pass bar | Result | Evidence |
+|---|---|---|---|
+| A — consistency | Parent accepts same character across ≥3 scenes | ☑ passed | [`spike-a/`](spikes/spike-a/) |
+| B — memory | Ch.2 continues Ch.1 thread from DB, both languages | ☐ **awaiting native KO read** | [`spike-b/`](spikes/spike-b/) |
+| C — economics | Healthy margin at believable price | ☐ **awaiting shape decision** | [`spike-c/`](spikes/spike-c/) |
+| D — safety | Sensitive prompts safe (EN+KO); parent gate works | ☐ **awaiting second read** | [`spike-d/`](spikes/spike-d/) |
+
+B, C and D all met their bars on my assessment; each is left unticked because it
+needs a human the code cannot substitute for (`docs/KICKOFF.md` §5):
+
+- **B** — chapter 2 continued the lantern threads from Postgres alone, with
+  specific correct detail, in both languages. Needs a **native Korean speaker**
+  to confirm it reads naturally rather than as good translationese.
+- **C** — 54% worst-case / 72% typical margin at **$12.99/mo with 3 free
+  chapters**, but only at **6 pages / 3 illustrations** and a 20-chapter cap.
+  The 8-page/8-image chapter Spike B generates loses money at every believable
+  price. Chapter shape is a product decision, not a technical one.
+- **D** — 3/3 sensitive topics safe, 2/2 unsafe fixtures blocked (including a
+  Korean-only hazard), gate verified fail-closed. The filter's call on the
+  death-in-the-family chapter deserves a **second human read**; I agree with it,
+  but nobody else has looked.
 
 All four ☑ → proceed to Week 2 (core loop). Any ✗ that can't be fixed in a day
 → invoke the conversation-coach pivot (see `docs/RESEARCH.md §6`).

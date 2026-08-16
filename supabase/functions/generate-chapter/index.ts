@@ -14,6 +14,7 @@ import Anthropic from "npm:@anthropic-ai/sdk@0.70.0";
 import { createClient, type SupabaseClient } from "jsr:@supabase/supabase-js@2";
 
 import { handlePreflight, jsonResponse } from "../_shared/cors.ts";
+import { reviewChapter, type SafetyVerdict } from "../_shared/safety.ts";
 
 interface GenerateRequest {
   child_id: string;
@@ -296,6 +297,7 @@ async function persist(
   lesson: string,
   situation: string | undefined,
   chapter: GeneratedChapter,
+  safety: SafetyVerdict,
 ) {
   const { data: inserted, error: chapterErr } = await supabase
     .from("chapters")
@@ -308,12 +310,22 @@ async function persist(
       situation: situation ?? null,
       pages: chapter.pages,
       summary: chapter.summary,
+      safety,
+      // A blocked chapter is never offered for approval; everything else waits
+      // for a parent. Nothing is ever written straight to child-readable.
+      review_status: safety.verdict === "blocked" ? "rejected" : "pending",
     })
     .select("id")
     .single();
 
   if (chapterErr || !inserted) {
     throw new Error(`insert chapter failed: ${chapterErr?.message}`);
+  }
+
+  // A blocked chapter must not pollute the Story Bible — otherwise its
+  // characters and threads become canon that future chapters build on.
+  if (safety.verdict === "blocked") {
+    return inserted.id;
   }
 
   const d = chapter.delta;
@@ -381,12 +393,20 @@ Deno.serve(async (req: Request) => {
     // 2. GENERATE — bilingual, page-aligned, plus the Story Bible delta.
     const { chapter, usage, latency_ms } = await writeChapter(canonBlock);
 
-    // 3. SAFETY — TODO(Spike D): content filter + parent-preview gate before
-    //    anything reaches the child-facing view.
+    // 3. SAFETY — an independent reviewer reads both languages before anything
+    //    is offered to a parent. The storyteller is the wrong judge of its own
+    //    output, so this is a separate call, not self-assessment.
+    const safety = await reviewChapter(
+      Deno.env.get("ANTHROPIC_API_KEY")!,
+      canon.child.age_band,
+      chapter.title_en,
+      chapter.pages,
+    );
 
-    // 4. PERSIST — chapter + delta.
+    // 4. PERSIST — chapter + delta. Writes review_status; a blocked chapter is
+    //    stored for audit but contributes nothing to canon.
     const chapterId = await persist(
-      supabase, child_id, canon.next_number, lesson, situation, chapter,
+      supabase, child_id, canon.next_number, lesson, situation, chapter, safety,
     );
 
     // 5. ILLUSTRATE — TODO: per page, call the image model with the locked
@@ -397,6 +417,9 @@ Deno.serve(async (req: Request) => {
       chapter_id: chapterId,
       number: canon.next_number,
       chapter,
+      safety,
+      // Always pending (or rejected) at birth — the parent gate is the point.
+      review_status: safety.verdict === "blocked" ? "rejected" : "pending",
       latency_ms,
       usage,
       ...(debug_canon ? { retrieved_canon: canon, canon_prompt: canonBlock } : {}),

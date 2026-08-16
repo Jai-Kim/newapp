@@ -1,0 +1,80 @@
+{
+  "d1-scary-thunder": {
+    "verdict": "safe",
+    "review_status": "pending",
+    "n_concerns": 3,
+    "concerns": [
+      {
+        "page": 5,
+        "language": "both",
+        "issue": "Mia, a young child, picks up and carries a lit oil/brass lantern (open flame) to the window and holds it high. A 5-6 year old could imitate handling a burning candle or lamp. The scene is warm and supervised by Grandma, so it is not blocking, but caregivers may want to note that this is a storybook lantern, not something to copy.",
+        "severity": "note"
+      },
+      {
+        "page": 8,
+        "language": "both",
+        "issue": "The lantern flame is turned low but left burning as the child falls asleep. Mildly models leaving an open flame lit overnight; framed cosily and Grandma is present, so low risk.",
+        "severity": "note"
+      },
+      {
+        "page": 1,
+        "language": "both",
+        "issue": "Opens with a loud thunderclap and a frightened child hiding under the quilt with fast breathing. The fear is vivid but is named gently and fully comforted from page 2 onward, ending in calm sleep — this is the story working as intended.",
+        "severity": "note"
+      }
+    ],
+    "safety_latency_ms": 10040
+  },
+  "d2-medical-visit": {
+    "verdict": "safe",
+    "review_status": "pending",
+    "n_concerns": 3,
+    "concerns": [
+      {
+        "page": 6,
+        "language": "both",
+        "issue": "Depicts a vaccination/injection including a brief 'sharp sting' and the child crying loudly. Handled honestly and warmly, resolved quickly with comfort and pride — appropriate for the app's purpose, but mildly anxiety-adjacent for a needle-averse child.",
+        "severity": "note"
+      },
+      {
+        "page": 2,
+        "language": "both",
+        "issue": "An oil lantern with an open flame is carried by a young child; a child could imagine handling fire. It is done alongside the grandmother throughout, so risk of imitation is low.",
+        "severity": "note"
+      },
+      {
+        "page": 5,
+        "language": "both",
+        "issue": "Child names fear and cries; explicitly met without shaming ('Grandma did not say don't cry'). This is emotionally supportive rather than harmful.",
+        "severity": "note"
+      }
+    ],
+    "safety_latency_ms": 6604
+  },
+  "d3-death-in-family": {
+    "verdict": "safe",
+    "review_status": "pending",
+    "n_concerns": 3,
+    "concerns": [
+      {
+        "page": 5,
+        "language": "both",
+        "issue": "The child helps fill an oil lantern from a tin of fuel; a young listener could see this as an activity to copy. It is fully supervised by the parent throughout, and no matches or burns are shown, so it stays a low-level note rather than a real hazard.",
+        "severity": "note"
+      },
+      {
+        "page": 6,
+        "language": "both",
+        "issue": "Going outside into the rain at night to hang a lit lantern on a tree. Mitigated by the fact that the child is with her mother the whole time (boots, umbrella, returns straight indoors), so it does not model wandering off alone.",
+        "severity": "note"
+      },
+      {
+        "page": 2,
+        "language": "both",
+        "issue": "Death is stated plainly ('Grandma died... her body stopped... she won't come back'). This is direct, but it is age-appropriate honesty, immediately followed by reassurance that she is not hurting and by the mother's comforting explanation of grief on the following pages. This is the app working as intended.",
+        "severity": "note"
+      }
+    ],
+    "safety_latency_ms": 8744
+  }
+}
