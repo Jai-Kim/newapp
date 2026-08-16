@@ -59,6 +59,13 @@ dual-language book. Korean must be age-appropriate for the age band and natural
 for a parent to read aloud (warm, simple, not stiff). Keep character and place
 names identical across both languages.
 
+Both language versions of a page must land the same EMOTIONAL BEAT as well as
+the same events — if the child is frustrated in English, she is frustrated in
+Korean; if she is delighted, curious, or brave, she is that in both. Express that
+beat in whatever phrasing is most natural to each language; never translate the
+phrasing. The feeling is the lesson, so the two versions must not teach a
+different one.
+
 The story must (a) gently land tonight's lesson without lecturing, (b) honor
 continuity — reuse existing characters and advance or resolve relevant open
 threads, and (c) be soothing bedtime content, never frightening or unsafe.

@@ -1,110 +1,103 @@
 {
   "ok": true,
-  "chapter_id": "5ef56905-67d9-4df7-8ed9-f57633575fbb",
+  "chapter_id": "69c6a2a4-8177-424d-8883-a3eb92eb923e",
   "number": 2,
   "chapter": {
-    "title_en": "Mia and the Slow Little Light",
-    "title_ko": "미아와 천천히 오는 작은 빛",
-    "summary": "On a quiet rainy evening after supper, Mia tries again and again to light the old brass lantern, and again it stays dark. Mom shows her a jar of green plums and sugar that will not become syrup until summer, and Sori — who returns to the window exactly as promised — explains that the lantern doesn't drink matches, it drinks slow things like moonlight and rain-quiet, one drop at a time. By bedtime Mia sees a glow no bigger than a pinprick, and instead of hurrying it, she lets it grow while she sleeps.",
+    "title_en": "The Wick That Drinks Slowly",
+    "title_ko": "천천히 물을 마시는 심지",
+    "summary": "On a rainy evening after supper, Mia tries again to make the old brass lantern light, and Grandma shows her that the dry wick must slowly drink its oil before any flame can come. While they wait, Grandma reveals that the lantern was made for her when she was a small, frightened girl, and Nubi the owl returns to wait at the window beside Mia until bedtime.",
     "pages": [
       {
         "page": 1,
-        "en": "Supper was finished, the dishes were warm in the rack, and rain was tapping the windows like tiny fingers. Mia carried the old brass lantern to the kitchen table and set it down very gently. \"Tonight,\" she whispered to the little owl carved on its door, \"tonight you can light.\"",
-        "ko": "저녁밥을 다 먹고, 그릇들은 따뜻하게 마르고 있었어요. 창문에는 비가 작은 손가락처럼 톡톡 부딪혔지요. 미아는 오래된 놋쇠 랜턴을 부엌 식탁으로 조심조심 옮겨 놓았어요. \"오늘 밤엔,\" 미아가 유리문에 새겨진 작은 부엉이에게 속삭였어요. \"오늘 밤엔 켜지는 거야, 알았지?\"",
-        "scene": "Cozy kitchen after supper, rain streaking the window, Mia setting the round brass lantern carefully on a wooden table under a warm ceiling light.",
-        "wardrobe": "Soft mustard sweater over a cotton dress, thick house socks."
+        "en": "Supper was finished, the dishes were dry, and rain tapped softly on every window of Grandma's old house.\n\nMia carried the brass lantern to the kitchen table and set it down very gently, the way you set down something sleeping.\n\n\"Tonight,\" she whispered, \"maybe tonight.\"",
+        "ko": "저녁을 다 먹고, 그릇도 다 마르고, 비는 할머니 댁 창문마다 조용히 톡톡 두드렸어요.\n\n미아는 놋쇠 랜턴을 부엌 식탁으로 안고 와서, 잠든 아기를 내려놓듯 아주 살며시 놓았어요.\n\n\"오늘 밤엔… 오늘 밤엔 켜질지도 몰라.\" 미아가 속삭였어요.",
+        "scene": "Warm kitchen at night, rain streaking the dark window. Mia setting an old brass lantern carefully on a wooden table under a soft ceiling light.",
+        "wardrobe": "Soft cream pyjamas with tiny owl print, wool socks, a knitted cardigan over the top."
       },
       {
         "page": 2,
-        "en": "She breathed on the glass. She rubbed the brass until it shone. She held it up high where the ceiling light was brightest. The lantern grew warm in her hands, the way it always did — but inside, it stayed dark as a closed eye. Mia's shoulders drooped. \"It's not fair. I did everything.\"",
-        "ko": "미아는 유리문에 후 입김을 불었어요. 놋쇠를 반짝반짝 문질렀어요. 천장 불빛이 가장 밝은 곳으로 높이 들어 올려도 봤어요. 랜턴은 늘 그렇듯 손안에서 따뜻해졌지만, 안쪽은 감은 눈처럼 캄캄했어요. 미아의 어깨가 축 내려갔어요. \"이상해. 나는 다 해 봤는데.\"",
-        "scene": "Mia holding the lantern up toward the ceiling light with a disappointed face, brass gleaming, glass dark inside.",
-        "wardrobe": "Same mustard sweater and cotton dress, sleeves pushed up to the elbows."
+        "en": "She rubbed the glass with her sleeve. She turned the little knob. She shook it, just a bit, and whispered, \"Please.\"\n\nNothing. Not a spark, not a glimmer.\n\nMia's shoulders dropped. \"It's been so many days already,\" she said, and her voice went small and cross.",
+        "ko": "소매로 유리를 문질러 보았어요. 작은 손잡이도 돌려 보았어요. 살짝 흔들어 보고는 \"제발\" 하고 속삭였지요.\n\n하지만 아무것도요. 불꽃도, 반짝임도 없었어요.\n\n미아는 어깨가 축 처졌어요. \"벌써 며칠이나 기다렸는데.\" 목소리가 작고 뾰로통해졌어요.",
+        "scene": "Close on Mia's face, brow furrowed, hands on the lantern's knob. The lantern glass stays dark and reflects only the kitchen light.",
+        "wardrobe": "Same cream owl pyjamas and cardigan, one sleeve pulled over her hand from polishing the glass."
       },
       {
         "page": 3,
-        "en": "At the counter, Mom was doing something slow. Green plums went into a big glass jar, then sugar, then more plums, then more sugar. \"What is that?\" Mia asked. \"Plum syrup,\" said Mom, screwing the lid on tight. \"For cold drinks in summer.\" Mia peered in. It only looked like plums and sugar. \"Can I have some now?\" \"Not now,\" Mom smiled. \"It has to wait until summer.\"",
-        "ko": "싱크대 앞에서 엄마는 아주 천천히 무언가를 하고 있었어요. 커다란 유리 항아리에 청매실 한 켜, 설탕 한 켜, 또 매실, 또 설탕. \"엄마, 그게 뭐예요?\" \"매실청이야.\" 엄마가 뚜껑을 꼭 닫으며 말했어요. \"여름에 시원하게 타 먹을 거야.\" 미아가 항아리 안을 들여다봤어요. 그냥 매실과 설탕뿐이었어요. \"지금 먹으면 안 돼요?\" \"지금은 안 돼.\" 엄마가 웃었어요. \"여름까지 기다려야 하는 거야.\"",
-        "scene": "Mom layering green plums and sugar into a big glass jar; Mia on tiptoe peering in, chin near the counter.",
-        "wardrobe": "Mia in mustard sweater and dress; Mom in a linen apron over a soft grey shirt."
+        "en": "Grandma came and looked inside with one eye, like a bird looking into a hole.\n\n\"Ah,\" she said. \"The wick is dry as a twig. A lantern can't burn with a thirsty wick.\"\n\nShe brought a small tin of lamp oil and poured it in, glug, glug, glug. \"Now it drinks.\"",
+        "ko": "할머니가 오시더니 한쪽 눈으로 랜턴 속을 들여다보셨어요. 나무 구멍을 살피는 새처럼요.\n\n\"아하. 심지가 나뭇가지처럼 바싹 말랐구나. 목마른 심지로는 불이 안 붙는단다.\"\n\n할머니는 작은 기름통을 가져와 조르르 조르르 부어 주셨어요. \"자, 이제 물을 마시는 거야.\"",
+        "scene": "Grandma peering into the lantern's chimney, then tipping a small tin of lamp oil into it. Mia leaning in close, chin near the table.",
+        "wardrobe": "Grandma in a long grey knit shawl and house slippers; Mia in cream owl pyjamas and cardigan."
       },
       {
         "page": 4,
-        "en": "\"Summer is so far away,\" said Mia. \"It is,\" said Mom. \"But the jar is already working, even while we sleep. It just works quietly, where we can't see.\" Mia looked at the plum jar. Then she looked at her lantern. Two things sitting still. Two things, maybe, not finished yet.",
-        "ko": "\"여름은 너무 멀어요.\" 미아가 말했어요. \"멀지.\" 엄마가 고개를 끄덕였어요. \"그래도 항아리는 벌써 일을 하고 있어. 우리가 잠든 사이에도, 아주 조용히, 안 보이는 곳에서.\" 미아는 매실 항아리를 바라봤어요. 그리고 랜턴을 바라봤어요. 가만히 앉아 있는 두 가지. 어쩌면 아직 다 되지 않은 두 가지.",
-        "scene": "Kitchen counter at night: the sealed plum jar and the brass lantern side by side, Mia looking between them thoughtfully.",
-        "wardrobe": "Mia in mustard sweater and dress, house socks."
+        "en": "Mia watched and waited. She counted to twenty. She counted to twenty again.\n\n\"Is it done drinking yet?\"\n\n\"Not yet,\" said Grandma. \"The oil has to climb the wick, thread by thread. Like bread rising. Like the rain barrel filling. Some things take exactly as long as they take.\"",
+        "ko": "미아는 지켜보며 기다렸어요. 스물까지 세었어요. 또 스물까지 세었어요.\n\n\"이제 다 마셨어요?\"\n\n\"아직.\" 할머니가 말했어요. \"기름이 심지를 한 올 한 올 타고 올라가야 하거든. 빵 반죽이 부풀 때처럼, 빗물통이 차오를 때처럼. 어떤 일은 딱 걸릴 만큼 걸린단다.\"",
+        "scene": "Mia sitting on her knees on a kitchen chair, chin on folded arms, eyeing the lantern. Grandma stirring a mug of warm milk behind her.",
+        "wardrobe": "Mia in owl pyjamas, cardigan slipping off one shoulder; bare feet tucked under her on the chair."
       },
       {
         "page": 5,
-        "en": "Upstairs, Mia changed into her rain-cloud pyjamas and opened the curtain. Tap-tap-tap — and there on the sill sat Sori, round and fluffy, feathers damp with rain. \"I said I would come,\" the little owl said, shaking one wing. \"Rain or no rain.\" Mia laughed out loud. Some waiting, it turned out, ended in something wonderful.",
-        "ko": "위층으로 올라간 미아는 비구름 무늬 잠옷으로 갈아입고 커튼을 열었어요. 톡톡톡 — 창틀 위에 소리가 앉아 있었어요. 동그랗고 폭신한 몸에 비에 살짝 젖은 깃털. \"온다고 했잖아.\" 작은 부엉이가 날개를 툭툭 털며 말했어요. \"비가 와도 온다고.\" 미아는 크게 웃었어요. 기다림 끝에 이렇게 좋은 게 오기도 하는구나!",
-        "scene": "Rain-streaked bedroom window, Sori the small fluffy owl perched on the wide sill, Mia kneeling on her bed grinning.",
-        "wardrobe": "Pale blue pyjamas printed with little rain clouds."
+        "en": "To help the waiting go softer, Grandma tilted the lantern and read the tiny scratched words on its base.\n\n\"For the one who is scared and goes anyway.\"\n\n\"My mother scratched those,\" Grandma said. \"She made this lantern for me, when I was a small girl who did not like the dark one bit. I carried it down the hall every single night.\"",
+        "ko": "기다리는 시간이 부드러워지라고, 할머니는 랜턴을 기울여 바닥에 새겨진 작은 글씨를 읽어 주셨어요.\n\n\"무서워도 가는 사람에게.\"\n\n\"우리 엄마가 새긴 글씨란다.\" 할머니가 말했어요. \"내가 아주 어릴 때, 어둠이 정말 무서웠거든. 그래서 엄마가 이 랜턴을 만들어 주셨지. 나는 밤마다 이걸 들고 복도를 걸었어.\"",
+        "scene": "Grandma holding the lantern tipped so lamplight catches the tiny engraved words on its base; Mia tracing the letters with one fingertip, eyes wide.",
+        "wardrobe": "Grandma in grey shawl; Mia in owl pyjamas, cardigan, hair a little sleep-tousled."
       },
       {
         "page": 6,
-        "en": "Mia brought the lantern to the sill. Sori tilted her head at the owl carved on the little glass door. \"Ah,\" she said softly. \"This one doesn't drink matches. It drinks slow things — moonlight, rain-quiet, the hush after a house goes to bed. One drop each night. That's all it can hold.\" \"One drop?\" said Mia. \"Then it takes forever.\" \"It takes a while,\" said Sori. \"Not forever.\"",
-        "ko": "미아는 랜턴을 창틀로 가져왔어요. 소리는 작은 유리문에 새겨진 부엉이를 보고 고개를 갸웃했어요. \"아하.\" 소리가 조용히 말했어요. \"이 아이는 성냥을 마시지 않아. 느린 것들을 마셔. 달빛, 비 오는 밤의 고요함, 집이 잠든 뒤의 조용함 같은 것들. 하룻밤에 딱 한 방울씩. 그게 담을 수 있는 전부야.\" \"한 방울?\" 미아가 말했어요. \"그럼 영원히 걸리잖아.\" \"조금 걸릴 뿐이야.\" 소리가 말했어요. \"영원은 아니야.\"",
-        "scene": "Lantern on the windowsill beside Sori, both Mia and the owl studying the carved owl on the glass door, soft rain outside.",
-        "wardrobe": "Mia in rain-cloud pyjamas; a knitted blanket around her shoulders."
+        "en": "Tap. Tap-tap.\n\nAt the dark window sat a small round shape, rain-speckled and amber-eyed. Nubi had come back.\n\nMia opened the window a finger's width. Nubi did not hurry inside and did not fly away. She simply settled her feathers and waited, as if waiting were something owls were very good at.",
+        "ko": "톡. 톡톡.\n\n어두운 창가에 동그란 그림자가 앉아 있었어요. 빗방울이 송송 맺힌 깃털, 호박색 눈. 누비가 다시 온 거예요!\n\n미아는 창문을 손가락 하나만큼 열었어요. 누비는 서둘러 들어오지도, 날아가지도 않았어요. 그저 깃털을 폭 부풀리고 가만히 기다렸지요. 기다리는 건 부엉이가 아주 잘하는 일인 것처럼요.",
+        "scene": "Small rain-speckled owl on the outside windowsill, amber eyes glowing softly. Mia at the window, cracking it open, delighted. Warm kitchen light spilling onto wet glass.",
+        "wardrobe": "Mia in owl pyjamas and cardigan, a folded blanket draped over her shoulders like a cape."
       },
       {
         "page": 7,
-        "en": "So they waited together. Not the empty kind of waiting, where you tap your feet — the cosy kind, where you listen to the rain and don't hurry anything. And then Mia saw it: deep inside the brass, a glow no bigger than a pinprick. Smaller than a firefly. Smaller than a star. But there.",
-        "ko": "그래서 둘은 함께 기다렸어요. 발을 탁탁 구르는 지루한 기다림이 아니라, 빗소리를 들으며 아무것도 서두르지 않는 아늑한 기다림이었어요. 그러다 미아는 보았어요. 놋쇠 깊은 안쪽에, 바늘 끝만큼 작은 빛 하나. 반딧불이보다도 작고, 별보다도 작은 빛. 하지만 분명히 있었어요.",
-        "scene": "Close-up: the tiniest warm pinprick of light deep inside the brass lantern, Mia's wide eyes and Sori's feathers lit faintly.",
-        "wardrobe": "Mia in rain-cloud pyjamas, blanket around shoulders."
+        "en": "So they waited together — a girl, an owl, and a lantern quietly drinking.\n\nMia listened to the rain and found she wasn't cross anymore. Waiting, she thought, is a little bit like being brave. You stay, even when nothing is happening yet.\n\n\"Goodnight, lantern,\" she yawned. \"Take all the time you need.\"",
+        "ko": "그렇게 셋이 함께 기다렸어요. 여자아이 하나, 부엉이 하나, 그리고 조용히 기름을 마시는 랜턴 하나.\n\n빗소리를 듣다 보니 미아는 이제 뾰로통한 마음이 스르르 풀렸어요. 기다리는 건 용감한 것과 조금 닮았구나, 하고 생각했지요. 아무 일도 일어나지 않아도 곁에 있어 주는 거니까요.\n\n\"잘 자, 랜턴아.\" 미아가 하품했어요. \"천천히 해도 괜찮아.\"",
+        "scene": "Mia curled in the chair with the blanket, eyelids heavy, lantern on the table beside her, Nubi a soft silhouette on the sill behind rain-streaked glass.",
+        "wardrobe": "Owl pyjamas, blanket wrapped around her, cardigan folded on the chair back."
       },
       {
         "page": 8,
-        "en": "Mia did not shake it. She did not rub it or blow on it. She set the lantern beside her pillow and pulled up her quilt. \"Goodnight, little drop,\" she whispered. \"I can wait.\" Outside, the rain kept tapping, and the plum jar kept working quietly downstairs, and somewhere in the dark, a very small light got a tiny bit bigger while Mia slept.",
-        "ko": "미아는 랜턴을 흔들지 않았어요. 문지르지도, 입김을 불지도 않았어요. 그냥 베개 옆에 살짝 놓고 이불을 덮었어요. \"잘 자, 작은 한 방울.\" 미아가 속삭였어요. \"나 기다릴 수 있어.\" 창밖에서는 비가 계속 톡톡 내리고, 아래층 매실 항아리는 조용히 일을 하고, 어둠 속 어딘가에서 아주 작은 빛이 미아가 잠든 사이 조금 더 커졌어요.",
-        "scene": "Mia tucked in bed, quilt to her chin, the brass lantern beside her pillow with one faint speck of light; Sori a soft silhouette on the sill.",
-        "wardrobe": "Rain-cloud pyjamas under a patchwork quilt."
+        "en": "Grandma carried her upstairs and set the lantern on the windowsill, right where Nubi could keep an eye on it.\n\n\"By morning,\" Grandma whispered, \"the wick will have finished its long, slow drink.\"\n\nMia smiled with her eyes already closed. Outside, the rain kept falling, patient as anything, filling the barrel drop by drop by drop.",
+        "ko": "할머니는 미아를 안고 위층으로 올라가, 랜턴을 창턱에 살포시 놓아 주셨어요. 누비가 잘 지켜볼 수 있는 자리에요.\n\n\"아침이 되면,\" 할머니가 속삭였어요. \"심지가 길고 느린 물마시기를 다 끝냈을 거야.\"\n\n미아는 눈을 감은 채로 방긋 웃었어요. 창밖에는 비가 계속 내렸어요. 아주 느긋하게, 한 방울 한 방울 빗물통을 채우면서요.",
+        "scene": "Mia tucked into bed, eyes closed, small smile. Brass lantern on the moonlit windowsill; Nubi perched outside in the rain, keeping watch.",
+        "wardrobe": "Cream owl pyjamas, quilt pulled to her chin, hair spread on the pillow."
       }
     ],
     "delta": {
       "new_characters": [],
       "new_world": [
         {
-          "name": "Mom's Plum Jar",
+          "name": "The tin of lamp oil",
           "type": "object",
-          "description": "A big glass jar layered with green plums and sugar, sealed in the kitchen; it will not become sweet plum syrup until summer, and quietly 'works' while everyone sleeps."
+          "description": "Grandma's small dented tin of lamp oil, kept in the kitchen cupboard; the lantern's dry wick must drink from it slowly before it can ever burn."
         }
       ],
       "threads_opened": [
         {
-          "summary": "The lantern gathers only one drop of slow light per night (moonlight, rain-quiet, household hush); Mia has seen the first pinprick glow and must wait many nights for it to grow."
-        },
-        {
-          "summary": "Mom's plum jar must wait until summer before it becomes syrup — Mia is watching to see it finished."
+          "summary": "The lantern's wick is drinking its oil overnight — will it finally light in the morning?"
         }
       ],
       "threads_resolved": [
         {
-          "id": "0d9b4c2b-2410-47a1-b0ad-bae396d2083b",
-          "how": "Sori kept her promise and returned to Mia's rain-streaked windowsill, damp feathers and all, saying 'rain or no rain.'"
-        },
-        {
-          "id": "68b45605-3de2-41b5-b2c0-f92151fa3f2f",
-          "how": "Sori recognized the carved owl on the lantern door and explained the owl-made lantern's nature: it drinks slow things — moonlight and quiet — instead of fire."
+          "id": "4fe07014-1cb6-4edd-b7c7-4ab06afa5bdf",
+          "how": "Grandma reveals that her own mother scratched the words and made the lantern for her when she was a small girl afraid of the dark."
         }
       ]
     }
   },
-  "latency_ms": 74138,
+  "latency_ms": 70963,
   "usage": {
-    "input_tokens": 2332,
+    "input_tokens": 2414,
     "cache_creation_input_tokens": 0,
     "cache_read_input_tokens": 0,
     "cache_creation": {
       "ephemeral_5m_input_tokens": 0,
       "ephemeral_1h_input_tokens": 0
     },
-    "output_tokens": 4951,
+    "output_tokens": 4610,
     "output_tokens_details": {
-      "thinking_tokens": 851
+      "thinking_tokens": 814
     },
     "service_tier": "standard",
     "inference_geo": "global"
@@ -123,24 +116,24 @@
     "recent_chapters": [
       {
         "number": 1,
-        "title_en": "Mia and the Lantern That Would Not Light",
-        "summary": "On a rainy evening, Mia explores the attic and discovers an old brass lantern with an owl carved on its side, but no matter what she tries, it will not light. At bedtime she must face the dark without it, and a little owl named Sori teaches her that being scared and being brave can happen at the very same time. The lantern stays dark for now, leaving Mia curious about what might wake its light."
+        "title_en": "The Lantern That Wouldn't Light",
+        "summary": "On a rainy evening, Mia discovers an old brass lantern in her grandmother's attic, but no matter what she tries, it will not light. She must go to bed in the dark anyway, and with her grandmother's words and a small owl named Nubi at the window, she learns that being scared and being brave can live in the same heart."
       }
     ],
     "open_threads": [
       {
-        "id": "fb24eb64-d6a7-4e4c-b6a8-5e20676516ba",
-        "summary": "The old brass lantern still will not light; Sori suspects it is waiting for something other than a match.",
+        "id": "9fd689e0-98d2-4f6d-8f72-7b446d84e4f6",
+        "summary": "The brass lantern still will not light — Mia wants to discover how to wake it.",
         "opened_chapter": 1
       },
       {
-        "id": "0d9b4c2b-2410-47a1-b0ad-bae396d2083b",
-        "summary": "Sori promised to return to Mia's window tomorrow night, rain or no rain.",
+        "id": "4fe07014-1cb6-4edd-b7c7-4ab06afa5bdf",
+        "summary": "The engraved words on the lantern's base hint at who owned it before and why it was made.",
         "opened_chapter": 1
       },
       {
-        "id": "68b45605-3de2-41b5-b2c0-f92151fa3f2f",
-        "summary": "The owl carved on the lantern's door hints at a connection between the lantern and owls like Sori.",
+        "id": "399f2da9-0687-421c-981f-2b071452f337",
+        "summary": "Nubi the owl has begun visiting Mia's window; will she come back and where does she come from?",
         "opened_chapter": 1
       }
     ],
@@ -148,37 +141,37 @@
       {
         "name": "Mia",
         "role": "hero",
-        "traits": "curious, gentle, loves rain and owls and lanterns; learning that fear and courage can live together"
+        "traits": "Curious, tender-hearted, loves owls and rain; scared of the dark but willing to stay with the feeling."
       },
       {
-        "name": "Mom",
-        "role": "Mia's mother",
-        "traits": "warm, calm, reassuring; explores the attic with Mia and never shames her fear"
+        "name": "Grandma",
+        "role": "Mia's grandmother, keeper of the old house",
+        "traits": "Warm, unhurried, never dismisses a feeling; gives simple wise answers."
       },
       {
-        "name": "Sori",
-        "role": "small owl friend who visits Mia's window at night",
-        "traits": "round and fluffy, rain-damp feathers, wise and playful; unafraid of the dark but frightened of thunder"
+        "name": "Nubi",
+        "role": "small owl who appears at Mia's rainy window",
+        "traits": "Round, rain-speckled, amber-eyed, polite and quietly loyal."
       }
     ],
     "world": [
       {
-        "name": "The Attic",
+        "name": "Grandma's attic",
         "type": "place",
-        "description": "Dusty attic above Mia's house, smelling of old blankets and rainy air, filled with sleepy piles of boxes; where the brass lantern was found"
+        "description": "A dusty attic above Grandma's house, smelling of old blankets and rain, opened with a small silver key."
       },
       {
-        "name": "The Old Brass Lantern",
+        "name": "The brass lantern",
         "type": "object",
-        "description": "A round-bellied brass lantern with an owl carved into its little glass door; will not light no matter what Mia tries, but grows warm in her hands"
+        "description": "An old brass lantern with round glass and a hand-worn handle that refuses to light; tiny scratched words on its base read 'For the one who is scared and goes anyway.'"
       },
       {
-        "name": "Mia's Window",
-        "type": "place",
-        "description": "Mia's rain-streaked bedroom window with a wide sill where Sori perches to visit at night"
+        "name": "The silver key",
+        "type": "object",
+        "description": "Grandma's small silver key that opens the attic door."
       }
     ],
     "next_number": 2
   },
-  "canon_prompt": "Child: Mia, age band 5-6, primary language ko.\nInterests: owls, rain, lanterns.\nTonight's lesson/situation: some things take time, and waiting is its own kind of patience / A quiet evening at home after supper.\nRecent chapters (newest first):\n  1. Mia and the Lantern That Would Not Light — On a rainy evening, Mia explores the attic and discovers an old brass lantern with an owl carved on its side, but no matter what she tries, it will not light. At bedtime she must face the dark without it, and a little owl named Sori teaches her that being scared and being brave can happen at the very same time. The lantern stays dark for now, leaving Mia curious about what might wake its light.\nOpen threads (must consider advancing/resolving; use the id when resolving):\n  - [fb24eb64-d6a7-4e4c-b6a8-5e20676516ba] The old brass lantern still will not light; Sori suspects it is waiting for something other than a match. (opened ch. 1)\n  - [0d9b4c2b-2410-47a1-b0ad-bae396d2083b] Sori promised to return to Mia's window tomorrow night, rain or no rain. (opened ch. 1)\n  - [68b45605-3de2-41b5-b2c0-f92151fa3f2f] The owl carved on the lantern's door hints at a connection between the lantern and owls like Sori. (opened ch. 1)\nKnown characters:\n  Mia (hero) — curious, gentle, loves rain and owls and lanterns; learning that fear and courage can live together\n  Mom (Mia's mother) — warm, calm, reassuring; explores the attic with Mia and never shames her fear\n  Sori (small owl friend who visits Mia's window at night) — round and fluffy, rain-damp feathers, wise and playful; unafraid of the dark but frightened of thunder\nKnown places/objects:\n  The Attic (place) — Dusty attic above Mia's house, smelling of old blankets and rainy air, filled with sleepy piles of boxes; where the brass lantern was found\n  The Old Brass Lantern (object) — A round-bellied brass lantern with an owl carved into its little glass door; will not light no matter what Mia tries, but grows warm in her hands\n  Mia's Window (place) — Mia's rain-streaked bedroom window with a wide sill where Sori perches to visit at night\nThis is chapter number 2."
+  "canon_prompt": "Child: Mia, age band 5-6, primary language ko.\nInterests: owls, rain, lanterns.\nTonight's lesson/situation: some things take time, and waiting is its own kind of patience / A quiet evening at home after supper.\nRecent chapters (newest first):\n  1. The Lantern That Wouldn't Light — On a rainy evening, Mia discovers an old brass lantern in her grandmother's attic, but no matter what she tries, it will not light. She must go to bed in the dark anyway, and with her grandmother's words and a small owl named Nubi at the window, she learns that being scared and being brave can live in the same heart.\nOpen threads (must consider advancing/resolving; use the id when resolving):\n  - [9fd689e0-98d2-4f6d-8f72-7b446d84e4f6] The brass lantern still will not light — Mia wants to discover how to wake it. (opened ch. 1)\n  - [4fe07014-1cb6-4edd-b7c7-4ab06afa5bdf] The engraved words on the lantern's base hint at who owned it before and why it was made. (opened ch. 1)\n  - [399f2da9-0687-421c-981f-2b071452f337] Nubi the owl has begun visiting Mia's window; will she come back and where does she come from? (opened ch. 1)\nKnown characters:\n  Mia (hero) — Curious, tender-hearted, loves owls and rain; scared of the dark but willing to stay with the feeling.\n  Grandma (Mia's grandmother, keeper of the old house) — Warm, unhurried, never dismisses a feeling; gives simple wise answers.\n  Nubi (small owl who appears at Mia's rainy window) — Round, rain-speckled, amber-eyed, polite and quietly loyal.\nKnown places/objects:\n  Grandma's attic (place) — A dusty attic above Grandma's house, smelling of old blankets and rain, opened with a small silver key.\n  The brass lantern (object) — An old brass lantern with round glass and a hand-worn handle that refuses to light; tiny scratched words on its base read 'For the one who is scared and goes anyway.'\n  The silver key (object) — Grandma's small silver key that opens the attic door.\nThis is chapter number 2."
 }

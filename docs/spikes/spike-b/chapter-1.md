@@ -1,10 +1,10 @@
-# Chapter 1 — Mia and the Lantern That Would Not Light
-## 미아와 켜지지 않는 랜턴
+# Chapter 1 — The Lantern That Wouldn't Light
+## 켜지지 않는 등불
 
 *Lesson: it is okay to be scared of the dark, and brave is not the same as unafraid*
 
 **English summary (canonical, drives retrieval):**
-> On a rainy evening, Mia explores the attic and discovers an old brass lantern with an owl carved on its side, but no matter what she tries, it will not light. At bedtime she must face the dark without it, and a little owl named Sori teaches her that being scared and being brave can happen at the very same time. The lantern stays dark for now, leaving Mia curious about what might wake its light.
+> On a rainy evening, Mia discovers an old brass lantern in her grandmother's attic, but no matter what she tries, it will not light. She must go to bed in the dark anyway, and with her grandmother's words and a small owl named Nubi at the window, she learns that being scared and being brave can live in the same heart.
 
 ---
 
@@ -29,75 +29,127 @@ This is chapter number 1.
 
 ### Page 1
 
-**EN** — Rain tapped the roof all evening — tip, tap, tippity-tap. Mia pressed her nose to the window and listened. "Mia," called Mom, "the attic door is open. Would you like to help me look?" Mia loved two things best of all: rain, and places she had never been.
+**EN** — Rain tapped on the roof like tiny fingers. Tap-tap-tap.
+"Grandma, can I look in the attic?" asked Mia.
+Grandma smiled and handed her the little silver key. "Only until supper."
+The attic smelled like old blankets and rain.
 
-**KO** — 저녁 내내 비가 지붕을 톡톡 두드렸어요. 톡, 톡, 토도독. 미아는 창문에 코를 붙이고 그 소리를 들었지요. "미아야," 엄마가 불렀어요. "다락방 문이 열렸는데, 같이 볼래?" 미아가 제일 좋아하는 건 두 가지였어요. 비, 그리고 한 번도 가보지 않은 곳이요.
+**KO** — 빗방울이 지붕을 톡톡톡 두드렸어요.
+"할머니, 다락방에 올라가 봐도 돼요?"
+할머니는 빙그레 웃으며 작은 은색 열쇠를 건네주셨어요. "저녁 먹기 전까지만이야."
+다락방에서는 오래된 이불과 빗물 냄새가 났어요.
 
-<sub>scene: A cozy house at dusk, rain streaking the window; Mia with her nose against the glass, warm lamplight behind her, Mom at a doorway with attic stairs beyond.</sub>  
-<sub>wardrobe: Mustard-yellow raincoat still on over striped pyjamas, one rain boot on, one sock foot.</sub>
+<sub>scene: A cozy old house at dusk in the rain; Mia climbing a narrow wooden attic ladder holding a small silver key, warm hall light behind her, raindrops on a round window.</sub>  
+<sub>wardrobe: Mustard-yellow knit sweater, denim overalls, thick striped socks, no shoes.</sub>
 
 ### Page 2
 
-**EN** — The attic smelled like old blankets and rainy air. Boxes leaned in sleepy piles, and the rain drummed close above their heads. Then Mia saw something in the corner, quiet under the dust. A lantern. Brass, round-bellied, with an owl carved into its little door.
+**EN** — Behind a stack of hatboxes, something glinted.
+A lantern. Old brass, round glass, a handle worn smooth by somebody's hand.
+Mia lifted it carefully, the way you lift a sleeping cat.
+"Hello," she whispered. "I've been looking for you my whole life."
 
-**KO** — 다락방에서는 오래된 이불 냄새와 비 냄새가 났어요. 상자들이 졸린 듯 기대 있고, 머리 위로 빗소리가 아주 가까이 들렸어요. 그때 미아는 구석에서 무언가를 보았어요. 먼지 아래 조용히 놓인 랜턴이었지요. 배가 둥근 놋 랜턴, 작은 문에는 부엉이가 새겨져 있었어요.
+**KO** — 모자 상자 더미 뒤에서 무언가 반짝했어요.
+등불이었어요. 오래된 놋쇠에 동그란 유리, 누군가 오래 쥐어 반들반들해진 손잡이.
+미아는 잠든 고양이를 안듯이 조심조심 등불을 들어 올렸어요.
+"안녕." 미아가 속삭였어요. "나 너를 계속 찾고 있었나 봐."
 
-<sub>scene: Dusty attic interior, soft flashlight glow, boxes and old quilts; Mia kneeling before a round brass lantern with an owl engraved on its glass door.</sub>  
-<sub>wardrobe: Raincoat unbuttoned, sleeves pushed up, striped pyjamas underneath, both boots now off.</sub>
+<sub>scene: Dusty attic interior, golden dust motes, Mia kneeling and lifting an old brass lantern with round glass from behind hatboxes, awe on her face.</sub>  
+<sub>wardrobe: Same mustard sweater and denim overalls, dust on her knees, striped socks.</sub>
 
 ### Page 3
 
-**EN** — Mia rubbed the brass until it shone like honey. She turned the little knob — click, click. She whispered, "Please," and blew on it gently, the way you blow on cold hands. But the lantern stayed dark. "Some old things need time," said Mom. "And light is grown-up work. We'll figure it out together."
+**EN** — Mia tried everything.
+She turned the little key. Nothing.
+She polished the glass with her sleeve. Nothing.
+Grandma struck a match, and they held their breath together — and the flame bowed and went out.
+"It's tired, I think," said Grandma. "Older than me."
 
-**KO** — 미아는 놋을 꿀처럼 반짝일 때까지 문질렀어요. 작은 손잡이도 돌려 보았지요. 딸깍, 딸깍. "제발." 속삭이며 시린 손에 바람을 불듯 살살 불어도 보았어요. 하지만 랜턴은 그대로 어두웠어요. "오래된 물건은 시간이 필요할 때도 있어." 엄마가 말했어요. "불 켜는 건 어른이 하는 일이니까, 우리 같이 알아보자."
+**KO** — 미아는 할 수 있는 건 다 해 봤어요.
+작은 손잡이를 돌려 봤어요. 그대로.
+소매로 유리를 닦아 봤어요. 그대로.
+할머니가 성냥을 켜고 둘이 함께 숨을 참았는데 — 불꽃은 꾸벅 고개를 숙이더니 꺼져 버렸어요.
+"많이 지쳤나 보다." 할머니가 말했어요. "나보다도 나이가 많은걸."
 
-<sub>scene: Mia polishing the lantern with a cloth, Mom sitting beside her holding a torch; the lantern's glass stays dark and reflective.</sub>  
-<sub>wardrobe: Raincoat off and folded nearby; striped pyjamas with soft grey socks.</sub>
+<sub>scene: Kitchen table at night, rain on the window, Grandma holding a match near the lantern's open glass, Mia watching with hopeful wide eyes, the little flame flickering out.</sub>  
+<sub>wardrobe: Mia in the mustard sweater with sleeves pushed up; Grandma in a lavender cardigan and apron.</sub>
 
 ### Page 4
 
-**EN** — At bedtime the lantern sat on Mia's pillow, still and cold. Mom kissed her head and turned off the light. The room went soft and shadowy, and Mia's heart went quick. "Mom," she said in a small voice, "I'm a little scared of the dark." "That's alright," said Mom. "Lots of brave people are."
+**EN** — At bedtime, the rain grew louder and the hallway light clicked off.
+The dark came in soft and enormous.
+Mia held the cold lantern against her chest.
+"It didn't work," she said, and her voice went small and wobbly. "And I'm scared."
 
-**KO** — 잠잘 시간, 랜턴은 미아의 베개 옆에 조용하고 차갑게 놓여 있었어요. 엄마가 이마에 입을 맞추고 불을 껐어요. 방이 부드럽고 그늘지자, 미아의 심장이 콩콩 빨라졌어요. "엄마," 미아가 작은 목소리로 말했어요. "나 어둠이 조금 무서워." "괜찮아," 엄마가 말했어요. "용감한 사람들도 많이 무서워하거든."
+**KO** — 잘 시간이 되자 빗소리는 더 커지고, 복도 불이 딸깍 꺼졌어요.
+어둠이 조용히, 아주 커다랗게 방 안으로 들어왔어요.
+미아는 차가운 등불을 꼭 껴안았어요.
+"안 켜졌어요." 미아의 목소리가 작게 떨렸어요. "그리고… 무서워요."
 
-<sub>scene: Dim bedroom, rain on the window, Mia tucked in with the unlit brass lantern beside her pillow; Mom's silhouette in the doorway.</sub>  
-<sub>wardrobe: Owl-print pyjamas, hair tucked behind ears, blanket pulled to her chin.</sub>
+<sub>scene: Dark bedroom, only faint blue window light, Mia sitting up in bed hugging the unlit brass lantern, blanket pulled to her waist, rain streaking the glass.</sub>  
+<sub>wardrobe: Soft blue pyjamas with tiny cloud print, bare feet under the quilt.</sub>
 
 ### Page 5
 
-**EN** — Tap-tap. Something knocked at the window glass. On the sill sat a small round owl, rain shining on her feathers. "My name is Sori," she said. "I heard a heart going thump-thump, so I came." Mia sat up. "Aren't you scared of the dark, Sori?" "Not the dark," said Sori. "But thunder? Ooh. Thunder makes my feathers shake."
+**EN** — Grandma sat on the edge of the bed and did not say *don't be silly*.
+She said, "Being scared of the dark is allowed, Mia. Everybody's heart does that sometimes."
+"Then how do people be brave?"
+"Brave isn't when the scared goes away," said Grandma. "Brave is staying in your bed while it's still there."
 
-**KO** — 톡톡. 창문에서 무언가 두드리는 소리가 났어요. 창틀에는 동그란 작은 부엉이가 앉아 있었어요. 깃털에 빗방울이 반짝였지요. "내 이름은 소리야." 부엉이가 말했어요. "쿵쿵 뛰는 심장 소리가 들려서 왔어." 미아가 몸을 일으켰어요. "소리야, 너는 어둠이 안 무서워?" "어둠은 안 무서워." 소리가 말했어요. "그런데 천둥은… 으으. 천둥이 치면 내 깃털이 다 떨려."
+**KO** — 할머니는 침대 끝에 앉으셨어요. "뭐가 무섭다고 그래" 같은 말은 하지 않으셨어요.
+대신 이렇게 말했지요. "어두운 게 무서운 건 괜찮아, 미아야. 누구나 그럴 때가 있단다."
+"그럼 용감한 건 어떻게 하는 거예요?"
+"용감한 건 무서움이 없어지는 게 아니야." 할머니가 말했어요. "무서워도 이불 속에 그대로 있어 보는 것, 그게 용감한 거란다."
 
-<sub>scene: A small fluffy owl with damp feathers perched on the rainy windowsill, looking in at Mia who is sitting up in bed, eyes wide and delighted.</sub>  
-<sub>wardrobe: Owl-print pyjamas, blanket draped around her shoulders like a cape.</sub>
+<sub>scene: Grandma seated on the bed edge holding Mia's hand, warm intimate framing, the dark lantern resting on the quilt between them.</sub>  
+<sub>wardrobe: Mia in cloud-print pyjamas; Grandma in lavender cardigan over a nightgown.</sub>
 
 ### Page 6
 
-**EN** — "Then how are you brave?" Mia asked. Sori fluffed up. "Brave isn't 'not scared.' Brave is scared, and going anyway. I fly through the thunder with my feathers shaking the whole time." Mia thought about that. Then she took a breath, held the cold brass lantern in both hands, and looked right into the dark corner of her room.
+**EN** — When Grandma had gone, something moved at the window.
+A small round owl, feathers speckled with rain, blinked two amber eyes at Mia.
+"Hoo," it said, very politely.
+"Are you Nubi?" Mia whispered — because the name just arrived, the way names do.
+The owl fluffed up and settled on the sill, like someone deciding to stay.
 
-**KO** — "그럼 어떻게 용감해지는 거야?" 미아가 물었어요. 소리가 깃털을 부풀렸어요. "용감한 건 안 무서운 게 아니야. 무서운데도 가는 거야. 나는 깃털이 덜덜 떨리면서도 천둥 속을 날아가." 미아는 잠시 생각했어요. 그리고 숨을 한 번 들이쉬고, 차가운 놋 랜턴을 두 손으로 꼭 잡고, 방의 어두운 구석을 똑바로 바라보았어요.
+**KO** — 할머니가 나가시고 나서, 창가에서 무언가 움직였어요.
+빗방울이 송송 맺힌 작고 동그란 부엉이가 호박색 눈을 껌뻑였어요.
+"부-엉." 아주 예의 바르게 인사했지요.
+"너… 누비니?" 미아가 속삭였어요. 이름이 그냥 마음속에 툭 떠올랐거든요.
+부엉이는 깃털을 폭신하게 부풀리고 창틀에 자리를 잡았어요. 여기 있어 줄 거라는 듯이요.
 
-<sub>scene: Mia holding the unlit brass lantern with both hands, gazing bravely toward a shadowy corner of the room; Sori watching warmly from the window.</sub>  
-<sub>wardrobe: Owl-print pyjamas, blanket cape slipping off one shoulder.</sub>
+<sub>scene: Rainy window from inside a dark bedroom; a small speckled owl with big amber eyes perched on the outer sill, Mia peeking over her quilt, delighted rather than frightened.</sub>  
+<sub>wardrobe: Cloud-print pyjamas, quilt pulled up to her chin.</sub>
 
 ### Page 7
 
-**EN** — The corner was only a chair with a coat on it. Mia laughed a tiny laugh, and the quick feeling in her chest slowed down. The lantern still did not glow — but it had grown warm from her hands. "Warm is a start," said Sori. "Maybe it isn't waiting for a match. Maybe it's waiting for something else."
+**EN** — So Mia did a brave thing that nobody could see.
+She stayed. She put the lantern beside her pillow, still dark, still cold, and she counted raindrops with Nubi.
+One, two, three… the dark stopped feeling so big.
+It wasn't gone. It was just sitting there with her, like a large quiet dog.
 
-**KO** — 어두운 구석에는 그냥 의자와 그 위에 걸린 외투가 있을 뿐이었어요. 미아는 작게 웃었고, 콩콩거리던 가슴이 천천히 가라앉았어요. 랜턴은 아직 빛나지 않았지만, 미아의 손 덕분에 따뜻해져 있었어요. "따뜻해진 것도 시작이야." 소리가 말했어요. "이 랜턴은 성냥을 기다리는 게 아닐지도 몰라. 다른 무언가를 기다리는 걸지도."
+**KO** — 그래서 미아는 아무도 볼 수 없는 용감한 일을 했어요.
+그냥 그 자리에 있었어요. 아직 캄캄하고 차가운 등불을 베개 옆에 두고, 누비와 함께 빗방울을 세었지요.
+하나, 둘, 셋… 어둠이 조금씩 작아지는 것 같았어요.
+사라진 건 아니었어요. 그냥 커다랗고 조용한 강아지처럼 옆에 앉아 있는 것 같았어요.
 
-<sub>scene: Cozy bedroom, the 'scary' corner revealed as a chair with a coat; Mia smiling, cupping the warm brass lantern.</sub>  
-<sub>wardrobe: Owl-print pyjamas, hair a little rumpled from the pillow.</sub>
+<sub>scene: Wide cozy view of the dark bedroom, Mia lying on her side facing the window, unlit lantern beside her pillow, owl silhouette on the sill, silver rain outside.</sub>  
+<sub>wardrobe: Cloud-print pyjamas, quilt tucked around her shoulders.</sub>
 
 ### Page 8
 
-**EN** — Mia yawned. "Will you come back tomorrow night?" "Rain or no rain," said Sori, and tapped the glass twice, like a promise. Mia lay down with the dark lantern tucked beside her and listened to the rain say tip, tap, tippity-tap. She was still a little scared. She was also very, very brave. Both things fit, all the way to sleep.
+**EN** — Just before sleep, Mia rubbed her thumb over the lantern's bottom and felt tiny scratched letters there: *For the one who is scared and goes anyway.*
+"Tomorrow," she yawned, "we'll find out how to light you."
+Outside, Nubi tucked her head under one wing.
+And the rain sang on, all night long.
 
-**KO** — 미아가 하품을 했어요. "내일 밤에도 올 거야?" "비가 오든 안 오든." 소리가 말하며 창문을 두 번 톡톡 두드렸어요. 약속처럼요. 미아는 어두운 랜턴을 옆에 꼭 두고 누워, 비가 톡, 톡, 토도독 말하는 소리를 들었어요. 아직 조금 무서웠어요. 그리고 아주아주 용감했어요. 두 마음은 함께 있어도 괜찮았어요. 잠들 때까지 쭉이요.
+**KO** — 잠들기 직전, 미아는 등불 바닥을 엄지로 쓰다듬다가 조그맣게 새겨진 글씨를 만졌어요. *무서워도 나아가는 이에게.*
+"내일은…" 미아가 하품하며 중얼거렸어요. "너를 켜는 방법을 꼭 찾아낼 거야."
+창밖에서 누비는 날개 밑에 머리를 폭 묻었어요.
+그리고 빗소리는 밤새도록 노래를 불렀답니다.
 
-<sub>scene: Wide bedtime view: Mia asleep with the unlit brass lantern beside her pillow, Sori a small silhouette on the rainy windowsill, soft moonlight through raindrops.</sub>  
-<sub>wardrobe: Owl-print pyjamas, blanket neatly pulled up, one hand resting on the lantern.</sub>
+<sub>scene: Close-up of Mia's sleepy face and her hand on the brass lantern's base with faint engraved letters; the owl asleep on the sill behind her, soft rain.</sub>  
+<sub>wardrobe: Cloud-print pyjamas, hair spread on the pillow.</sub>
 
 ---
 
@@ -109,45 +161,45 @@ This is chapter number 1.
     {
       "name": "Mia",
       "role": "hero",
-      "traits": "curious, gentle, loves rain and owls and lanterns; learning that fear and courage can live together"
+      "traits": "Curious, tender-hearted, loves owls and rain; scared of the dark but willing to stay with the feeling."
     },
     {
-      "name": "Mom",
-      "role": "Mia's mother",
-      "traits": "warm, calm, reassuring; explores the attic with Mia and never shames her fear"
+      "name": "Grandma",
+      "role": "Mia's grandmother, keeper of the old house",
+      "traits": "Warm, unhurried, never dismisses a feeling; gives simple wise answers."
     },
     {
-      "name": "Sori",
-      "role": "small owl friend who visits Mia's window at night",
-      "traits": "round and fluffy, rain-damp feathers, wise and playful; unafraid of the dark but frightened of thunder"
+      "name": "Nubi",
+      "role": "small owl who appears at Mia's rainy window",
+      "traits": "Round, rain-speckled, amber-eyed, polite and quietly loyal."
     }
   ],
   "new_world": [
     {
-      "name": "The Attic",
+      "name": "Grandma's attic",
       "type": "place",
-      "description": "Dusty attic above Mia's house, smelling of old blankets and rainy air, filled with sleepy piles of boxes; where the brass lantern was found"
+      "description": "A dusty attic above Grandma's house, smelling of old blankets and rain, opened with a small silver key."
     },
     {
-      "name": "The Old Brass Lantern",
+      "name": "The brass lantern",
       "type": "object",
-      "description": "A round-bellied brass lantern with an owl carved into its little glass door; will not light no matter what Mia tries, but grows warm in her hands"
+      "description": "An old brass lantern with round glass and a hand-worn handle that refuses to light; tiny scratched words on its base read 'For the one who is scared and goes anyway.'"
     },
     {
-      "name": "Mia's Window",
-      "type": "place",
-      "description": "Mia's rain-streaked bedroom window with a wide sill where Sori perches to visit at night"
+      "name": "The silver key",
+      "type": "object",
+      "description": "Grandma's small silver key that opens the attic door."
     }
   ],
   "threads_opened": [
     {
-      "summary": "The old brass lantern still will not light; Sori suspects it is waiting for something other than a match."
+      "summary": "The brass lantern still will not light — Mia wants to discover how to wake it."
     },
     {
-      "summary": "Sori promised to return to Mia's window tomorrow night, rain or no rain."
+      "summary": "The engraved words on the lantern's base hint at who owned it before and why it was made."
     },
     {
-      "summary": "The owl carved on the lantern's door hints at a connection between the lantern and owls like Sori."
+      "summary": "Nubi the owl has begun visiting Mia's window; will she come back and where does she come from?"
     }
   ],
   "threads_resolved": []
