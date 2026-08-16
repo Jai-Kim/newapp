@@ -6,7 +6,14 @@ My assessment is that the pass bar is met; the formal tick is Jai's call —
 checkpoint, so the gate box in `docs/WEEK-1-SPIKES.md` is left unticked here.
 
 **Grids:** [`nano-banana/grid.png`](nano-banana/grid.png) ·
-[`nano-banana-pro/grid.png`](nano-banana-pro/grid.png)
+[`nano-banana-pro/grid.png`](nano-banana-pro/grid.png) ·
+[`korean/grid.png`](korean/grid.png)
+
+> **A Korean child renders just as consistently** — same cost, same latency, fine
+> identity detail (a mole under the left eye) retained across all three scenes,
+> no anime drift. Since ADR-0001's intended first user is Korean-American, that
+> result mattered and did not transfer for free. See [`korean/`](korean/) — it
+> also surfaced a real defect: the model can bake title text into artwork.
 
 | | Nano Banana | Nano Banana Pro |
 |---|---|---|
