@@ -61,8 +61,8 @@ export function LoginForm({ onSubmit = () => {} }: LoginFormProps) {
           </Text>
 
           <Text className="mb-6 max-w-xs text-center text-gray-500">
-            Welcome! 👋 This is a demo login screen! Feel free to use any email
-            and password to sign in and try it out.
+            Sign in to read tonight's chapter. Your child's stories are private
+            to your account.
           </Text>
         </View>
 

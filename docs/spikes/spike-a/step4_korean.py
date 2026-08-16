@@ -85,6 +85,9 @@ scene. Dress her in the WARDROBE given below.
 Do NOT restyle her toward anime, manga, or a generic cartoon face. She is a
 specific Korean child and must stay recognisably herself.
 
+NO LETTERING. Do not draw any words, titles, captions or signage anywhere in the
+image. Illustration only.
+
 {YUNA}
 
 {KKACHI}

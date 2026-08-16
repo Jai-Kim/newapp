@@ -160,26 +160,44 @@ export type LessonTaught = {
   created_at: string;
 };
 
+/**
+ * postgrest-js requires every table entry to carry Insert/Update/Relationships,
+ * and silently degrades the whole schema to `any` if one is missing — which
+ * shows up much later as an RPC argument typed `never`.
+ */
+type Tbl<Row> = {
+  Row: Row;
+  Insert: Partial<Row>;
+  Update: Partial<Row>;
+  Relationships: [];
+};
+
 /** Shape consumed by `createClient<Database>` for typed queries. */
 export type Database = {
   public: {
     Tables: {
-      families: { Row: Family; Insert: Partial<Family>; Update: Partial<Family> };
-      children: { Row: Child; Insert: Partial<Child>; Update: Partial<Child> };
-      characters: { Row: Character; Insert: Partial<Character>; Update: Partial<Character> };
-      world: { Row: WorldItem; Insert: Partial<WorldItem>; Update: Partial<WorldItem> };
-      threads: { Row: Thread; Insert: Partial<Thread>; Update: Partial<Thread> };
-      chapters: { Row: Chapter; Insert: Partial<Chapter>; Update: Partial<Chapter> };
-      lessons_taught: {
-        Row: LessonTaught;
-        Insert: Partial<LessonTaught>;
-        Update: Partial<LessonTaught>;
-      };
+      families: Tbl<Family>;
+      children: Tbl<Child>;
+      characters: Tbl<Character>;
+      world: Tbl<WorldItem>;
+      threads: Tbl<Thread>;
+      chapters: Tbl<Chapter>;
+      lessons_taught: Tbl<LessonTaught>;
     };
     Views: {
       /** Gate-enforcing view — see ChildReadableChapter. */
-      child_readable_chapters: { Row: ChildReadableChapter };
+      child_readable_chapters: { Row: ChildReadableChapter; Relationships: [] };
     };
-    Functions: Record<string, never>;
+    Functions: {
+      /** Parent-gate write path; refuses to approve a filter-blocked chapter. */
+      approve_chapter: {
+        Args: { p_chapter_id: string; p_approved: boolean };
+        Returns: Chapter;
+      };
+      /** DEV ONLY: adopts spike-seeded families into the calling account. */
+      claim_orphan_families: { Args: Record<string, never>; Returns: number };
+    };
+    Enums: Record<string, never>;
+    CompositeTypes: Record<string, never>;
   };
 };

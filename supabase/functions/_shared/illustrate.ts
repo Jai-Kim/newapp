@@ -46,6 +46,10 @@ WARDROBE for this page: ${wardrobe}
 
 SCENE: ${scene}
 
+NO LETTERING. Do not draw any words, titles, captions, signage or handwriting
+anywhere in the image. The page already carries its own text in two languages,
+and burned-in words cannot be translated or edited. Illustration only.
+
 Art style, identical on every page: ${HOUSE_STYLE}`;
 }
 

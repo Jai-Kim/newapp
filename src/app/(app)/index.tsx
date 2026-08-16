@@ -1,1 +1,1 @@
-export { FeedScreen as default } from '@/features/feed/feed-screen';
+export { ReaderScreen as default } from '@/features/reader/reader-screen';
