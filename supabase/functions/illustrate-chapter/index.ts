@@ -20,7 +20,7 @@ import { reviewIllustration, type IllustrationVerdict } from "../_shared/safety.
 
 interface Req {
   chapter_id: string;
-  /** How many pages get full art. Spike C's recommended shape is 3. */
+  /** Upper bound on illustrated pages. ADR-0002 settles on ~4. */
   illustrations?: number;
   /** Return image bytes in the response (spike harness). Off by default. */
   return_images?: boolean;
@@ -32,6 +32,7 @@ interface Page {
   ko: string;
   scene: string;
   wardrobe: string;
+  illustrated?: boolean;
   image_path?: string;
 }
 
@@ -76,7 +77,7 @@ Deno.serve(async (req: Request) => {
   }
 
   try {
-    const { chapter_id, illustrations = 3, return_images = false } =
+    const { chapter_id, illustrations = 4, return_images = false } =
       (await req.json()) as Req;
     if (!chapter_id) {
       return jsonResponse({ ok: false, error: "chapter_id required" }, { status: 400 });
@@ -115,7 +116,14 @@ Deno.serve(async (req: Request) => {
       .from("children").select("age_band").eq("id", chapter.child_id).single();
     const ageBand = (childRow?.age_band as string) ?? "5-6";
     const pages = chapter.pages as Page[];
-    const targets = choosePages(pages.length, illustrations);
+
+    // The storyteller marks the emotional beats (ADR-0002); it knows where the
+    // feeling turns and an even spread does not. choosePages is only a fallback
+    // for chapters written before the flag existed.
+    const marked = pages.filter((p) => p.illustrated).map((p) => p.page);
+    const targets = marked.length > 0
+      ? marked.slice(0, illustrations)
+      : choosePages(pages.length, illustrations);
 
     // Pages are independent, so illustrate them concurrently — this is the
     // difference between ~9s and ~27s for three pages.

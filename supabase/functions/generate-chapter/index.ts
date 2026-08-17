@@ -30,6 +30,8 @@ interface ChapterPage {
   ko: string;
   scene: string;
   wardrobe: string;
+  /** True on ~4 pages: the emotional beats that carry a full illustration. */
+  illustrated: boolean;
 }
 
 interface ChapterDelta {
@@ -75,6 +77,14 @@ For each page also give the illustrator a \`scene\` description and a \`wardrobe
 note. Wardrobe is separate from the character's locked identity (face, hair,
 glasses, skin) — identity never changes, but clothing (pyjamas, swimsuit,
 raincoat) can and should change to fit the scene.
+
+Mark EXACTLY 4 pages with \`illustrated: true\` and the rest false. Those four are
+the emotional beats — the moments a reader would most want to see: where the
+feeling turns, where something is discovered, where the comfort lands. Page 1
+should almost always be one of them, because it is the picture a parent sees in
+the library. Do not simply pick every other page; choose by what the story does.
+Every page still gets a \`scene\` description, because an unillustrated page may
+be illustrated later.
 
 Return ONLY a JSON object matching the required schema. No prose outside it.`;
 
@@ -189,13 +199,17 @@ const OUTPUT_SCHEMA = {
       items: {
         type: "object",
         additionalProperties: false,
-        required: ["page", "en", "ko", "scene", "wardrobe"],
+        required: ["page", "en", "ko", "scene", "wardrobe", "illustrated"],
         properties: {
           page: { type: "integer" },
           en: { type: "string" },
           ko: { type: "string" },
           scene: { type: "string" },
           wardrobe: { type: "string" },
+          illustrated: {
+            type: "boolean",
+            description: "True on exactly 4 pages — the emotional beats",
+          },
         },
       },
     },

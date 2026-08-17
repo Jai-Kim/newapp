@@ -97,6 +97,12 @@ export type ChapterPage = {
    * child in pyjamas or a swimsuit without the face drifting (ADR-0001 §5).
    */
   wardrobe: string;
+  /**
+   * Marked by the storyteller on ~4 pages — the emotional beats that carry a
+   * full illustration. Not every page gets art: illustrations are ~70% of
+   * marginal cost, and one-per-page loses money at any price (ADR-0002).
+   */
+  illustrated?: boolean;
   /** Filled in once the page has been illustrated. */
   image_path?: string;
 };

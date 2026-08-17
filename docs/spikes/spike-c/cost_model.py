@@ -22,9 +22,14 @@ IMAGE_COST_PRO = 0.1350         # gemini-3-pro-image, for the keepsake tier
 TEXT_SAFETY_COST = 0.02
 IMAGE_SAFETY_COST = 0.01
 
-# --- product shape ---------------------------------------------------------
-PAGES_DEFAULT = 8               # what Spike B actually generated
+# --- product shape (ADR-0002) ----------------------------------------------
+PAGES_DEFAULT = 6               # 5-8 short bilingual text pages
+IMAGES_DEFAULT = 4              # ~4 of them carry art: the emotional beats
 NIGHTS_PER_MONTH = 30           # the pitch is nightly
+
+# Phase-2 open-weights target. NOT measured — REPLICATE_API_TOKEN is unset, so
+# the path-2 spike has not run. Shown only to size the prize.
+IMAGE_COST_OPENWEIGHTS_TARGET = 0.013
 
 # --- distribution ----------------------------------------------------------
 # Apple/Google take 15% under their small-business programmes (<$1M/yr), 30%
@@ -109,9 +114,36 @@ if __name__ == "__main__":
     table("Break-even chapters per month", rows,
           ["Price/mo", "Store cut", "8pg/8img", "6pg/3img"])
 
-    # 4. Recommended shape at recommended price.
+    # 4. Price x cap sweep at the ADR-0002 shape, so the recommendation is
+    #    chosen from data rather than asserted.
+    rows = []
+    for price in (12.99, 14.99):
+        for cap in (12, 16, 20):
+            for cut, cutname in ((STORE_CUT_SMALL, "15%"), (STORE_CUT_STANDARD, "30%")):
+                net, cost, gross, pct = margin(
+                    price, cap, cut, pages=PAGES_DEFAULT, images=IMAGES_DEFAULT)
+                rows.append((f"${price}", cap, cutname, f"${cost:.2f}",
+                             f"${gross:.2f}", f"{pct*100:.0f}%"))
+    table("ADR-0002 shape (6 pages / 4 images): price x cap, worst case", rows,
+          ["Price/mo", "Cap", "Store cut", "Cost", "Gross", "Margin"])
+
+    # 5. What the open-weights path would buy, if it lands at the target.
+    rows = []
+    for images in (4,):
+        now = chapter_cost(PAGES_DEFAULT, images)
+        then = chapter_cost(PAGES_DEFAULT, images, image_cost=IMAGE_COST_OPENWEIGHTS_TARGET)
+        for cap in (20, 30):
+            for label, c in (("Nano Banana", now), ("open weights (target)", then)):
+                net = 12.99 * (1 - STORE_CUT_STANDARD)
+                gross = net - c * cap
+                rows.append((label, cap, f"${c:.3f}", f"${gross:.2f}",
+                             f"{gross/net*100:.0f}%"))
+    table("Open-weights prize at $12.99, 30% store cut (UNMEASURED target)", rows,
+          ["Image path", "Cap", "$/chapter", "Gross", "Margin"])
+
+    # 6. Recommended shape at recommended price.
     print("\n### Recommended configuration\n")
-    PRICE, INCLUDED, PAGES, IMAGES = 12.99, 20, 6, 3
+    PRICE, INCLUDED, PAGES, IMAGES = 14.99, 20, PAGES_DEFAULT, IMAGES_DEFAULT
     for cut, cutname in ((STORE_CUT_SMALL, "15%"), (STORE_CUT_STANDARD, "30%")):
         net, cost, gross, pct = margin(PRICE, INCLUDED, cut, pages=PAGES, images=IMAGES)
         print(f"- ${PRICE}/mo, {INCLUDED} chapters included, {PAGES} pages / "
@@ -123,13 +155,13 @@ if __name__ == "__main__":
         print(f"- Same plan at a TYPICAL {typical} chapters/mo: cost ${cost:.2f}, "
               f"**gross ${gross:.2f} ({pct*100:.0f}%)**")
 
-    # 5. Free tier.
+    # 7. Free tier.
     print("\n### Free tier\n")
     for n in (1, 2, 3, 5):
         print(f"- {n} chapter(s): ${chapter_cost(PAGES, IMAGES)*n:.2f} "
               f"acquisition cost per signup")
 
-    # 6. Keepsake print upgrade.
+    # 8. Keepsake print upgrade.
     print("\n### Keepsake re-render (Nano Banana Pro)\n")
     for chapters in (10, 20, 30):
         c = chapters * IMAGES * IMAGE_COST_PRO
