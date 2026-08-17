@@ -155,6 +155,31 @@ if __name__ == "__main__":
         print(f"- Same plan at a TYPICAL {typical} chapters/mo: cost ${cost:.2f}, "
               f"**gross ${gross:.2f} ({pct*100:.0f}%)**")
 
+    # 6b. ADR-0003 packaging: books, not a feed.
+    print("\n### ADR-0003 — subscription economics (books, not a feed)\n")
+    SUB, INTRO_MONTHS = 1.99, 3
+    for allowance in (8, 10):
+        for cut, cutname in ((STORE_CUT_SMALL, "15%"), (STORE_CUT_STANDARD, "30%")):
+            net = SUB * (1 - cut)
+            cost = allowance * chapter_cost(PAGES_DEFAULT, IMAGES_DEFAULT)
+            print(f"- {allowance} chapters/mo @ ${SUB}, {cutname} cut: "
+                  f"net ${net:.2f} vs COGS ${cost:.2f} → **${net - cost:+.2f}/mo**")
+    print()
+    for allowance in (10,):
+        cost_ow = allowance * chapter_cost(
+            PAGES_DEFAULT, IMAGES_DEFAULT, image_cost=IMAGE_COST_OPENWEIGHTS_TARGET)
+        net = SUB * (1 - STORE_CUT_STANDARD)
+        print(f"- Same at the open-weights TARGET: COGS ${cost_ow:.2f} → "
+              f"**${net - cost_ow:+.2f}/mo** (unmeasured)")
+    intro_net = SUB * (1 - STORE_CUT_STANDARD)
+    intro_cost = INTRO_MONTHS * 10 * chapter_cost(PAGES_DEFAULT, IMAGES_DEFAULT)
+    print(f"- Intro (${SUB} for {INTRO_MONTHS} months, 10 ch/mo, 30% cut): "
+          f"net ${intro_net:.2f} vs COGS ${intro_cost:.2f} → "
+          f"**${intro_net - intro_cost:+.2f}** across the intro")
+    print("\nA finished Volume is ~10 chapters, so one book ≈ one month's allowance.")
+    print("Physical goods are exempt from Play/App Store billing, so a hardcover")
+    print("sold outside IAP keeps its full margin — that is what has to carry this.")
+
     # 7. Free tier.
     print("\n### Free tier\n")
     for n in (1, 2, 3, 5):
