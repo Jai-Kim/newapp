@@ -83,6 +83,109 @@ const SCHEMA = {
 
 const MODEL = "claude-opus-5";
 
+// ---------------------------------------------------------------------------
+// Illustration review
+// ---------------------------------------------------------------------------
+
+export interface IllustrationVerdict {
+  page: number;
+  verdict: "safe" | "blocked";
+  issue: string | null;
+  latency_ms: number;
+}
+
+const IMAGE_SYSTEM = `You are a child-safety reviewer for a bedtime story app.
+You are shown ONE illustration from a picture book for a young child, together
+with the scene it was drawn for.
+
+Block the image only for concrete problems:
+  - frightening or menacing imagery — looming figures, threatening expressions,
+    darkness used as threat, anything that would unsettle a child at bedtime
+  - depictions of injury, blood, or a person in distress without comfort present
+  - unsafe acts shown appealingly and without an adult (fire, deep water, heights,
+    medicine, sharp tools)
+  - anything sexual, cruel, or demeaning
+  - a child drawn in a way that is not age-appropriate
+
+Do NOT block for:
+  - gentle sadness, worry, or tears — the app exists to help children through
+    hard feelings, and a crying child comforted by a parent is the product working
+  - night scenes, rain, shadow or dim light used atmospherically
+  - a doctor's office, a hospital, a funeral, an empty chair
+  - mild untidiness or imperfect drawing
+
+Judge the picture as a five-year-old would see it at bedtime. Return ONLY JSON.`;
+
+const IMAGE_SCHEMA = {
+  type: "object",
+  additionalProperties: false,
+  required: ["verdict", "issue"],
+  properties: {
+    verdict: { type: "string", enum: ["safe", "blocked"] },
+    issue: {
+      type: ["string", "null"],
+      description: "Why it was blocked, or null when safe",
+    },
+  },
+} as const;
+
+/**
+ * Reviews one generated illustration.
+ *
+ * The text filter cannot do this job: a page can read as gentle and still be
+ * given a frightening picture, because the image model never saw the safety
+ * rules. This runs BEFORE the image is stored, so a blocked illustration is
+ * never written to the bucket at all.
+ */
+export async function reviewIllustration(
+  apiKey: string,
+  ageBand: string,
+  page: number,
+  scene: string,
+  imageBase64: string,
+  mediaType = "image/png",
+): Promise<IllustrationVerdict> {
+  const anthropic = new Anthropic({ apiKey });
+  const started = Date.now();
+
+  const response = await anthropic.messages.create({
+    model: MODEL,
+    max_tokens: 1000,
+    system: IMAGE_SYSTEM,
+    output_config: { format: { type: "json_schema", schema: IMAGE_SCHEMA } },
+    messages: [{
+      role: "user",
+      content: [
+        {
+          type: "image",
+          source: { type: "base64", media_type: mediaType, data: imageBase64 },
+        },
+        { type: "text", text: `Age band: ${ageBand}\nIntended scene: ${scene}` },
+      ],
+    }],
+  });
+
+  const latency_ms = Date.now() - started;
+
+  // A reviewer refusal is itself a signal: fail closed.
+  if (response.stop_reason === "refusal") {
+    return {
+      page,
+      verdict: "blocked",
+      issue: "safety reviewer declined to assess this illustration",
+      latency_ms,
+    };
+  }
+
+  const text = response.content.find((b) => b.type === "text");
+  if (!text || text.type !== "text") {
+    throw new Error("illustration reviewer returned no text block");
+  }
+
+  const parsed = JSON.parse(text.text) as { verdict: "safe" | "blocked"; issue: string | null };
+  return { page, verdict: parsed.verdict, issue: parsed.issue, latency_ms };
+}
+
 export async function reviewChapter(
   apiKey: string,
   ageBand: string,

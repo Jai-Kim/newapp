@@ -5,8 +5,12 @@ is that the chapter Spike B actually generates — 8 pages, 8 illustrations —
 **loses money at every believable consumer price** if the family reads nightly.
 
 Recommendation: **$12.99/mo, 20 chapters included, 6 pages / 3 illustrations,
-3 chapters free.** That yields 44–54% gross margin worst-case and ~72% at typical
+3 chapters free.** That yields 33–45% gross margin worst-case and ~67% at typical
 usage.
+
+Figures include Spike D's safety passes ($0.02/chapter for text, $0.01 per
+illustration). Those run on everything and are not optional, so they belong in
+COGS rather than in a footnote.
 
 All figures computed by [`cost_model.py`](cost_model.py) from measured Spike A/B
 numbers — no estimates. Re-run it after changing any assumption.
@@ -16,26 +20,28 @@ numbers — no estimates. Re-run it after changing any assumption.
 | Input | Value | Source |
 |---|---|---|
 | Story text, 8 pages EN+KO | $0.136, 71s | Spike B, `claude-opus-5` |
+| Text safety pass | $0.02, ~8s | Spike D |
 | Illustration | $0.0391, 8.8s | Spike A, `gemini-2.5-flash-image` |
+| Illustration safety pass | $0.01, ~4s | Spike D |
 | Illustration (Pro) | $0.1350, 28.4s | Spike A, `gemini-3-pro-image` |
 
 ## The problem: nightly × 8 images doesn't work
 
-At $0.449/chapter, a nightly reader costs **$13.46/month** in COGS. Against
+At $0.549/chapter, a nightly reader costs **$16.46/month** in COGS. Against
 app-store fees (15% under Apple/Google small-business programmes, 30% above
 $1M/yr):
 
 | Price/mo | Store cut | Net | Cost | Gross | Margin |
 |---|---|---|---|---|---|
-| $9.99 | 15% | $8.49 | $13.46 | **-$4.97** | -59% |
-| $12.99 | 15% | $11.04 | $13.46 | **-$2.42** | -22% |
-| $14.99 | 15% | $12.74 | $13.46 | **-$0.72** | -6% |
-| $19.99 | 15% | $16.99 | $13.46 | $3.53 | 21% |
-| $19.99 | 30% | $13.99 | $13.46 | $0.53 | 4% |
+| $9.99 | 15% | $8.49 | $16.46 | **-$7.97** | -94% |
+| $12.99 | 15% | $11.04 | $16.46 | **-$5.42** | -49% |
+| $14.99 | 15% | $12.74 | $16.46 | **-$3.72** | -29% |
+| $19.99 | 15% | $16.99 | $16.46 | $0.53 | 3% |
+| $19.99 | 30% | $13.99 | $16.46 | **-$2.47** | -18% |
 
-Only $19.99 clears, and only barely — a price that is a hard sell for a bedtime
-app, and one that still collapses to 4% once you graduate off the small-business
-programme. **The store cut is the part that's easy to forget and it is decisive:**
+**Nothing clears.** Even $19.99 returns 3% at the friendly store cut and goes
+negative at the standard one — and $19.99 is already a hard sell for a bedtime
+app from an unknown studio. **The store cut is the part that's easy to forget and it is decisive:**
 it removes 15–30% of revenue before a single token is spent.
 
 ## The fix: fewer images, and a cap
@@ -46,10 +52,10 @@ mix full spreads with spot art.
 
 | Shape | $/chapter | $/mo nightly |
 |---|---|---|
-| 8 pages, 8 images (Spike B as-is) | $0.449 | $13.46 |
-| 6 pages, 6 images | $0.371 | $11.12 |
-| 8 pages, 4 spot illustrations | $0.292 | $8.77 |
-| **6 pages, 3 spot illustrations** | **$0.253** | $7.60 |
+| 8 pages, 8 images (Spike B as-is) | $0.549 | $16.46 |
+| 6 pages, 6 images | $0.451 | $13.52 |
+| 8 pages, 4 spot illustrations | $0.352 | $10.57 |
+| **6 pages, 3 spot illustrations** | **$0.303** | $9.10 |
 
 Combined with a **20-chapter monthly allowance** (generous against real
 behaviour — very few families read a *new* story 30 nights running, and re-reads
@@ -57,9 +63,9 @@ are free):
 
 | Scenario | Cost | Gross @15% | Margin |
 |---|---|---|---|
-| Worst case (all 20 used) | $5.07 | **$5.98** | **54%** |
-| Worst case, 30% store cut | $5.07 | $4.03 | 44% |
-| Typical (12/mo) | $3.04 | **$8.00** | **72%** |
+| Worst case (all 20 used) | $6.07 | **$4.98** | **45%** |
+| Worst case, 30% store cut | $6.07 | $3.03 | 33% |
+| Typical (12/mo) | $3.64 | **$7.40** | **67%** |
 
 That is a healthy consumer-subscription margin with room for infrastructure,
 support and the inevitable retries.
@@ -76,7 +82,7 @@ moment is the product, and it first happens at the start of chapter 2.
 - **3 chapters** — shows it holding, and that threads carry *and resolve*.
 - 5+ — no extra persuasion, 67% more acquisition cost.
 
-At the recommended shape, 3 free chapters cost **$0.76 per signup**. That is
+At the recommended shape, 3 free chapters cost **$0.91 per signup**. That is
 cheap against any plausible CAC, and it is spent on the one thing that actually
 converts.
 
@@ -131,7 +137,7 @@ unset — and it is the single highest-leverage cost work remaining.
 > Healthy gross margin at a believable consumer price, with a free-tier limit that
 > still lets a family fall in love before paying.
 
-Met — 54% worst case, 72% typical, at $12.99 with 3 free chapters that
+Met — 45% worst case, 67% typical, at $12.99 with 3 free chapters that
 demonstrate the memory. **But not at the shape Spike B currently generates**, so
 this is a pass conditional on moving to 6 pages / 3 illustrations. That is a
 product decision, not a technical one, and it belongs to Jai.
@@ -142,7 +148,9 @@ product decision, not a technical one, and it belongs to Jai.
   probably 8–15. If usage data later shows that, the cap can rise or the price
   can fall.
 - **No retry cost modelled.** Safety-filter rejections and validation failures
-  will add some regeneration; Spike D will show the rate.
+  will add some regeneration. Spike D saw zero blocks across three sensitive
+  chapters and nine illustrations, so the rate looks low — but that is a small
+  sample of benign material.
 - **Text at Opus 5 pricing.** A cheaper model for some chapters is untested —
   but text is only ~30% of COGS at the current shape and less after the image
   reduction, so the upside is limited.

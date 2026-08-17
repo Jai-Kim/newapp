@@ -17,6 +17,11 @@ IMAGE_COST = 0.0391             # gemini-2.5-flash-image, per image
 IMAGE_SECONDS = 8.8
 IMAGE_COST_PRO = 0.1350         # gemini-3-pro-image, for the keepsake tier
 
+# Spike D: an independent safety pass over the text, plus a vision pass per
+# illustration. Never sampled — it runs on everything.
+TEXT_SAFETY_COST = 0.02
+IMAGE_SAFETY_COST = 0.01
+
 # --- product shape ---------------------------------------------------------
 PAGES_DEFAULT = 8               # what Spike B actually generated
 NIGHTS_PER_MONTH = 30           # the pitch is nightly
@@ -32,7 +37,11 @@ def chapter_cost(pages=PAGES_DEFAULT, images=None, image_cost=IMAGE_COST,
                  text_cost=TEXT_COST_PER_CHAPTER):
     """Cost of one chapter. `images` defaults to one per page."""
     images = pages if images is None else images
-    return text_cost + images * image_cost
+    return (
+        text_cost
+        + TEXT_SAFETY_COST
+        + images * (image_cost + IMAGE_SAFETY_COST)
+    )
 
 
 def chapter_seconds(pages=PAGES_DEFAULT, images=None, parallel=True):

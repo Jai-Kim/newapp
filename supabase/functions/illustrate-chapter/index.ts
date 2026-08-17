@@ -16,6 +16,7 @@ import { createClient, type SupabaseClient } from "jsr:@supabase/supabase-js@2";
 
 import { handlePreflight, jsonResponse } from "../_shared/cors.ts";
 import { choosePages, illustratePage } from "../_shared/illustrate.ts";
+import { reviewIllustration, type IllustrationVerdict } from "../_shared/safety.ts";
 
 interface Req {
   chapter_id: string;
@@ -93,7 +94,7 @@ Deno.serve(async (req: Request) => {
 
     const { data: chapter, error: chErr } = await supabase
       .from("chapters")
-      .select("id,child_id,number,pages,review_status,safety")
+      .select("id,child_id,number,pages,review_status,safety,lesson")
       .eq("id", chapter_id)
       .single();
     if (chErr || !chapter) {
@@ -109,6 +110,10 @@ Deno.serve(async (req: Request) => {
     }
 
     const identity = await loadIdentity(supabase, chapter.child_id as string);
+
+    const { data: childRow } = await supabase
+      .from("children").select("age_band").eq("id", chapter.child_id).single();
+    const ageBand = (childRow?.age_band as string) ?? "5-6";
     const pages = chapter.pages as Page[];
     const targets = choosePages(pages.length, illustrations);
 
@@ -123,8 +128,15 @@ Deno.serve(async (req: Request) => {
       }),
     );
 
-    const results: { page: number; image_path?: string; latency_ms?: number; error?: string }[] = [];
+    const results: {
+      page: number;
+      image_path?: string;
+      latency_ms?: number;
+      error?: string;
+      blocked?: string;
+    }[] = [];
     const images: { page: number; image_base64: string }[] = [];
+    const imageSafety: IllustrationVerdict[] = [];
 
     for (const [i, outcome] of settled.entries()) {
       const pageNo = targets[i];
@@ -133,6 +145,27 @@ Deno.serve(async (req: Request) => {
         continue;
       }
       const r = outcome.value;
+
+      // Review BEFORE storing. The image model never saw the safety rules, so a
+      // gentle page can still be given a frightening picture — and a blocked
+      // illustration should never reach the bucket at all.
+      const page = pages.find((p) => p.page === pageNo);
+      const verdict = await reviewIllustration(
+        Deno.env.get("ANTHROPIC_API_KEY")!,
+        ageBand,
+        pageNo,
+        page?.scene ?? "",
+        r.image_base64,
+        r.mime_type,
+      );
+      imageSafety.push(verdict);
+
+      if (verdict.verdict === "blocked") {
+        // Degrade to a text-only page rather than failing the chapter.
+        results.push({ page: pageNo, blocked: verdict.issue ?? "blocked by image review" });
+        continue;
+      }
+
       const bytes = Uint8Array.from(atob(r.image_base64), (c) => c.charCodeAt(0));
       const objectPath = `${chapter.child_id}/ch${chapter.number}/p${pageNo}.png`;
 
@@ -145,9 +178,8 @@ Deno.serve(async (req: Request) => {
       }
 
       const stored = `illustrations/${objectPath}`;
-      const target = pages.find((p) => p.page === pageNo);
-      if (target) {
-        target.image_path = stored;
+      if (page) {
+        page.image_path = stored;
       }
       results.push({ page: pageNo, image_path: stored, latency_ms: r.latency_ms });
       if (return_images) {
@@ -155,20 +187,28 @@ Deno.serve(async (req: Request) => {
       }
     }
 
-    // Write image_path back onto the pages so the reader knows what's ready.
+    // Write image_path back onto the pages, and record the image verdicts
+    // alongside the text ones so a parent sees both in one place.
+    const mergedSafety = {
+      ...(chapter.safety as Record<string, unknown> ?? {}),
+      illustrations: imageSafety,
+    };
     const { error: saveErr } = await supabase
-      .from("chapters").update({ pages }).eq("id", chapter_id);
+      .from("chapters").update({ pages, safety: mergedSafety }).eq("id", chapter_id);
     if (saveErr) {
       throw new Error(`failed to save image paths: ${saveErr.message}`);
     }
 
     const failed = results.filter((r) => r.error);
+    const blocked = results.filter((r) => r.blocked);
     return jsonResponse({
       ok: failed.length === 0,
       chapter_id,
       illustrated: results.filter((r) => r.image_path).map((r) => r.page),
+      blocked,
       failed,
       results,
+      image_safety: imageSafety,
       ...(return_images ? { images } : {}),
     }, { status: failed.length === 0 ? 200 : 207 });
   } catch (err) {
