@@ -1,6 +1,6 @@
 # Product Requirements Document — Storyloom (working title)
 
-Status: Draft v1 · Owner: Jai (product) + Claude (execution) · Date: Aug 2026
+Status: Draft v2 · Owner: Jai (product) + Claude (execution) · Date: Aug 2026
 
 ---
 
@@ -14,136 +14,105 @@ starring *their* child, has never existed on demand.
 
 Existing AI story apps generate a **one-off book** and forget it. So they behave
 like a novelty toy: the magic wears off in a week, nothing carries over, and the
-child never gets to live in an ongoing world. Reviewers name the exact failure:
-today's tools have "barely enough context to maintain consistency within a
-single story, let alone remember that last Tuesday's adventure ended with
-Captain Elephant promising to return to the Cloud Kingdom."
+child never gets to live in an ongoing world.
 
 ## 2. Insight & wedge
 
-The bottleneck for parents is **not** a lack of stories (the internet has
-infinite). It is (a) not having the right story for *this* moment, and (b) the
-absence of a *ritual and a world* that persists. An app can supply both.
-
-**Wedge: the storybook that remembers.** Storyloom is not a book factory; it is
-an ongoing, serialized story world. The child is the recurring hero; characters,
-places, and unresolved threads persist night to night; the parent steers the
-lesson of each new chapter. This reframes the product from a commodity generator
-(novelty churn) into a *relationship with a story world* (retention, emotional
-lock-in, a moat that compounds the longer a family uses it).
+**Wedge: the storybook that remembers.** Storyloom is an ongoing, serialized
+story world. The child is the recurring hero; characters, places, and unresolved
+threads persist night to night; the parent steers the lesson of each chapter.
+This reframes the product from a commodity generator (novelty churn) into a
+*relationship with a story world* (retention, emotional lock-in, a compounding
+moat). Two additions sharpen it: it is **bilingual (English + Korean on every
+page)**, and it is packaged as **books, not a feed** (see §8).
 
 ## 3. Why now
 
-Three capabilities matured simultaneously and only recently: (1) reference-based
-character consistency in image models (Nano Banana Pro 2 / Flux Kontext), (2)
-strong long-form narrative generation from LLMs, and (3) cheap structured
-persistence. The novel combination is *serialized* storytelling where memory
-lives outside the model's context window, in our own data store.
+Reference-based character consistency (Nano Banana), strong long-form multilingual
+narrative (Claude), and cheap structured persistence matured together. The novel
+combination is *serialized, bilingual* storytelling where memory lives outside
+the model's context window, in our own data store.
 
 ## 4. Target users
 
-- **Primary persona:** parents of children ages **3–6** (bedtime-story sweet
-  spot; peak "hard moments"; pre-literate, so co-reading matters).
-- **The first 100:** parents in Jai's friends & family network — a real,
-  reachable distribution channel. The product must be useful and delightful for
-  a single family, with no network-effect dependency.
-- **Buyer = parent; co-user = child.** Framing is *parent-first*: Storyloom
-  equips the parent, it does not replace them. Stories are designed to be **read
-  together**, not handed to a screen.
+- **Primary persona:** parents of children ages **3–6**.
+- **First user & first 100:** a Korean-American niece and Jai's friends-&-family
+  network — a real, reachable channel. Useful and delightful for a single family,
+  no network-effect dependency.
+- **Buyers include grandparents.** The highest willingness-to-pay is a relative
+  buying a keepsake about the child — a first-class buyer, not an afterthought.
 
 ## 5. Jobs to be done
 
 1. "Help me get my child through a specific situation happening this week."
 2. "Give us a bedtime ritual we look forward to."
 3. "Instill a value I care about, gently, without lecturing."
-4. "Give me a keepsake of my child's imagination and our time together."
+4. "Give me a keepsake of my child's imagination — in both our languages."
 
 ## 6. Solution overview
 
-- Parent sets up a **child profile** (first name, age band, a character look) and
-  chooses a **value/situation** for tonight.
-- Storyloom generates an **illustrated chapter** where the child is the hero,
-  that lands the chosen lesson, in ~90 seconds, ready to read together.
-- The world **persists**: recurring characters, places, and open threads carry
-  forward. Tonight can pick up where last night left off.
-- Over weeks, chapters accumulate into a **series**; the parent can order a
-  printed **keepsake volume**.
+- Parent sets up a **child profile** (first name, age band, primary language, a
+  guided character look, interests).
+- Each night: pick a **lesson/situation** → Storyloom generates an **illustrated,
+  bilingual chapter** (English + Korean on every page) where the child is the
+  hero, ready to read together. Generation is **pre-computed** so bedtime is
+  instant.
+- The world **persists** (recurring characters, places, open threads).
+- **Books, not a feed:** chapters accumulate into completable **Volumes** (~10
+  chapters). A finished Volume becomes a printable, giftable **bilingual
+  hardcover** — the emotional and commercial peak.
 
 ## 7. MVP scope (August)
 
-**In scope (must-have):**
-- Onboarding: parent account, one child profile, character look (prompt-based;
-  photo upload optional/later), interests.
-- "Tonight's chapter" flow: pick a lesson/situation → generate illustrated
-  chapter (3–6 illustrated pages) → read view.
-- **Persistent story bible** (the moat): characters, world, open threads, past
-  chapter summaries, lessons taught — retrieved and reused on every generation.
-- Chapter library (revisit past chapters).
-- Subscription paywall (free trial → paid) via RevenueCat.
-- Parent gate for purchases; child-safe content guardrails; content preview
-  before the child sees it.
+**In scope:**
+- Onboarding: parent account, one child, guided character look, primary language.
+- Nightly flow: pick lesson → (pre-generated) illustrated bilingual chapter →
+  read-together view; **offline** reading of generated chapters.
+- **Persistent Story Bible** (the moat).
+- **Volumes:** progress toward a completable book + a "your book is ready" moment.
+- Monetization per ADR-0003 (cheap digital + concierge print for the 100).
+- Safety: content filter (text + image) + parent preview.
 
-**Explicitly out of scope for v1 (fast-follows):**
-- AI voice narration; parent-voice recording ("Daddy reads even when away").
-- Print-on-demand fulfillment (design the data model for it; don't build the
-  pipeline yet).
-- Child-driven branching choices.
-- Multiple children / multi-parent sharing.
-- Web app.
+**Out of scope for v1 (fast-follows):** in-app automated print/billing pipeline
+(concierge instead), voice narration, child-driven choices, multiple children,
+web.
 
-## 8. Monetization
+## 8. Monetization — books, not a feed (see ADR-0003)
 
-- **Model:** freemium → subscription. A small number of free chapters, then
-  unlimited chapters + continuity + (later) voice behind a subscription.
-- **Billing:** RevenueCat over App Store / Play in-app purchase.
-- **Later:** print keepsake volumes (high-margin, giftable, holiday spike) and
-  gift subscriptions (grandparents).
-- **Willingness to pay** is already proven in the parenting/kids category; the
-  serialized + keepsake angle raises it.
+- **Digital is a cheap habit-keeper:** $1.99 for 3 months, then $1.99/mo with a
+  ~one-book/month chapter allowance (bounds image cost).
+- **The hero product is the keepsake:** a completed Volume → bilingual hardcover
+  (~$45), giftable; grandparents buy extra copies.
+- **Buying a print comps digital** for ~6 months (renews with each new book).
+- **The first 100 are a keepsake test:** concierge print fulfillment; the metric
+  that matters is **print/gift take-rate**, not subscription revenue.
 
 ## 9. Success metrics
 
-- **North star:** *weekly nights with a chapter read together per active family*
-  (ritual formation).
-- Activation: % of new parents who generate + read chapter #1 within 24h.
-- Retention: D7 / D30 families with ≥3 chapters; % reaching a 7-night streak.
-- Moat signal: % of chapters that reference prior canon (recurring
-  character/thread) — proves the "remembers" value is felt.
-- Monetization: trial→paid conversion; monthly retained subscribers.
-- Qualitative bar: of ~100 friends-&-family parents, ≥40 say they'd be
-  "very disappointed" without it (Sean Ellis PMF proxy).
+- **Product north star:** weekly nights with a chapter read together per active
+  family (ritual).
+- **Commercial north star:** % of active families who **buy or gift a printed
+  Volume** (target ~25–30%+).
+- Activation: % who generate + read chapter #1 within 24h.
+- Retention: D30 families with ≥3 chapters; % who complete Volume 1.
+- Moat signal: % of chapters that reference prior canon.
+- PMF proxy: of ~100 parents, ≥40% “very disappointed” without it.
 
 ## 10. Risks & mitigations
 
-- **Crowded market.** → Compete only on the unsolved wedge (persistent
-  serialized memory + parent-steered lessons), not generic generation.
-- **Novelty churn.** → Serialized "tune in tomorrow" world + streak ritual +
-  growing canon = reasons to return; retention is the primary design target.
-- **Character-consistency drift (top eng risk).** → Lock a character reference
-  once, reuse via reference-image models; de-risk in week 1 before committing.
-- **Cross-night memory (second eng risk).** → Memory lives in our DB (a
-  structured "story bible"), not the model context window; retrieved and
-  injected per generation. De-risk in week 1.
-- **Unit economics (image cost).** → Cost model in ARCHITECTURE; cap free tier;
-  fewer, richer illustrations; cache/reuse; cheaper models where quality holds.
-- **Child safety / COPPA & kids-app policy.** → Parent-owned account, minimal
-  child data (first name + age band only), parent-gated purchases, content
-  filters + parent preview, IARC content rating + Data Safety + Target Audience
-  forms. See ARCHITECTURE §Compliance.
-- **AI-raising-my-kid objection.** → Parent-first, co-read positioning; parent
-  approves content.
+Tracked in `docs/RISKS.md` + GitHub issues. Top: bedtime latency (→ pre-generate),
+offline reading, Play closed-testing timeline, sensitive-data privacy + Korea
+PIPA, crisis-input policy, heavy-user cost.
 
 ## 11. Open decisions
 
-- **Name.** "Storyloom" is a placeholder. Candidates: Everly, Chapters,
-  Heirloom, Lore, Once, Nightla. Decide before store submission.
-- **First store.** Decision: **Google Play first** (cheaper, faster, more
-  lenient review → fastest path to the "submitted for review" goal), iOS close
-  behind.
-- **Character look at launch:** prompt-described avatar vs. photo-derived. Lower
-  risk/faster: prompt-described for v1; photo as fast-follow.
+- **Name.** "Storyloom" is a placeholder. Decide before store submission.
+- **First store.** Decided: **Google Play first**.
+- **Pricing / model.** Decided: **books, not a feed** (ADR-0003).
+- **Character look at launch:** guided prompt-described picker (photo deferred).
+- **POD partner** for concierge print: TBD (Gelato / Lulu / Blurb).
 
 ## 12. Non-goals
 
-Storyloom is not a screen-time babysitter, not a generic "story about anything"
-generator, and not an unsupervised child chatbot.
+Not a screen-time babysitter, not a generic "story about anything" generator, not
+an unsupervised child chatbot, not a clinical/therapeutic tool.
