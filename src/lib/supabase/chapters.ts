@@ -160,15 +160,6 @@ export async function signImagePaths(
   return out;
 }
 
-/** Dev affordance: adopt the spike-seeded family into the signed-in account. */
-export async function claimOrphanFamilies(): Promise<number> {
-  const { data, error } = await supabase.rpc('claim_orphan_families');
-  if (error) {
-    throw error;
-  }
-  return (data as number) ?? 0;
-}
-
 export type ChildRow = { id: string; first_name: string; primary_language: 'en' | 'ko' };
 
 export async function listChildren(): Promise<ChildRow[]> {

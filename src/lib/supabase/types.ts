@@ -200,8 +200,6 @@ export type Database = {
         Args: { p_chapter_id: string; p_approved: boolean };
         Returns: Chapter;
       };
-      /** DEV ONLY: adopts spike-seeded families into the calling account. */
-      claim_orphan_families: { Args: Record<string, never>; Returns: number };
     };
     Enums: Record<string, never>;
     CompositeTypes: Record<string, never>;

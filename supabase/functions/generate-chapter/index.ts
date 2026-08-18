@@ -13,6 +13,7 @@
 import Anthropic from "npm:@anthropic-ai/sdk@0.70.0";
 import { createClient, type SupabaseClient } from "jsr:@supabase/supabase-js@2";
 
+import { assertOwnsChild, requireUser, statusFor } from "../_shared/auth.ts";
 import { handlePreflight, jsonResponse } from "../_shared/cors.ts";
 import { reviewChapter, type SafetyVerdict } from "../_shared/safety.ts";
 
@@ -395,10 +396,17 @@ Deno.serve(async (req: Request) => {
       return jsonResponse({ ok: false, error: "child_id and lesson are required" }, { status: 400 });
     }
 
+    // 0. AUTHORIZE — this function spends money at a paid provider, so it
+    //    never serves an anonymous caller, and never a child that is not the
+    //    caller's (issue #6).
+    const user = await requireUser(req);
+
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL")!,
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
     );
+
+    await assertOwnsChild(supabase, child_id, user.id);
 
     // 1. RETRIEVE — the model's entire memory of the story, from Postgres.
     const canon = await retrieveCanon(supabase, child_id);
@@ -441,7 +449,7 @@ Deno.serve(async (req: Request) => {
   } catch (err) {
     return jsonResponse(
       { ok: false, error: err instanceof Error ? err.message : String(err) },
-      { status: 500 },
+      { status: statusFor(err) },
     );
   }
 });

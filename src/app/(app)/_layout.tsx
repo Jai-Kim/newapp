@@ -1,6 +1,6 @@
 import { Link, Redirect, SplashScreen, Tabs } from 'expo-router';
 import * as React from 'react';
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import { Pressable, Text } from '@/components/ui';
 import {
@@ -10,10 +10,24 @@ import {
 } from '@/components/ui/icons';
 import { useAuthStore as useAuth } from '@/features/auth/use-auth-store';
 import { useIsFirstTime } from '@/lib/hooks/use-is-first-time';
+import { getMyChild } from '@/lib/supabase/onboarding';
 
 export default function TabLayout() {
   const status = useAuth.use.status();
   const [isFirstTime] = useIsFirstTime();
+  // null = still checking, false = signed in but no child yet.
+  const [hasChild, setHasChild] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    if (status !== 'signIn') {
+      return;
+    }
+    getMyChild()
+      .then(child => setHasChild(child !== null))
+      // A read failure here should not trap the parent on a blank screen;
+      // assume they have a child and let the screens surface the real error.
+      .catch(() => setHasChild(true));
+  }, [status]);
   const hideSplash = useCallback(async () => {
     await SplashScreen.hideAsync();
   }, []);
@@ -31,6 +45,9 @@ export default function TabLayout() {
   }
   if (status === 'signOut') {
     return <Redirect href="/login" />;
+  }
+  if (status === 'signIn' && hasChild === false) {
+    return <Redirect href="/child-setup" />;
   }
   return (
     <Tabs>

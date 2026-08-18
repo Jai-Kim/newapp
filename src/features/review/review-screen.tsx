@@ -12,11 +12,7 @@ import {
   Text,
   View,
 } from '@/components/ui';
-import {
-  claimOrphanFamilies,
-  listAllChapters,
-  listChildren,
-} from '@/lib/supabase/chapters';
+import { listAllChapters, listChildren } from '@/lib/supabase/chapters';
 
 /**
  * The parent's queue.
@@ -54,16 +50,6 @@ export function ReviewScreen() {
     load();
   }, [load]);
 
-  const onClaim = async () => {
-    try {
-      await claimOrphanFamilies();
-      await load();
-    }
-    catch (e) {
-      setError(e instanceof Error ? e.message : String(e));
-    }
-  };
-
   const pending = chapters.filter(c => c.review_status === 'pending');
   const decided = chapters.filter(c => c.review_status !== 'pending');
 
@@ -95,10 +81,13 @@ export function ReviewScreen() {
             <View className="gap-3 rounded-md border border-neutral-200 p-4 dark:border-neutral-700">
               <Text className="font-bold">No child profile yet</Text>
               <Text className="text-neutral-600 dark:text-neutral-400">
-                The chapters generated during the Week 1 spikes belong to no
-                account. Adopt them into this one to see them here.
+                Set up your child to start tonight's story.
               </Text>
-              <Button label="Adopt spike data" onPress={onClaim} testID="claim-data" />
+              <Button
+                label="Set up"
+                onPress={() => router.push('/child-setup')}
+                testID="go-setup"
+              />
             </View>
           )}
 

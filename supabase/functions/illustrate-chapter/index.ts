@@ -14,6 +14,7 @@
 
 import { createClient, type SupabaseClient } from "jsr:@supabase/supabase-js@2";
 
+import { assertOwnsChild, requireUser, statusFor } from "../_shared/auth.ts";
 import { handlePreflight, jsonResponse } from "../_shared/cors.ts";
 import { choosePages, illustratePage } from "../_shared/illustrate.ts";
 import { reviewIllustration, type IllustrationVerdict } from "../_shared/safety.ts";
@@ -88,6 +89,9 @@ Deno.serve(async (req: Request) => {
       throw new Error("GEMINI_API_KEY not set");
     }
 
+    // Images cost money too — same gate as generate-chapter (issue #6).
+    const user = await requireUser(req);
+
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL")!,
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
@@ -101,6 +105,8 @@ Deno.serve(async (req: Request) => {
     if (chErr || !chapter) {
       throw new Error(`chapter not found: ${chErr?.message}`);
     }
+
+    await assertOwnsChild(supabase, chapter.child_id as string, user.id);
 
     // Never spend money illustrating something the filter rejected.
     if ((chapter.safety as { verdict?: string } | null)?.verdict === "blocked") {
@@ -222,7 +228,7 @@ Deno.serve(async (req: Request) => {
   } catch (err) {
     return jsonResponse(
       { ok: false, error: err instanceof Error ? err.message : String(err) },
-      { status: 500 },
+      { status: statusFor(err) },
     );
   }
 });
