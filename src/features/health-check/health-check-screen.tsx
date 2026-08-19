@@ -1,5 +1,4 @@
 import type { HealthCheckResponse, ProviderCheck } from '@/lib/supabase';
-
 import { useState } from 'react';
 
 import {
@@ -10,6 +9,8 @@ import {
   Text,
   View,
 } from '@/components/ui';
+
+import { messageOf } from '@/lib/errors';
 import { healthCheck, isSupabaseConfigured } from '@/lib/supabase';
 
 /**
@@ -32,7 +33,7 @@ export function HealthCheckScreen() {
       setResult(await healthCheck());
     }
     catch (err) {
-      setError(err instanceof Error ? err.message : String(err));
+      setError(messageOf(err));
     }
     finally {
       setIsRunning(false);

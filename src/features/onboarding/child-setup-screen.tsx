@@ -1,8 +1,7 @@
 import type { AgeBand, Language } from '@/lib/supabase/types';
-
 import { useRouter } from 'expo-router';
-import * as React from 'react';
 
+import * as React from 'react';
 import {
   Button,
   FocusAwareStatusBar,
@@ -11,7 +10,9 @@ import {
   Text,
   View,
 } from '@/components/ui';
+
 import { Chip, ChipRow, Field } from '@/components/ui/choice-chips';
+import { messageOf } from '@/lib/errors';
 import { createFamilyAndChild } from '@/lib/supabase/onboarding';
 
 /**
@@ -87,7 +88,7 @@ export function ChildSetupScreen() {
       router.replace('/character-setup');
     }
     catch (e) {
-      setError(e instanceof Error ? e.message : String(e));
+      setError(messageOf(e));
       setBusy(false);
     }
   };

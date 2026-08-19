@@ -172,6 +172,12 @@ export type Chapter = {
   safety: SafetyVerdict | null;
   review_status: ReviewStatus;
   reviewed_at: string | null;
+  /**
+   * Set when the family finishes reading. "Tonight's chapter" is the oldest
+   * approved chapter with this still null, which is what lets the app open on
+   * the right one instead of a library (issue #9).
+   */
+  read_at: string | null;
   created_at: string;
 };
 
@@ -187,6 +193,26 @@ export type ChildReadableChapter = Omit<
   Chapter,
   'embedding' | 'safety' | 'review_status'
 >;
+
+/** Pre-generation job state (issue #9). One live job per child at a time. */
+export type QueueStatus = 'queued' | 'running' | 'done' | 'failed';
+
+export type ChapterQueueJob = {
+  id: string;
+  child_id: string;
+  lesson: string;
+  situation: string | null;
+  /** True when nobody chose, so the app can say so rather than pretend. */
+  auto_chosen: boolean;
+  status: QueueStatus;
+  attempts: number;
+  error: string | null;
+  chapter_id: string | null;
+  requested_by: string | null;
+  created_at: string;
+  started_at: string | null;
+  finished_at: string | null;
+};
 
 export type LessonTaught = {
   id: string;
@@ -219,6 +245,7 @@ export type Database = {
       threads: Tbl<Thread>;
       chapters: Tbl<Chapter>;
       lessons_taught: Tbl<LessonTaught>;
+      chapter_queue: Tbl<ChapterQueueJob>;
     };
     Views: {
       /** Gate-enforcing view — see ChildReadableChapter. */
@@ -228,6 +255,11 @@ export type Database = {
       /** Parent-gate write path; refuses to approve a filter-blocked chapter. */
       approve_chapter: {
         Args: { p_chapter_id: string; p_approved: boolean };
+        Returns: Chapter;
+      };
+      /** Stamps read_at once; RLS decides ownership. */
+      mark_chapter_read: {
+        Args: { p_chapter_id: string };
         Returns: Chapter;
       };
     };

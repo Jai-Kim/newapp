@@ -1,9 +1,8 @@
 import type { Chapter, ChapterPage, SafetyConcern } from '@/lib/supabase/types';
-
 import { Image } from 'expo-image';
+
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import * as React from 'react';
-
 import {
   ActivityIndicator,
   Button,
@@ -12,6 +11,8 @@ import {
   Text,
   View,
 } from '@/components/ui';
+
+import { messageOf } from '@/lib/errors';
 import {
   getChapterForReview,
   setChapterApproval,
@@ -43,7 +44,7 @@ export function ChapterReviewScreen() {
         setUrls(await signImagePaths(paths));
       }
       catch (e) {
-        setError(e instanceof Error ? e.message : String(e));
+        setError(messageOf(e));
       }
     })();
   }, [id]);
@@ -56,7 +57,7 @@ export function ChapterReviewScreen() {
       router.back();
     }
     catch (e) {
-      setError(e instanceof Error ? e.message : String(e));
+      setError(messageOf(e));
       setBusy(false);
     }
   };

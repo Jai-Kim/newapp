@@ -1,8 +1,9 @@
 import type { CharacterChoices, Child } from '@/lib/supabase/types';
-
 import * as React from 'react';
 
 import { INITIAL_CHOICES, isComplete } from '@/lib/character/options';
+
+import { messageOf } from '@/lib/errors';
 import {
   AlreadyLockedError,
   lockCharacter,
@@ -45,7 +46,7 @@ export function useCharacterLook() {
         }
       }
       catch (e) {
-        setError(e instanceof Error ? e.message : String(e));
+        setError(messageOf(e));
       }
       finally {
         setLoading(false);
@@ -76,7 +77,7 @@ export function useCharacterLook() {
         setRelockCost(e.illustratedPages);
       }
       else {
-        setError(e instanceof Error ? e.message : String(e));
+        setError(messageOf(e));
       }
     }
     finally {

@@ -1,1 +1,1 @@
-export { ReaderScreen as default } from '@/features/reader/reader-screen';
+export { TonightScreen as default } from '@/features/nightly/tonight-screen';

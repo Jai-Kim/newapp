@@ -1,8 +1,7 @@
 import type { ChapterSummary, ChildRow } from '@/lib/supabase/chapters';
-
 import { useRouter } from 'expo-router';
-import * as React from 'react';
 
+import * as React from 'react';
 import {
   ActivityIndicator,
   Button,
@@ -12,6 +11,8 @@ import {
   Text,
   View,
 } from '@/components/ui';
+
+import { messageOf } from '@/lib/errors';
 import { listAllChapters, listChildren } from '@/lib/supabase/chapters';
 
 /**
@@ -39,7 +40,7 @@ export function ReviewScreen() {
       setChapters(kids.length ? await listAllChapters(kids[0].id) : []);
     }
     catch (e) {
-      setError(e instanceof Error ? e.message : String(e));
+      setError(messageOf(e));
     }
     finally {
       setLoading(false);

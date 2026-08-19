@@ -47,6 +47,9 @@ export default function RootLayout() {
           name="character-setup"
           options={{ title: 'Their look' }}
         />
+        <Stack.Screen name="library" options={{ title: 'All chapters' }} />
+        {/* No header — the reader should be the whole screen at bedtime. */}
+        <Stack.Screen name="read/[id]" options={{ headerShown: false }} />
       </Stack>
     </Providers>
   );
