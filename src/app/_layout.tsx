@@ -43,6 +43,10 @@ export default function RootLayout() {
         <Stack.Screen name="health-check" options={{ title: 'Health check' }} />
         <Stack.Screen name="review/[id]" options={{ title: 'Review chapter' }} />
         <Stack.Screen name="child-setup" options={{ title: 'Set up' }} />
+        <Stack.Screen
+          name="character-setup"
+          options={{ title: 'Their look' }}
+        />
       </Stack>
     </Providers>
   );

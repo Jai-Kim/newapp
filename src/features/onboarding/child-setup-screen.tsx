@@ -7,11 +7,11 @@ import {
   Button,
   FocusAwareStatusBar,
   Input,
-  Pressable,
   ScrollView,
   Text,
   View,
 } from '@/components/ui';
+import { Chip, ChipRow, Field } from '@/components/ui/choice-chips';
 import { createFamilyAndChild } from '@/lib/supabase/onboarding';
 
 /**
@@ -21,7 +21,7 @@ import { createFamilyAndChild } from '@/lib/supabase/onboarding';
  * level, `primary_language` decides which language leads on the page
  * (ADR-0001 §3), and `interests` seed the world the storyteller builds. The
  * character *look* is deliberately not here; it is a guided picker of its own
- * (slice 2), because a parent cannot write a good character prompt.
+ * of its own, because a parent cannot write a good character prompt.
  */
 
 const AGE_BANDS: { value: AgeBand; label: string }[] = [
@@ -82,7 +82,9 @@ export function ChildSetupScreen() {
         primary_language: language,
         interests,
       });
-      router.replace('/');
+      // Straight on to the look picker: a child with no character sheet cannot
+      // be illustrated at all, so this is one flow, not two optional screens.
+      router.replace('/character-setup');
     }
     catch (e) {
       setError(e instanceof Error ? e.message : String(e));
@@ -132,49 +134,6 @@ export function ChildSetupScreen() {
   );
 }
 
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <View className="gap-3">
-      <Text className="font-bold">{label}</Text>
-      {children}
-    </View>
-  );
-}
-
-function Row({ children, wrap }: { children: React.ReactNode; wrap?: boolean }) {
-  return (
-    <View className={`flex-row gap-2 ${wrap ? 'flex-wrap' : ''}`}>{children}</View>
-  );
-}
-
-function Chip({
-  label,
-  selected,
-  onPress,
-  testID,
-}: {
-  label: string;
-  selected: boolean;
-  onPress: () => void;
-  testID: string;
-}) {
-  return (
-    <Pressable
-      onPress={onPress}
-      testID={testID}
-      accessibilityRole="button"
-      accessibilityState={{ selected }}
-      className={
-        selected
-          ? 'rounded-full bg-primary-600 px-4 py-2'
-          : 'rounded-full border border-neutral-300 px-4 py-2 dark:border-neutral-600'
-      }
-    >
-      <Text className={selected ? 'font-bold text-white' : ''}>{label}</Text>
-    </Pressable>
-  );
-}
-
 function AgeField({
   value,
   onChange,
@@ -184,7 +143,7 @@ function AgeField({
 }) {
   return (
     <Field label="How old are they?">
-      <Row>
+      <ChipRow>
         {AGE_BANDS.map(b => (
           <Chip
             key={b.value}
@@ -194,7 +153,7 @@ function AgeField({
             testID={`age-${b.value}`}
           />
         ))}
-      </Row>
+      </ChipRow>
     </Field>
   );
 }
@@ -207,11 +166,11 @@ function LanguageField({
   onChange: (v: Language) => void;
 }) {
   return (
-    <Field label="Which language reads first?">
-      <Text className="-mt-1 text-sm text-neutral-500">
-        Every page has both. This just decides which one is on top.
-      </Text>
-      <Row>
+    <Field
+      label="Which language reads first?"
+      hint="Every page has both. This just decides which one is on top."
+    >
+      <ChipRow>
         {LANGUAGES.map(l => (
           <Chip
             key={l.value}
@@ -221,7 +180,7 @@ function LanguageField({
             testID={`lang-${l.value}`}
           />
         ))}
-      </Row>
+      </ChipRow>
       <Text className="text-sm text-neutral-500">
         {LANGUAGES.find(l => l.value === value)?.hint}
       </Text>
@@ -237,11 +196,11 @@ function InterestsField({
   onToggle: (item: string) => void;
 }) {
   return (
-    <Field label="What do they love?">
-      <Text className="-mt-1 text-sm text-neutral-500">
-        These turn up in their stories. Pick a few.
-      </Text>
-      <Row wrap>
+    <Field
+      label="What do they love?"
+      hint="These turn up in their stories. Pick a few."
+    >
+      <ChipRow wrap>
         {INTERESTS.map(i => (
           <Chip
             key={i}
@@ -251,7 +210,7 @@ function InterestsField({
             testID={`interest-${i}`}
           />
         ))}
-      </Row>
+      </ChipRow>
     </Field>
   );
 }

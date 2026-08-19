@@ -15,18 +15,26 @@ import { getMyChild } from '@/lib/supabase/onboarding';
 export default function TabLayout() {
   const status = useAuth.use.status();
   const [isFirstTime] = useIsFirstTime();
-  // null = still checking, false = signed in but no child yet.
+  // null = still checking; the two flags are separate because a child can exist
+  // with no character sheet, and that child cannot be illustrated yet.
   const [hasChild, setHasChild] = useState<boolean | null>(null);
+  const [hasLook, setHasLook] = useState<boolean | null>(null);
 
   useEffect(() => {
     if (status !== 'signIn') {
       return;
     }
     getMyChild()
-      .then(child => setHasChild(child !== null))
+      .then((child) => {
+        setHasChild(child !== null);
+        setHasLook(child?.character_ref != null);
+      })
       // A read failure here should not trap the parent on a blank screen;
-      // assume they have a child and let the screens surface the real error.
-      .catch(() => setHasChild(true));
+      // assume setup is done and let the screens surface the real error.
+      .catch(() => {
+        setHasChild(true);
+        setHasLook(true);
+      });
   }, [status]);
   const hideSplash = useCallback(async () => {
     await SplashScreen.hideAsync();
@@ -48,6 +56,9 @@ export default function TabLayout() {
   }
   if (status === 'signIn' && hasChild === false) {
     return <Redirect href="/child-setup" />;
+  }
+  if (status === 'signIn' && hasChild === true && hasLook === false) {
+    return <Redirect href="/character-setup" />;
   }
   return (
     <Tabs>

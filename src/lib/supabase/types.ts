@@ -28,6 +28,36 @@ export type VisualRef = {
 export type CharacterRef = {
   identity: VisualRef;
   wardrobe_default: string;
+  /** The companion's locked description, or null if the parent chose none. */
+  companion?: string | null;
+  /**
+   * The parent's own answers in the look picker. Stored so the picker can
+   * reopen on what they chose rather than making them rebuild their child from
+   * memory — and so we can tell which descriptor wording produced a given sheet.
+   */
+  choices?: CharacterChoices;
+  locked_at?: string;
+  model?: string;
+};
+
+/**
+ * What the guided picker sets. Values only — the prompt fragments they map to
+ * live server-side in `supabase/functions/_shared/character.ts`, so the wording
+ * that actually reaches the image model is never sent by a client.
+ */
+export type CharacterChoices = {
+  presentation: 'girl' | 'boy' | 'child';
+  skin_tone: string;
+  hair_color: string;
+  hair_texture: string;
+  hair_style: string;
+  fringe: string;
+  eye_color: string;
+  eye_shape: string;
+  glasses: string;
+  detail: string;
+  signature_color: string;
+  companion: string;
 };
 
 export type Family = {

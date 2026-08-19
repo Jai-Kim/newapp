@@ -32,15 +32,18 @@ function buildPrompt(
   scene: string,
   wardrobe: string,
 ): string {
+  // Deliberately pronoun-free. The descriptor carries the child's own pronouns
+  // (see _shared/character.ts), so hardcoding "her" here made every page prompt
+  // contradict the descriptor for any child who is not a girl.
   return `The attached image is the LOCKED IDENTITY reference for this child.
 
-PRESERVE EXACTLY (her identity — this never changes between pages):
+PRESERVE EXACTLY (the child's identity — this never changes between pages):
 ${identityDescriptor}
 Also preserve any recurring companion character exactly as drawn.
 
 DO NOT COPY the clothing in the reference. Clothing is wardrobe, not identity,
-and changes every page. Dress her in the WARDROBE below instead. Reproducing the
-reference outfit when the wardrobe differs is a failure.
+and changes every page. Dress the child in the WARDROBE below instead.
+Reproducing the reference outfit when the wardrobe differs is a failure.
 
 WARDROBE for this page: ${wardrobe}
 
