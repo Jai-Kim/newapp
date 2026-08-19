@@ -4,6 +4,11 @@
  *
  * Renders through the Spike A harness (same model, same server-held key) so
  * this exercises the real prompt builder, not a paraphrase of it.
+ *
+ * HISTORICAL: the `spike-a` bridge this posts to has since been deleted — it
+ * was callable with the public anon key and spent money at a paid provider.
+ * Kept as the record of how the committed sheets were produced. To re-run,
+ * point it at `lock-character` with a real session instead.
  */
 import fs from 'node:fs';
 import path from 'node:path';

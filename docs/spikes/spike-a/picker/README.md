@@ -58,10 +58,14 @@ the detail needs its own repetition in the prompt.
 ## Reproducing
 
 `metrics.json` holds the latency, byte size and the exact descriptor for each
-sheet. The harness is `verify-picker.ts`, which renders through the `spike-a`
-Edge Function so it uses the server-held provider key.
+sheet.
 
-> Note: `spike-a`, `spike-a2` and `spike-d` are still deployed and are reachable
-> with the public anon key. They were exempted from the issue #6 auth work
-> because they are spike harnesses — but they spend money at a paid provider.
-> All four spikes are decided; they should come down.
+The harness, `verify-picker.ts`, rendered through the `spike-a` Edge Function.
+**That bridge has since been deleted** — it was reachable with the public anon
+key and spent money at a paid provider, which is the hole issue #6 was about.
+The script is kept as the record of exactly how these sheets were produced; to
+re-run it today, point it at `lock-character` with a signed-in session, which is
+the path the app actually uses.
+
+The same applies to the Python harnesses in the Spike A, C and D directories:
+they call Edge Functions that no longer exist. They are history, not tooling.
