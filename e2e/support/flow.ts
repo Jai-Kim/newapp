@@ -65,6 +65,32 @@ export async function signIn(
   await expect(page.locator(t('child-name'))).toBeVisible({ timeout: 60_000 });
 }
 
+/**
+ * Signs in a parent whose child is already set up.
+ *
+ * `signIn` above ends by waiting for the child-setup screen, which is right
+ * for the account it just created and wrong for every later visit: a parent
+ * who already has a child goes straight into the app. A test needs this
+ * because Playwright gives each test its own browser context — a second test
+ * starts with no session at all, and `goto('/')` lands on the welcome screen
+ * rather than the app, however signed-in the previous test was.
+ */
+export async function signInExisting(
+  page: Page,
+  credentials: { email: string; password: string },
+): Promise<void> {
+  await openApp(page);
+  await fillCredentials(page, credentials.email, credentials.password);
+
+  // Whatever tonight holds, it is one of these — and any of them means the
+  // app is open, which is what makes the sweep run.
+  await expect(
+    page.getByText(
+      /What should tomorrow be about\?|Tonight's chapter is ready|Waiting for you|Writing tomorrow's chapter/i,
+    ),
+  ).toBeVisible({ timeout: 120_000 });
+}
+
 /** Onboarding: who the story is about. */
 export async function createChild(page: Page, name: string): Promise<void> {
   await page.locator(t('child-name')).fill(name);

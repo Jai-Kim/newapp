@@ -3,7 +3,7 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 import { expect, test } from '@playwright/test';
 
 import { FIXTURE_LESSON, FIXTURE_PAGES } from './fixtures/chapter';
-import { jobStatus, strandJob } from './support/db-jobs';
+import { jobAttempts, jobStatus, strandJob } from './support/db-jobs';
 import { IS_LIVE, MODE, SUPABASE_ANON_KEY, SUPABASE_URL } from './support/env';
 import {
   approveLatestChapter,
@@ -15,6 +15,7 @@ import {
   openApp,
   readToTheEnd,
   signIn,
+  signInExisting,
   waitForJob,
 } from './support/flow';
 import { installStubs, runStubWorker } from './support/stubs';
@@ -216,14 +217,31 @@ test.describe(`core loop (${MODE})`, () => {
     test.skip(!IS_LIVE, 'the sweep rescues a real worker; stub mode has none');
 
     const jobId = await currentJobId(db, childId);
-    // Force the state a killed isolate leaves behind: still 'running', started
-    // long enough ago that no generation could still be in flight. Without the
-    // sweep this holds the one-live-job lock forever and the family simply
-    // never gets another chapter.
+
+    // The job the last test queued is still being written by a live worker.
+    // Stranding THAT one proves nothing: its own worker finishes a minute
+    // later and closes the job out, and the sweep takes the credit for work
+    // it never did. It would also collide with the one-live-job unique index,
+    // which forbids a second 'running' row for this child. So wait for it to
+    // settle first — what gets stranded must have nothing running behind it.
+    const settled = await waitForJob(db, jobId, 10 * 60_000);
+    expect(settled.status, `the queued job never settled: ${settled.error}`)
+      .toBe('done');
+    const attemptsBefore = jobAttempts(jobId);
+
+    // Now force the state a killed isolate leaves behind: still 'running',
+    // started long enough ago that no generation could still be in flight.
+    // Without the sweep this holds the one-live-job lock forever and the
+    // family simply never gets another chapter.
     strandJob(jobId, 30);
     expect(jobStatus(jobId)).toBe('running');
 
-    await page.goto('/'); // the app sweeps on open
+    // Each test gets its own browser context, so this one starts signed out —
+    // `goto('/')` alone would sit on the welcome screen and the app would
+    // never sweep, which is a harness failure dressed up as a product one.
+    // Signing in IS opening the app, and the app sweeps on open.
+    await signInExisting(page, user);
+
     await expect(
       page.getByText(/Writing tomorrow's chapter|Tonight's chapter is ready|Waiting for you/i),
     ).toBeVisible({ timeout: 120_000 });
@@ -233,6 +251,15 @@ test.describe(`core loop (${MODE})`, () => {
       outcome.status,
       `the sweep did not rescue the stranded job: ${outcome.error}`,
     ).toBe('done');
+
+    // Re-run, not merely re-labelled: `runJob` increments attempts, so a job
+    // that came back with the same count was closed by something other than
+    // the sweep — the exact false pass this test used to be capable of.
+    expect(
+      jobAttempts(jobId),
+      'the job ended up done without the sweep ever re-running it',
+    ).toBeGreaterThan(attemptsBefore);
+    expect(outcome.chapter_id, 'the revived job produced no chapter').toBeTruthy();
   });
 });
 

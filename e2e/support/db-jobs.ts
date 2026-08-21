@@ -41,3 +41,16 @@ export function jobStatus(jobId: string): string | null {
   const rows = sql(`select status from chapter_queue where id = ${literal(jobId)};`);
   return (rows[0]?.status as string) ?? null;
 }
+
+/**
+ * How many times a job has actually been run.
+ *
+ * This is what separates a job the sweep genuinely re-ran from one that simply
+ * looks finished: `runJob` increments it, so a revived job comes back with a
+ * higher count. Without checking it, a stranded job whose own worker was still
+ * alive would close itself out and the sweep would get the credit.
+ */
+export function jobAttempts(jobId: string): number {
+  const rows = sql(`select attempts from chapter_queue where id = ${literal(jobId)};`);
+  return Number(rows[0]?.attempts ?? 0);
+}
