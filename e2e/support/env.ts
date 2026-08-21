@@ -9,8 +9,8 @@ import path from 'node:path';
  * being developed against would be worse than no suite.
  */
 
-function loadDotEnv(): Record<string, string> {
-  const file = path.join(process.cwd(), '.env');
+function readEnvFile(name: string): Record<string, string> {
+  const file = path.join(process.cwd(), name);
   if (!fs.existsSync(file)) {
     return {};
   }
@@ -24,7 +24,17 @@ function loadDotEnv(): Record<string, string> {
   return out;
 }
 
-const dotenv = loadDotEnv();
+/**
+ * `.env` for the values the app itself uses, then `.env.e2e` for the
+ * test-only ones on top.
+ *
+ * They are separate files because they have different rules: `.env` holds
+ * client-safe values that ship in the bundle, and `.env.e2e` holds a
+ * service-role key that must never go near it (ARCHITECTURE §5). Keeping the
+ * dangerous one in a file nothing under `src/` reads is the point — both are
+ * gitignored.
+ */
+const dotenv = { ...readEnvFile('.env'), ...readEnvFile('.env.e2e') };
 
 function required(name: string): string {
   const value = process.env[name] ?? dotenv[name];
