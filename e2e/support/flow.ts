@@ -137,6 +137,12 @@ export async function readToTheEnd(page: Page, pageCount: number): Promise<ReadR
   const result: ReadResult = { englishSeen: [], koreanSeen: [], pagesWithArt: 0 };
 
   for (let i = 0; i < pageCount; i++) {
+    // Sample only once the page is actually on screen. The reader shows a
+    // spinner while it fetches the chapter, and reading innerText straight
+    // after the tap captured that spinner as "page 1" — the assertion then
+    // failed on an empty string rather than on anything the parent would see.
+    await expect(page.locator(t(`page-${i + 1}`))).toBeVisible({ timeout: 30_000 });
+
     const body = await page.locator('body').innerText();
 
     // Hangul syllables. Checking the script rather than a specific string is
