@@ -156,10 +156,12 @@ export async function deleteTestUser(email: string): Promise<void> {
   const admin = adminClient();
   const id = provisionedIds.get(email) ?? await findUserId(admin, email);
   if (id === null) {
-    throw new Error(
-      `teardown could not find ${email} to delete. The account may still `
-      + `exist — check the project before running again.`,
-    );
+    // Genuinely absent, and that is not a failure: a run that broke before
+    // `provisionUser` never created an account. `findUserId` has already
+    // thrown if the listing itself failed, so reaching here means the listing
+    // worked and the address is not there. Raising anyway would bury the real
+    // failure under a teardown error, which is the opposite of loud.
+    return;
   }
 
   const { error } = await admin.auth.admin.deleteUser(id);
