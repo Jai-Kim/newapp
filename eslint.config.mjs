@@ -155,12 +155,29 @@ export default antfu(
     },
   },
 
-  // Testing Library rules
+  // Testing Library rules — component tests only. Playwright specs live in
+  // e2e/ and are excluded below: they drive a real browser, so rules about
+  // `screen` queries and `render` results describe a different tool entirely.
   {
     files: ['**/__tests__/**/*.[jt]s?(x)', '**/?(*.)+(spec|test).[jt]s?(x)'],
+    ignores: ['e2e/**'],
     plugins: { 'testing-library': testingLibrary },
     rules: {
       ...testingLibrary.configs.react.rules,
+    },
+  },
+
+  // Playwright E2E harness. Node code driving a browser, not app code.
+  {
+    files: ['e2e/**/*.ts', 'playwright.config.ts'],
+    rules: {
+      'node/prefer-global/buffer': 'off', // Node context; Buffer is a global.
+      'unicorn/prefer-dom-node-text-content': 'off', // locator.innerText() is Playwright's API, not the DOM's.
+      'max-params': ['error', 4],
+      // An end-to-end scenario is a single linear story and reads best as one.
+      // The app's 110-line limit exists to stop components doing too much;
+      // applied here it would only force the flow into artificial fragments.
+      'max-lines-per-function': 'off',
     },
   },
 );

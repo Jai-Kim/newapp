@@ -1,0 +1,75 @@
+name: E2E live smoke (real providers)
+
+# The other layer: nothing stubbed. Real Anthropic, real Gemini, the deployed
+# Edge Functions, and the background worker that pre-generation depends on.
+#
+# Deliberately NOT on the per-commit path. It spends real money at two paid
+# providers, takes several minutes, and can fail for reasons that have nothing
+# to do with the commit (a provider having a bad afternoon). Run it before a
+# release, after touching generation, or when a provider contract changes.
+
+on:
+  workflow_dispatch:
+    inputs:
+      reason:
+        description: Why this run
+        required: false
+        default: manual check
+  schedule:
+    # Weekly, so a silently broken provider contract surfaces within days
+    # rather than at the next release.
+    - cron: '0 6 * * 1'
+
+concurrency:
+  group: e2e-live-smoke
+  cancel-in-progress: false
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    environment: live-smoke
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec playwright install --with-deps chromium
+
+      - name: Point the app at the real project
+        run: |
+          {
+            echo "EXPO_PUBLIC_APP_ENV=development"
+            echo "EXPO_PUBLIC_API_URL=http://localhost"
+            echo "EXPO_PUBLIC_VAR_NUMBER=1"
+            echo "EXPO_PUBLIC_VAR_BOOL=true"
+            echo "SECRET_KEY=e2e"
+            echo "APP_BUILD_ONLY_VAR=e2e"
+            echo "EXPO_PUBLIC_SUPABASE_URL=${{ secrets.EXPO_PUBLIC_SUPABASE_URL }}"
+            echo "EXPO_PUBLIC_SUPABASE_ANON_KEY=${{ secrets.EXPO_PUBLIC_SUPABASE_ANON_KEY }}"
+          } > .env
+
+      - name: Run the live smoke
+        env:
+          E2E_MODE: live
+          # Pre-confirmed users, so no confirmation mail is sent and the
+          # project's mailer rate limit is never in play.
+          E2E_AUTH: admin
+          # Test-environment only. This key must never reach the app bundle.
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: pnpm e2e:web:live
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: live-smoke-report
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 30

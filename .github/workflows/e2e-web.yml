@@ -1,0 +1,89 @@
+name: E2E (web, stubbed)
+
+# The per-commit layer. No provider calls, so it is free and deterministic —
+# but the database underneath is real, because three of the four properties
+# this suite exists to check (the child persisting, one live job per child, a
+# double-submit not buying a second chapter) are properties of Postgres and RLS.
+# Asserting those against a fake would prove nothing.
+#
+# Runs against a LOCAL Supabase rather than the shared project: hermetic, free,
+# no mailer rate limit, and email confirmation is off by default, so the suite
+# can drive the real sign-up screen on every run.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: e2e-web-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Start a local Supabase
+        run: supabase start
+
+      - name: Apply the schema
+        # schema.sql and policies.sql are the baseline and are not in
+        # migrations/, so they are applied explicitly before the numbered
+        # migrations rather than by `db reset`.
+        run: |
+          DB_URL="$(supabase status -o json | jq -r '.DB_URL')"
+          psql "$DB_URL" -v ON_ERROR_STOP=1 -f supabase/schema.sql
+          psql "$DB_URL" -v ON_ERROR_STOP=1 -f supabase/policies.sql
+          for f in supabase/migrations/*.sql; do
+            echo "applying $f"
+            psql "$DB_URL" -v ON_ERROR_STOP=1 -f "$f"
+          done
+
+      - name: Point the app at the local Supabase
+        run: |
+          {
+            echo "EXPO_PUBLIC_APP_ENV=development"
+            echo "EXPO_PUBLIC_API_URL=http://localhost"
+            echo "EXPO_PUBLIC_VAR_NUMBER=1"
+            echo "EXPO_PUBLIC_VAR_BOOL=true"
+            echo "SECRET_KEY=e2e"
+            echo "APP_BUILD_ONLY_VAR=e2e"
+            echo "EXPO_PUBLIC_SUPABASE_URL=$(supabase status -o json | jq -r '.API_URL')"
+            echo "EXPO_PUBLIC_SUPABASE_ANON_KEY=$(supabase status -o json | jq -r '.ANON_KEY')"
+          } > .env
+
+      - run: pnpm exec playwright install --with-deps chromium
+
+      - name: Run the stubbed core-loop suite
+        # Local Supabase confirms addresses on sign-up, so the suite drives the
+        # real sign-up screen with no mail and no rate limit.
+        env:
+          E2E_MODE: stub
+          E2E_AUTH: autoconfirm
+        run: pnpm e2e:web
+
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 7

@@ -44,3 +44,12 @@ expo-env.d.ts
 # Python bytecode (spike harnesses)
 __pycache__/
 *.pyc
+
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/.playwright/
+
+# E2E test-only secrets (service role key). Never in the app bundle.
+.env.e2e

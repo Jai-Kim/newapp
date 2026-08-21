@@ -37,12 +37,16 @@ export function LoginScreen() {
       <LoginForm onSubmit={onSubmit} />
       <View className="gap-3 px-4 pb-10">
         {error !== null && (
-          <View className="rounded-md bg-danger-100 p-3 dark:bg-danger-900">
+          <View
+            testID="auth-error"
+            className="rounded-md bg-danger-100 p-3 dark:bg-danger-900"
+          >
             <Text className="text-danger-800 dark:text-danger-100">{error}</Text>
           </View>
         )}
         {pending && <Text className="text-neutral-500">Signing in…</Text>}
         <Text
+          testID="toggle-account-mode"
           className="text-primary-600 dark:text-primary-400"
           onPress={() => setIsNewAccount(v => !v)}
         >
