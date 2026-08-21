@@ -38,8 +38,8 @@ create policy "own character refs" on storage.objects
   );
 
 -- --------------------------------------------------------------------------
--- The parent gate needs an UPDATE path. schema.sql's "family owns self" and
--- policies.sql's child-scoped policies cover chapters via child ownership, so
+-- The parent gate needs an UPDATE path. 0000_baseline's "family owns self"
+-- and child-scoped policies cover chapters via child ownership, so
 -- a parent can already update their own chapters — but only these three
 -- columns should ever be settable from the client. Everything else about a
 -- chapter is written server-side by generate-chapter under the service role.

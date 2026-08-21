@@ -56,7 +56,7 @@ function checkSupabase(): Promise<ProviderCheck> {
     }
 
     const supabase = createClient(url, serviceKey);
-    // head+count touches the table without pulling rows. Proves schema.sql ran.
+    // head+count touches the table without pulling rows. Proves the baseline migration ran.
     const { error, count } = await supabase
       .from("chapters")
       .select("id", { count: "exact", head: true });

@@ -19,7 +19,7 @@ drop function if exists claim_orphan_families();
 
 -- --------------------------------------------------------------------------
 -- Onboarding inserts a family then a child. Both paths already have policies
--- from policies.sql, but neither asserted that a family row cannot be created
+-- from 0000_baseline, but neither asserted that a family row cannot be created
 -- pointing at somebody else's auth user. Recreate them explicitly so the
 -- INSERT path is unambiguous rather than implied by `for all`.
 -- --------------------------------------------------------------------------

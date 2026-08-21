@@ -1,5 +1,5 @@
 /**
- * Story Bible row types — mirror of `supabase/schema.sql`.
+ * Story Bible row types — mirror of `supabase/migrations/0000_baseline.sql`.
  *
  * Hand-written for now. Once a Supabase project exists, these can be replaced
  * with generated types via:

@@ -41,20 +41,10 @@ jobs:
           version: latest
 
       - name: Start a local Supabase
+        # This also builds the database: the CLI applies supabase/migrations/
+        # in order when it initialises, and 0000_baseline.sql is the schema and
+        # its policies, so the chain stands alone with no extra step here.
         run: supabase start
-
-      - name: Apply the schema
-        # schema.sql and policies.sql are the baseline and are not in
-        # migrations/, so they are applied explicitly before the numbered
-        # migrations rather than by `db reset`.
-        run: |
-          DB_URL="$(supabase status -o json | jq -r '.DB_URL')"
-          psql "$DB_URL" -v ON_ERROR_STOP=1 -f supabase/schema.sql
-          psql "$DB_URL" -v ON_ERROR_STOP=1 -f supabase/policies.sql
-          for f in supabase/migrations/*.sql; do
-            echo "applying $f"
-            psql "$DB_URL" -v ON_ERROR_STOP=1 -f "$f"
-          done
 
       - name: Point the app at the local Supabase
         run: |
