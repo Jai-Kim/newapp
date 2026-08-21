@@ -3,9 +3,11 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 
+import { SUPABASE_URL } from './env';
+
 /**
  * Privileged database access for test setup and teardown, via the Supabase CLI
- * against the linked project.
+ * — against the local stack or the linked project, whichever this run targets.
  *
  * Why this exists at all: the project has email confirmation ON, which is the
  * right setting for production and means a programmatic sign-up gets a user but
@@ -14,8 +16,22 @@ import path from 'node:path';
  * (ARCHITECTURE §5), so the harness borrows the already-authenticated CLI
  * instead. Nothing here needs a new secret, and no project setting is changed.
  *
- * Requires: `supabase login` and `supabase link` (already done for this repo).
+ * Requires: a running `supabase start` locally, or `supabase login` and
+ * `supabase link` for the hosted project (already done for this repo).
  */
+
+/**
+ * Which database `supabase db query` should talk to.
+ *
+ * CI runs the stubbed suite against a local stack that was never `link`ed, so
+ * a hardcoded `--linked` fails there with "Cannot find project ref" — which is
+ * how teardown came to throw on every CI run the moment it stopped swallowing
+ * errors. The app's own URL already says which database this run is about, so
+ * ask it rather than adding a flag someone has to remember to set.
+ */
+const TARGET = /\/\/(?:localhost|127\.0\.0\.1|\[::1\])[:/]/.test(SUPABASE_URL)
+  ? '--local'
+  : '--linked';
 
 export function sql(statement: string): Record<string, unknown>[] {
   // Passed via a temp file rather than an argument: the CLI parses a leading
@@ -25,7 +41,7 @@ export function sql(statement: string): Record<string, unknown>[] {
   try {
     const out = execFileSync(
       'npx',
-      ['supabase', 'db', 'query', '--linked', '-f', file],
+      ['supabase', 'db', 'query', TARGET, '-f', file],
       { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] },
     );
     const start = out.indexOf('{');
