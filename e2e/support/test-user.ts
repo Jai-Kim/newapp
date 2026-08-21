@@ -61,12 +61,23 @@ function adminClient() {
   });
 }
 
+/**
+ * Ids of the accounts this run created, so teardown can delete them directly.
+ *
+ * Looking the account up by listing users is what made teardown silently
+ * useless: `listUsers` fails for the whole project if any single row in
+ * `auth.users` has NULL where GoTrue expects an empty string, and the old
+ * teardown read that failure as "no such user, nothing to do". Deleting by an
+ * id we already hold needs no listing and cannot be poisoned by another row.
+ */
+const provisionedIds = new Map<string, string>();
+
 /** Creates the account ahead of the UI flow. Only used by the admin strategy. */
 export async function provisionUser(user: TestUser): Promise<void> {
   if (AUTH_STRATEGY !== 'admin') {
     return;
   }
-  const { error } = await adminClient().auth.admin.createUser({
+  const { data, error } = await adminClient().auth.admin.createUser({
     email: user.email,
     password: user.password,
     email_confirm: true,
@@ -74,19 +85,38 @@ export async function provisionUser(user: TestUser): Promise<void> {
   if (error) {
     throw new Error(`could not provision the test user: ${error.message}`);
   }
+  if (data.user) {
+    provisionedIds.set(user.email, data.user.id);
+  }
 }
 
 /**
  * Marks one address confirmed, for the sql-confirm strategy.
  *
- * Only `email_confirmed_at` is touched — `confirmed_at` is generated from it —
- * and the project's confirmation *setting* is left exactly as it is. This
- * confirms a single synthetic address; it does not weaken sign-up for anyone.
+ * Confirmation itself is just `email_confirmed_at` (`confirmed_at` is generated
+ * from it); the empty-string writes below are hygiene, not confirmation. The
+ * project's confirmation *setting* is left exactly as it is — this confirms a
+ * single synthetic address and does not weaken sign-up for anyone.
  */
 export function confirmEmail(email: string): void {
   const updated = sql(`
     update auth.users
-       set email_confirmed_at = coalesce(email_confirmed_at, now())
+       set email_confirmed_at = coalesce(email_confirmed_at, now()),
+           -- GoTrue scans these as Go strings, so a NULL in any one of them
+           -- makes admin.listUsers() fail for the ENTIRE project with
+           -- "Database error finding users" — and an admin delete of that row
+           -- fail with "Database error loading user", which leaves it stuck
+           -- there poisoning every later run. This is the harness's only
+           -- direct write to auth.users, so it is the one place that could
+           -- introduce them; it writes '' instead, and repairs any it finds.
+           confirmation_token         = coalesce(confirmation_token, ''),
+           recovery_token             = coalesce(recovery_token, ''),
+           email_change               = coalesce(email_change, ''),
+           email_change_token_new     = coalesce(email_change_token_new, ''),
+           email_change_token_current = coalesce(email_change_token_current, ''),
+           phone_change               = coalesce(phone_change, ''),
+           phone_change_token         = coalesce(phone_change_token, ''),
+           reauthentication_token     = coalesce(reauthentication_token, '')
      where email = ${literal(email)}
     returning id;
   `);
@@ -118,14 +148,42 @@ export async function clientFor(user: TestUser) {
  * `families`, so one delete is the whole cleanup.
  */
 export async function deleteTestUser(email: string): Promise<void> {
-  if (AUTH_STRATEGY === 'admin') {
-    const admin = adminClient();
-    const { data } = await admin.auth.admin.listUsers({ perPage: 200 });
-    const found = data?.users.find(u => u.email === email);
-    if (found) {
-      await admin.auth.admin.deleteUser(found.id);
-    }
+  if (AUTH_STRATEGY !== 'admin') {
+    sql(`delete from auth.users where email = ${literal(email)};`);
     return;
   }
-  sql(`delete from auth.users where email = ${literal(email)};`);
+
+  const admin = adminClient();
+  const id = provisionedIds.get(email) ?? await findUserId(admin, email);
+  if (id === null) {
+    throw new Error(
+      `teardown could not find ${email} to delete. The account may still `
+      + `exist — check the project before running again.`,
+    );
+  }
+
+  const { error } = await admin.auth.admin.deleteUser(id);
+  if (error) {
+    // Loudly, on purpose. A teardown that swallows this leaks an account per
+    // run and says nothing, which is exactly how five of them piled up.
+    throw new Error(`teardown could not delete ${email}: ${error.message}`);
+  }
+  provisionedIds.delete(email);
+}
+
+/** Fallback for an account this process did not create. */
+async function findUserId(
+  admin: ReturnType<typeof adminClient>,
+  email: string,
+): Promise<string | null> {
+  const { data, error } = await admin.auth.admin.listUsers({ perPage: 200 });
+  if (error) {
+    throw new Error(
+      `teardown could not look up ${email}: ${error.message}. If this is `
+      + `"Database error finding users", some row in auth.users has NULL `
+      + `where GoTrue expects '' and no account can be listed until it is `
+      + `repaired or removed.`,
+    );
+  }
+  return data.users.find(u => u.email === email)?.id ?? null;
 }
