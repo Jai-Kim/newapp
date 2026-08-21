@@ -41,3 +41,8 @@ Source of truth for detail: `docs/ROADMAP.md`, `docs/WEEK-1-SPIKES.md`, ADRs.
 - **Aug 2026** — Spikes B & D passed; Spike C reshaped (ADR-0002).
 - **Aug 2026** — Spec gap review → risks logged (issues #9–#14, `RISKS.md`).
 - **Aug 2026** — Monetization: books, not a feed (ADR-0003). **Gate GREEN — building Week 2.**
+- **Aug 2026** — Week 2 core loop (PR #21): real accounts, the guided look
+  picker, and pre-generation (ADR-0004, issue #9), behind a two-layer E2E
+  harness. The live smoke closes ADR-0004's open question — background
+  `waitUntil` generation and the sweep that rescues a dead worker are both
+  verified end to end against real providers.

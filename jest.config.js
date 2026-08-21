@@ -2,6 +2,9 @@ module.exports = {
   preset: 'jest-expo',
   setupFilesAfterEnv: ['<rootDir>/jest-setup.ts'],
   testMatch: ['**/?(*.)+(spec|test).ts?(x)'],
+  // Playwright owns e2e/. Its specs match the pattern above but import
+  // @playwright/test, which jest cannot run.
+  testPathIgnorePatterns: ['/node_modules/', '/e2e/'],
   collectCoverageFrom: [
     'src/**/*.{ts,tsx}',
     '!**/coverage/**',

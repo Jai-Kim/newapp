@@ -1,0 +1,154 @@
+# Chapter 6 — The Girl by the Window
+## 창가에 혼자 앉은 아이
+
+*Lesson: that a small kindness can matter more than a big one*
+
+**English summary (canonical, drives retrieval):**
+> On a rainy nursery morning, Mia notices a new girl, Yuna, sitting alone by the window and worries that she has nothing big enough to offer her. Remembering Grandma's saying that a dry wick must drink slowly, Mia simply carries her cup over and says one small sentence — and a friendship begins. That evening she fills and lights the plum-tree lantern almost entirely by herself, and asks Mum to start writing Grandma's sayings down in a notebook.
+
+---
+
+## Canon retrieved from Postgres before writing
+
+This is the model's ENTIRE memory of the story — no chat history.
+
+```
+Child: Mia, age band 5-6, primary language ko.
+Interests: owls, rain, lanterns.
+Tonight's lesson/situation: that a small kindness can matter more than a big one / Yuna notices the new child at nursery has no one to sit with.
+Recent chapters (newest first):
+  5. The Lantern by the Plum Tree — On the first night after Grandma's funeral, Mia cannot understand where her grandmother has gone, and her mother answers honestly and gently instead of explaining the ache away. Together they fill the old brass lantern, carry it out into the rain, and hang it on a low branch beside Nubi's plum tree hollow — finally giving the owl a light of her own. Mia learns that missing someone is love with nowhere to go, and that she can miss Grandma terribly and still be warm, safe, and okay.
+  4. The Lantern Goes Outside — The night before her vaccination, Mia is silent with fear until Grandma invites her to carry the newly lit brass lantern outdoors for the first time. Following Nubi through the drizzle, they find the owl's real home in a hollow of the old plum tree, and Mia finally says out loud that she is frightened. At the clinic the next morning she cries — and goes anyway, learning that tears and bravery can share one small heart.
+  3. The Night the Thunder Passed — A loud thunderstorm wakes Mia in the night and she hides under her quilt, refusing to come out. Grandma sits beside her without pulling the quilt away, and the old brass lantern — its wick having drunk oil all night — finally lights, revealing Nubi sheltering under the eaves. Mia learns to count the space between flash and rumble and discovers that the storm, like every scary thing, moves on and passes.
+  2. The Wick That Drinks Slowly — On a rainy evening after supper, Mia tries again to make the old brass lantern light, and Grandma shows her that the dry wick must slowly drink its oil before any flame can come. While they wait, Grandma reveals that the lantern was made for her when she was a small, frightened girl, and Nubi the owl returns to wait at the window beside Mia until bedtime.
+  1. The Lantern That Wouldn't Light — On a rainy evening, Mia discovers an old brass lantern in her grandmother's attic, but no matter what she tries, it will not light. She must go to bed in the dark anyway, and with her grandmother's words and a small owl named Nubi at the window, she learns that being scared and being brave can live in the same heart.
+Open threads (must consider advancing/resolving; use the id when resolving):
+  - [e5233152-e45b-4aa2-9883-f55d8da7f5b5] Mia wants to collect and remember all of Grandma's small everyday sayings and know-how (like how the wick must drink slowly), so none of them are lost. (opened ch. 5)
+  - [8154bb64-e0d5-4adb-95f1-f8f73eec34c5] Mia must learn to fill and light the lantern by herself now, without Grandma's hands to guide hers. (opened ch. 5)
+Known characters:
+  Mia (hero) — Curious, tender-hearted, loves owls and rain; scared of the dark but willing to stay with the feeling.
+  Grandma (Mia's grandmother, keeper of the old house) — Warm, unhurried, never dismisses a feeling; gives simple wise answers.
+  Nubi (small owl who appears at Mia's rainy window) — Round, rain-speckled, amber-eyed, polite and quietly loyal.
+  Mum (Mia's mother, Grandma's daughter) — Honest and gentle; answers hard questions plainly without hurrying a feeling away; grieving too, and unashamed of it.
+Known places/objects:
+  Grandma's attic (place) — A dusty attic above Grandma's house, smelling of old blankets and rain, opened with a small silver key.
+  The brass lantern (object) — An old brass lantern with round glass and a hand-worn handle that refuses to light; tiny scratched words on its base read 'For the one who is scared and goes anyway.'
+  The silver key (object) — Grandma's small silver key that opens the attic door.
+  The tin of lamp oil (object) — Grandma's small dented tin of lamp oil, kept in the kitchen cupboard; the lantern's dry wick must drink from it slowly before it can ever burn.
+  The eaves of Grandma's house (place) — The sheltered overhang just outside Mia's bedroom window, where Nubi tucks herself out of the rain during storms.
+  The plum tree hollow (place) — A round hollow low in the trunk of the old plum tree at the end of Grandma's garden, lined with dry leaves — this is where Nubi actually lives and sleeps.
+  Nubi's speckled feather (object) — A small rain-speckled feather Mia found at the foot of the plum tree; she carries it in her pocket for courage and keeps it under her pillow.
+  The lantern by the plum tree (object) — The old brass lantern, now hung on a low branch beside Nubi's hollow at the end of the garden, where it burns on rainy nights as the owl's own outdoor light and as a small keeping-place for Mia's love for Grandma.
+This is chapter number 6.
+```
+
+---
+
+## Pages
+
+### Page 1
+
+**EN** — Rain tapped the nursery windows all morning, soft as owl feet. Mia hung up her yellow raincoat and saw someone new: a small girl by the window, still holding her coat in her arms, as if she wasn't sure she was allowed to put it down. The teacher said her name was Yuna.
+
+**KO** — 아침부터 비가 어린이집 창문을 톡톡 두드렸어요. 부엉이 발소리처럼 아주 조용하게요. 미아가 노란 우비를 걸다가 처음 보는 아이를 발견했어요. 창가에 앉은 작은 여자아이가 겉옷을 꼭 안고 있었어요. 내려놓아도 되는지 모르는 것처럼요. 선생님이 말했어요. "새로 온 유나야."
+
+<sub>scene: A cosy nursery room on a rainy morning, coat hooks and small chairs; Mia pausing mid-motion with her yellow raincoat, looking across at a new girl sitting alone by the rain-streaked window, hugging her coat.</sub>  
+<sub>wardrobe: Mia: yellow raincoat being taken off, over a soft green jumper and navy leggings, striped socks. Yuna: pale pink cardigan, holding a grey coat.</sub>
+
+### Page 2
+
+**EN** — All morning, Yuna sat by herself. Mia wanted to do something enormous — bring her every single crayon, or invite the whole room to play, or give her the speckled feather from her pocket. But each big idea felt too big to lift, and Mia's cheeks went warm just thinking of it.
+
+**KO** — 오전 내내 유나는 혼자 앉아 있었어요. 미아는 뭔가 아주 큰 일을 해 주고 싶었어요. 크레파스를 전부 갖다주거나, 반 친구들을 다 불러 모으거나, 주머니 속 깃털을 선물하거나요. 그런데 큰 생각들은 하나같이 너무 무거웠어요. 생각만 해도 볼이 뜨끈해졌어요.
+
+<sub>scene: Mia at a low table with crayons, glancing sideways; thought-bubble feeling of hesitation; Yuna small and still at the window across the room.</sub>  
+<sub>wardrobe: Mia: green jumper, navy leggings, striped socks. Yuna: pale pink cardigan, grey coat now folded on her lap.</sub>
+
+### Page 3
+
+**EN** — At snack time her friends waved her over to the busy end of the table. Mia stood there with her cup of warm barley tea, and Grandma's voice came into her head, unhurried as always: "A dry wick can't burn all at once. It has to drink slowly, a little at a time."
+
+**KO** — 간식 시간이 되자 친구들이 북적북적한 자리에서 미아를 불렀어요. 미아는 따뜻한 보리차 컵을 들고 가만히 서 있었어요. 그때 할머니 목소리가 마음속에 떠올랐어요. 언제나처럼 서두르지 않는 목소리로요. "마른 심지는 한 번에 못 타는 거야. 조금씩 천천히 마셔야 해."
+
+<sub>scene: Snack table, cups and rice crackers; friends waving from one end; Mia standing still holding a cup, a warm memory-glow of the brass lantern faint behind her.</sub>  
+<sub>wardrobe: Mia: green jumper with sleeves pushed up, navy leggings.</sub>
+
+### Page 4
+
+**EN** — So Mia did not do anything big. She carried her cup to the window, sat down on the chair beside Yuna, and said one small sentence: "I like rain. Do you?" Yuna looked up. Then she nodded — just a little, the way a wick takes its first sip.
+
+**KO** — 그래서 미아는 큰 일을 하지 않았어요. 컵을 들고 창가로 걸어가서, 유나 옆 의자에 살며시 앉았어요. 그리고 짧은 한마디만 했어요. "나는 비 좋아해. 너도?" 유나가 고개를 들었어요. 그리고 아주 조금 끄덕였어요. 심지가 처음 한 모금을 마시는 것처럼요.
+
+<sub>scene: Close two-shot at the rainy window: Mia settling onto the chair beside Yuna, cup in both hands, speaking softly; Yuna lifting her eyes for the first time, a tiny nod.</sub>  
+<sub>wardrobe: Mia: green jumper, navy leggings, striped socks. Yuna: pale pink cardigan, coat finally set down on the sill.</sub>
+
+### Page 5
+
+**EN** — After that, small things kept happening. Yuna breathed on the cold glass and Mia drew a round owl in the fog — two dots for eyes, one for a beak. "That's Nubi," said Mia. "She lives in a plum tree and she has her own lantern." Yuna's whisper was so quiet Mia had to lean in: "Can owls get wet?" And Mia laughed, because that was exactly the right question.
+
+**KO** — 그다음부터는 작은 일들이 하나씩 이어졌어요. 유나가 차가운 유리에 "후—" 하고 입김을 불자, 미아가 흐려진 자리에 동그란 부엉이를 그렸어요. 눈 두 개, 부리 하나. "이건 누비야. 자두나무에 살고, 자기만의 등불도 있어." 유나가 아주 작게 속삭여서 미아는 귀를 가까이 댔어요. "부엉이도 비에 젖어?" 미아는 웃음이 났어요. 딱 알맞은 질문이었으니까요.
+
+<sub>scene: Two girls at the fogged window, fingertip owl drawn in the condensation, rain running down outside; both leaning close, giggling quietly.</sub>  
+<sub>wardrobe: Mia: green jumper, sleeves pushed up. Yuna: pale pink cardigan, no coat now.</sub>
+
+### Page 6
+
+**EN** — That evening the rain came again. Mia carried the dented tin of oil out to the plum tree all by herself, poured slowly the way Grandma had shown her, and waited while the wick drank. Mum only held the match steady. When the small flame stood up inside the round glass, Mum said, "You did that, Mia." And from the hollow, Nubi blinked her amber eyes, once.
+
+**KO** — 그날 저녁, 또 비가 내렸어요. 미아는 우그러진 기름통을 혼자 들고 자두나무까지 갔어요. 할머니가 알려 준 대로 천천히 기름을 붓고, 심지가 마시는 동안 가만히 기다렸어요. 엄마는 성냥만 잡아 주었어요. 동그란 유리 안에서 작은 불꽃이 똑 서자, 엄마가 말했어요. "미아가 다 한 거야." 나무 구멍 속에서 누비가 호박색 눈을 한 번 깜빡였어요.
+
+<sub>scene: Garden at dusk in drizzle; Mia crouched at the low branch pouring oil into the brass lantern, tongue between teeth in concentration; Mum kneeling beside her holding a match; Nubi's amber eyes in the plum tree hollow; lantern glow spreading.</sub>  
+<sub>wardrobe: Mia: yellow raincoat over pyjamas, rubber boots. Mum: long grey cardigan, boots, hair tied back.</sub>
+
+### Page 7
+
+**EN** — In bed, Mia asked Mum to write Grandma's saying in a notebook so it could never be lost: A dry wick drinks slowly. Underneath, Mia drew a round owl and a girl by a window. "Tomorrow," she yawned, "I'll sit next to Yuna again. And one rainy day I'll show her the lantern." Outside, at the end of the garden, a small light kept burning in the rain.
+
+**KO** — 잠자리에 든 미아가 엄마에게 부탁했어요. 할머니 말을 공책에 적어 달라고요. 절대 잃어버리지 않게요. "마른 심지는 천천히 마신다." 그 아래에 미아는 동그란 부엉이와 창가에 앉은 아이를 그렸어요. "내일도 유나 옆에 앉을 거야." 미아가 하품하며 말했어요. "그리고 비 오는 날에 등불도 보여 줄래." 정원 끝에서는 작은 불빛이 비를 맞으며 계속 타고 있었어요.
+
+<sub>scene: Bedroom at night, lamp low; Mum sitting on the bed writing in a small notebook while Mia, sleepy under the quilt, points at her own drawing; through the window the distant lantern glows by the plum tree; speckled feather tucked under the pillow.</sub>  
+<sub>wardrobe: Mia: soft blue pyjamas with tiny star print. Mum: long grey cardigan over house clothes.</sub>
+
+---
+
+## Story Bible delta
+
+```json
+{
+  "new_characters": [
+    {
+      "name": "Yuna",
+      "role": "New child at Mia's nursery, Mia's first friendship of her own",
+      "traits": "Quiet and watchful, slow to speak but full of good questions; likes rain; asks whether owls get wet."
+    }
+  ],
+  "new_world": [
+    {
+      "name": "The nursery window table",
+      "type": "place",
+      "description": "A low table and two chairs beside the tall rain-streaked window of Mia's nursery, where Yuna sat alone and where the two girls draw owls in the fogged glass."
+    },
+    {
+      "name": "Grandma's sayings notebook",
+      "type": "object",
+      "description": "A small notebook Mum begins writing in at Mia's request, keeping Grandma's everyday sayings so none are lost; the first entry reads 'A dry wick drinks slowly,' with Mia's drawing beneath it."
+    }
+  ],
+  "threads_opened": [
+    {
+      "summary": "Mia has promised to show Yuna the plum-tree lantern and Nubi on a rainy day — a first friend invited into Grandma's garden."
+    },
+    {
+      "summary": "The sayings notebook has only one entry; Mia wants to fill it with the rest of Grandma's words and know-how."
+    }
+  ],
+  "threads_resolved": [
+    {
+      "id": "8154bb64-e0d5-4adb-95f1-f8f73eec34c5",
+      "how": "Mia carried the oil tin to the plum tree, poured slowly and waited for the wick on her own, with Mum only steadying the match — she readied and lit the lantern essentially by herself for the first time."
+    }
+  ]
+}
+```
+
+<sub>Retrieved 5 prior chapter(s), 2 open thread(s), 4 character(s).</sub>

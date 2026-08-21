@@ -1,72 +1,77 @@
-// Storyloom — generate-chapter Edge Function (skeleton)
+// Storyloom — generate-chapter Edge Function.
 //
-// This is the heart of the moat: retrieve -> generate -> persist. Memory lives
-// in Postgres (the Story Bible), NOT in the model's context window. Claude Code
-// should flesh out the TODOs in Spike B and prove chapter 2 continues chapter 1
-// using only DB-retrieved canon.
+// The on-demand path: a parent asking for a chapter right now. The work itself
+// lives in `_shared/generate.ts`, because the queue worker runs exactly the
+// same thing without a user session (issue #9).
+//
+// This path is the fallback, not the main road. It takes ~93s, which is too
+// long to stand in front of at bedtime — the nightly flow pre-generates via
+// `enqueue-chapter` instead, and this remains for the first chapter and for
+// the night someone skipped choosing.
 //
 // Deploy: supabase functions deploy generate-chapter
 
 import { createClient } from "jsr:@supabase/supabase-js@2";
 
+import { assertOwnsChild, requireUser, statusFor } from "../_shared/auth.ts";
+import { handlePreflight, jsonResponse } from "../_shared/cors.ts";
+import { generateChapterFor } from "../_shared/generate.ts";
+
 interface GenerateRequest {
   child_id: string;
-  lesson: string;      // the value/situation the parent chose for tonight
-  situation?: string;  // optional free-text context ("first swim lesson tomorrow")
+  lesson: string; // the value/situation the parent chose for tonight
+  situation?: string; // optional free-text context
+  /** Return the retrieved canon in the response. Spike B evidence; off by default. */
+  debug_canon?: boolean;
 }
 
 Deno.serve(async (req: Request) => {
+  const preflight = handlePreflight(req);
+  if (preflight) {
+    return preflight;
+  }
+
   try {
-    const { child_id, lesson, situation } = (await req.json()) as GenerateRequest;
+    const { child_id, lesson, situation, debug_canon } =
+      (await req.json()) as GenerateRequest;
+
+    if (!child_id || !lesson) {
+      return jsonResponse(
+        { ok: false, error: "child_id and lesson are required" },
+        { status: 400 },
+      );
+    }
+
+    // This function spends money at a paid provider, so it never serves an
+    // anonymous caller, and never a child that is not the caller's (issue #6).
+    const user = await requireUser(req);
 
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL")!,
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
     );
+    await assertOwnsChild(supabase, child_id, user.id);
 
-    // 1. RETRIEVE canon from the Story Bible ---------------------------------
-    // Most recent chapter summaries, all OPEN threads, known characters/world.
-    const [{ data: recentChapters }, { data: openThreads }, { data: characters }] =
-      await Promise.all([
-        supabase.from("chapters").select("number,title,summary")
-          .eq("child_id", child_id).order("number", { ascending: false }).limit(5),
-        supabase.from("threads").select("id,summary,opened_chapter")
-          .eq("child_id", child_id).eq("status", "open"),
-        supabase.from("characters").select("name,role,traits").eq("child_id", child_id),
-      ]);
-    // TODO(Spike B+): also pull top-k semantically related past chapters via
-    // pgvector using an embedding of `lesson` + `situation`.
+    const result = await generateChapterFor(supabase, child_id, lesson, situation);
 
-    const nextNumber = (recentChapters?.[0]?.number ?? 0) + 1;
-
-    // 2. GENERATE chapter + strict JSON delta --------------------------------
-    // Build the prompt from docs/prompts/story-generation.md, injecting the
-    // retrieved canon so the model can honor continuity.
-    // TODO: call Anthropic API (ANTHROPIC_API_KEY). Expect a response of shape
-    //   { chapter_text, title, summary, delta } where delta follows the schema
-    //   in docs/prompts/story-generation.md. Validate before persisting.
-    const generated = await generateChapter({
-      childId: child_id, lesson, situation, nextNumber,
-      canon: { recentChapters, openThreads, characters },
+    return jsonResponse({
+      ok: true,
+      chapter_id: result.chapter_id,
+      number: result.number,
+      chapter: result.chapter,
+      safety: result.safety,
+      // Always pending (or rejected) at birth — the parent gate is the point.
+      review_status: result.safety.verdict === "blocked" ? "rejected" : "pending",
+      latency_ms: result.latency_ms,
+      usage: result.usage,
+      ...(debug_canon
+        ? { retrieved_canon: result.canon, canon_prompt: result.canon_prompt }
+        : {}),
     });
-
-    // 3. SAFETY pass ---------------------------------------------------------
-    // TODO: content filter + flag for parent preview before the child view.
-
-    // 4. PERSIST canon delta + chapter --------------------------------------
-    // TODO: within a transaction/RPC: insert chapter (+ embedding), apply delta
-    //   (upsert characters/world, open/resolve threads), log lesson_taught.
-
-    // 5. ILLUSTRATE (async is fine) -----------------------------------------
-    // TODO: for each scene, call the image model with locked character refs.
-
-    return Response.json({ ok: true, number: nextNumber, chapter: generated });
   } catch (err) {
-    return Response.json({ ok: false, error: String(err) }, { status: 500 });
+    return jsonResponse(
+      { ok: false, error: err instanceof Error ? err.message : String(err) },
+      { status: statusFor(err) },
+    );
   }
 });
-
-// Placeholder — implement against the Anthropic API + the prompt contract.
-async function generateChapter(_args: unknown): Promise<unknown> {
-  throw new Error("generateChapter not implemented — wire up in Spike B");
-}

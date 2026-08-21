@@ -1,1 +1,1 @@
-export { FeedScreen as default } from '@/features/feed/feed-screen';
+export { TonightScreen as default } from '@/features/nightly/tonight-screen';

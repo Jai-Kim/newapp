@@ -11,6 +11,8 @@
 import Anthropic from "npm:@anthropic-ai/sdk@0.70.0";
 import { createClient } from "jsr:@supabase/supabase-js@2";
 
+import { handlePreflight, jsonResponse } from "../_shared/cors.ts";
+
 interface ProviderCheck {
   ok: boolean;
   detail: string;
@@ -54,7 +56,7 @@ function checkSupabase(): Promise<ProviderCheck> {
     }
 
     const supabase = createClient(url, serviceKey);
-    // head+count touches the table without pulling rows. Proves schema.sql ran.
+    // head+count touches the table without pulling rows. Proves the baseline migration ran.
     const { error, count } = await supabase
       .from("chapters")
       .select("id", { count: "exact", head: true });
@@ -117,7 +119,13 @@ function checkImageProvider(): Promise<ProviderCheck> {
         throw new Error(`Gemini returned ${res.status} ${res.statusText}`);
       }
       const body = (await res.json()) as { models?: unknown[] };
-      return `Gemini reachable; ${body.models?.length ?? 0} models visible`;
+      // NOTE: this only proves the key is valid and the API is reachable. It
+      // does NOT prove we can generate an image — a free-tier key lists models
+      // happily while every image model has a generation quota of 0. Spike A
+      // hit exactly that. Verifying generation would cost money per call, so
+      // the check stays cheap and the wording stays honest.
+      return `Gemini key valid; ${body.models?.length ?? 0} models listed `
+        + `(reachability only — does not prove image-generation quota)`;
     }
 
     if (provider === "replicate") {
@@ -132,7 +140,9 @@ function checkImageProvider(): Promise<ProviderCheck> {
         throw new Error(`Replicate returned ${res.status} ${res.statusText}`);
       }
       const body = (await res.json()) as { username?: string };
-      return `Replicate reachable as "${body.username ?? "unknown"}"`;
+      // Same caveat as the Gemini path: token validity, not generation quota.
+      return `Replicate token valid as "${body.username ?? "unknown"}" `
+        + `(reachability only — does not prove generation quota)`;
     }
 
     throw new Error(
@@ -141,7 +151,12 @@ function checkImageProvider(): Promise<ProviderCheck> {
   });
 }
 
-Deno.serve(async () => {
+Deno.serve(async (req: Request) => {
+  const preflight = handlePreflight(req);
+  if (preflight) {
+    return preflight;
+  }
+
   const [supabase, anthropic, image] = await Promise.all([
     checkSupabase(),
     checkAnthropic(),
@@ -152,7 +167,7 @@ Deno.serve(async () => {
   const ok = supabase.ok && anthropic.ok && image.ok;
 
   // 503 when a provider is down so `supabase functions invoke` fails loudly.
-  return Response.json({ ok, checks } satisfies HealthCheckResponse, {
+  return jsonResponse({ ok, checks } satisfies HealthCheckResponse, {
     status: ok ? 200 : 503,
   });
 });

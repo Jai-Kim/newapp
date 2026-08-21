@@ -1,0 +1,35 @@
+[
+  {
+    "slug": "yuna-korean-girl",
+    "ok": true,
+    "latency_ms": 6502,
+    "bytes": 1671513,
+    "model": "gemini-2.5-flash-image",
+    "usd": 0.0391,
+    "descriptor": "Yuna is a 6-year-old girl. She has light golden skin. Her hair is straight and black, worn in two low pigtails, with a blunt fringe cut straight across above the eyebrows. Her eyes are dark brown, almond-shaped with gentle monolids. She has a tiny dark mole just below the LEFT eye. She looks like a real child, drawn with specific, individual features — never a generic cartoon and never in an anime or manga style.",
+    "wardrobe_default": "simple, comfortable everyday clothes with terracotta as the recurring accent — for example a terracotta cardigan, jumper or boots.",
+    "companion": "A small round magpie, about the size of a teapot, with a glossy black head and back, a crisp white belly and blue-sheen tail feathers, wearing a small knitted terracotta scarf."
+  },
+  {
+    "slug": "theo-boy-glasses",
+    "ok": true,
+    "latency_ms": 7722,
+    "bytes": 1715140,
+    "model": "gemini-2.5-flash-image",
+    "usd": 0.0391,
+    "descriptor": "Theo is a 6-year-old boy. He has fair skin with warm peach undertones. His hair is softly wavy and light brown, cut short and neat, close to the head, with a side-swept fringe falling across one eyebrow. His eyes are green, large and round. He wears round glasses with sage green rims. He has a light scatter of freckles across the nose and cheeks. He looks like a real child, drawn with specific, individual features — never a generic cartoon and never in an anime or manga style.",
+    "wardrobe_default": "simple, comfortable everyday clothes with sage green as the recurring accent — for example a sage green cardigan, jumper or boots.",
+    "companion": "A small round fox cub, about the size of a teapot, with russet fur, a white-tipped brushy tail and bright dark eyes, wearing a small knitted sage green scarf."
+  },
+  {
+    "slug": "ama-neutral-coily",
+    "ok": true,
+    "latency_ms": 7998,
+    "bytes": 1532440,
+    "model": "gemini-2.5-flash-image",
+    "usd": 0.0391,
+    "descriptor": "Ama is an 8-year-old child. They have deep brown skin. Their hair is tightly coiled and black, worn in two round puffs, one on each side. Their eyes are dark brown, almond-shaped. They wear small rectangular glasses with mustard yellow rims. They have a gap between the two front teeth, visible when smiling. They look like a real child, drawn with specific, individual features — never a generic cartoon and never in an anime or manga style.",
+    "wardrobe_default": "simple, comfortable everyday clothes with mustard yellow as the recurring accent — for example a mustard yellow cardigan, jumper or boots.",
+    "companion": "A small round turtle, about the size of a teapot, with a sage-green patterned shell and a slow friendly face, wearing a small knitted mustard yellow scarf."
+  }
+]

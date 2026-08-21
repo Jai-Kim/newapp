@@ -71,6 +71,52 @@ chapters (pgvector) for the chosen lesson.
    embedding.
 6. **Deliver** — render the read-together chapter view; update streak/metrics.
 
+### When this runs: the night before (issue #9)
+
+The pipeline above takes **~93s to write plus ~9s per illustration**. That is
+far too long to stand in front of at bedtime, and if Anthropic or Gemini is
+having a bad evening at 8pm there is no bedtime story at all. So it does not
+run at bedtime. It runs the night before:
+
+```
+tonight    read chapter N  ->  parent chooses what N+1 is about  ->  job queued
+           |
+           +-- background task: write N+1, illustrate it, run both safety passes
+               (~2 minutes, while the parent is putting the child to bed)
+
+daytime    parent approves N+1 in the review queue
+
+tomorrow   open the app -> "Tonight's chapter is ready" -> one tap -> reading
+```
+
+**Moving the lesson choice to the end of the previous read is what makes this
+possible at all.** A chapter whose subject is chosen at the moment it is wanted
+cannot have been written in advance. That reordering is the design, not a
+workaround — and it has a second benefit: the parent-preview gate also moves off
+the bedtime path, into the daytime, where reading a chapter first is a small
+thing rather than another wait.
+
+Mechanics:
+
+- `enqueue-chapter` validates, writes a `chapter_queue` row and hands the work
+  to a background task (`EdgeRuntime.waitUntil`). It returns in well under a
+  second; nothing waits on generation.
+- **A partial unique index allows one live job per child.** Generation bills two
+  paid providers, so a double-tap, a retry, or a second device must not buy two
+  chapters — the second insert fails rather than quietly spending.
+- The **job row is the authorization record.** A background task has no user
+  session, so the worker runs under the service role and trusts the row; RLS
+  forbids a client from creating a job for another family's child, or from
+  creating one in any state but `queued`.
+- Jobs retry up to 3 times, then fail visibly. A parent who was promised a
+  chapter is told there isn't one rather than shown a spinner forever.
+- A **sweep on app open** revives jobs whose worker died mid-run — otherwise a
+  killed isolate would hold the one-live-job lock indefinitely and the family
+  would simply never get another chapter.
+- If nobody chose a lesson, the server picks the one this child has had least
+  recently and marks the job `auto_chosen`, so the app can say so rather than
+  pretend the parent chose it.
+
 Character-consistency method (per 2026 best practice): lock identity in a single
 high-quality reference (1024²+, multiple angles), reuse that reference for every
 shot, use explicit identity-preservation prompts, edit only targeted regions.

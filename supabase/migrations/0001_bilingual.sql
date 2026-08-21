@@ -1,7 +1,7 @@
 -- 0001_bilingual.sql
 -- Adds dual-language (English + Korean) page-aligned content to chapters.
 -- Safe on the existing project: chapters is empty, so the column drops lose no
--- data. Run in the Supabase SQL editor AFTER schema.sql + policies.sql.
+-- data. Applied after 0000_baseline.sql, which creates `chapters`.
 
 alter table chapters add column if not exists title_en text;
 alter table chapters add column if not exists title_ko text;

@@ -36,11 +36,11 @@ real grief-chapter art; blocked pages degrade to text-only. Parent-preview wired
 
 ## Gate decision — GREEN, build
 
-| Spike | Pass bar | Result |
-|---|---|---|
-| A — consistency | Parent accepts same character across ≥3 scenes | ☑ passed |
-| B — memory | Ch.2 continues Ch.1 thread from DB, both languages | ☑ passed |
-| C — economics | Healthy margin at a believable price | ☑ passed |
-| D — safety | Sensitive prompts safe (EN+KO); parent gate works | ☑ passed |
+| Spike | Pass bar | Result | Evidence |
+|---|---|---|---|
+| A — consistency | Parent accepts same character across ≥3 scenes | ☑ passed | [`spike-a/`](spikes/spike-a/) |
+| B — memory | Ch.2 continues Ch.1 thread from DB, both languages | ☑ passed | [`spike-b/`](spikes/spike-b/) |
+| C — economics | Healthy margin at a believable price | ☑ passed | [`spike-c/`](spikes/spike-c/) |
+| D — safety | Sensitive prompts safe (EN+KO); parent gate works | ☑ passed | [`spike-d/`](spikes/spike-d/) |
 
 All four passed → **commit to Week 2 (core loop).**

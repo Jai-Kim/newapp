@@ -41,6 +41,15 @@ export default function RootLayout() {
         <Stack.Screen name="onboarding" options={{ headerShown: false }} />
         <Stack.Screen name="login" options={{ headerShown: false }} />
         <Stack.Screen name="health-check" options={{ title: 'Health check' }} />
+        <Stack.Screen name="review/[id]" options={{ title: 'Review chapter' }} />
+        <Stack.Screen name="child-setup" options={{ title: 'Set up' }} />
+        <Stack.Screen
+          name="character-setup"
+          options={{ title: 'Their look' }}
+        />
+        <Stack.Screen name="library" options={{ title: 'All chapters' }} />
+        {/* No header — the reader should be the whole screen at bedtime. */}
+        <Stack.Screen name="read/[id]" options={{ headerShown: false }} />
       </Stack>
     </Providers>
   );

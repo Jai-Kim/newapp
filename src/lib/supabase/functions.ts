@@ -1,4 +1,4 @@
-import type { WorldItemType } from './types';
+import type { ChapterPage, WorldItemType } from './types';
 
 import { supabase } from './client';
 
@@ -24,13 +24,19 @@ export type ChapterDelta = {
   new_world: { name: string; type: WorldItemType; description: string }[];
   threads_opened: { summary: string }[];
   threads_resolved: { id: string; how: string }[];
-  scenes: { page: number; description: string }[];
 };
 
+/**
+ * Bilingual chapter as returned by the model. `scenes` is gone from the delta —
+ * scene and wardrobe now live per page, so illustration and text can't drift
+ * out of alignment (ADR-0001 §1, §5).
+ */
 export type GeneratedChapter = {
-  title: string;
-  chapter_text: string;
+  title_en: string;
+  title_ko: string;
+  /** English canonical; drives retrieval and the embedding. */
   summary: string;
+  pages: ChapterPage[];
   delta: ChapterDelta;
 };
 
