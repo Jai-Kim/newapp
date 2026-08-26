@@ -104,7 +104,25 @@ export async function createChild(page: Page, name: string): Promise<void> {
   await expect(page.locator(t('draw-sheet'))).toBeVisible({ timeout: 60_000 });
 }
 
-/** The guided look picker. Every field must be answered before it will draw. */
+/** Provider weather rather than a broken product — worth one more go. */
+function isTransient(message: string): boolean {
+  return /\b(429|500|502|503|504)\b|high demand|UNAVAILABLE|overloaded|rate limit|timeout/i
+    .test(message);
+}
+
+/**
+ * The guided look picker. Every field must be answered before it will draw.
+ *
+ * In live mode the draw is retried on a transient provider error. Gemini
+ * returns 503 "high demand" often enough that a smoke test which fails on it
+ * is a test that gets ignored within a fortnight — and the thing under test is
+ * whether the loop works, not whether Google had a good afternoon.
+ *
+ * The important part is that it races the success control against the error
+ * banner. Waiting only for success turns a provider outage into a three-minute
+ * timeout reported as "element not found", which is how the first live run
+ * spent 180 seconds telling us nothing.
+ */
 export async function lockCharacterLook(page: Page): Promise<void> {
   for (const chip of [
     'presentation-girl',
@@ -123,14 +141,31 @@ export async function lockCharacterLook(page: Page): Promise<void> {
     await page.locator(t(chip)).click();
   }
 
-  await expect(page.locator(t('draw-sheet'))).toBeEnabled();
-  await page.locator(t('draw-sheet')).click();
+  const attempts = IS_LIVE ? 3 : 1;
+  for (let attempt = 1; attempt <= attempts; attempt++) {
+    await expect(page.locator(t('draw-sheet'))).toBeEnabled();
+    await page.locator(t('draw-sheet')).click();
 
-  // Live mode actually draws a 2K sheet and runs a vision safety pass.
-  await expect(page.locator(t('finish-character'))).toBeVisible({
-    timeout: IS_LIVE ? 180_000 : 30_000,
-  });
-  await page.locator(t('finish-character')).click();
+    const done = page.locator(t('finish-character'));
+    const failed = page.locator(t('picker-error'));
+
+    await expect(done.or(failed)).toBeVisible({
+      timeout: IS_LIVE ? 180_000 : 30_000,
+    });
+
+    if (await done.isVisible()) {
+      await done.click();
+      return;
+    }
+
+    const message = (await failed.innerText()).trim();
+    if (attempt === attempts || !isTransient(message)) {
+      throw new Error(`the look picker could not draw a sheet: ${message}`);
+    }
+
+    console.warn(`sheet attempt ${attempt} hit provider weather, retrying: ${message}`);
+    await page.waitForTimeout(15_000);
+  }
 }
 
 /** Choose what tomorrow is about, from wherever the picker is showing. */
@@ -253,23 +288,49 @@ export async function doubleEnqueue(
 }
 
 /** Polls until the background worker closes the job out, or gives up. */
+export type JobSnapshot = {
+  status: string;
+  error: string | null;
+  chapter_id: string | null;
+  attempts: number | null;
+  started_at: string | null;
+};
+
+/**
+ * Polls until the background worker closes the job out, or gives up.
+ *
+ * Returns `attempts` and `started_at` as well as the status, because when this
+ * times out on a stranded job those two fields are the only things that
+ * distinguish the two very different explanations:
+ *
+ *   started_at still old   the sweep never picked it up
+ *   started_at moved up    the sweep re-claimed it and that worker died too
+ *
+ * A live run failed on exactly this and could say neither.
+ */
 export async function waitForJob(
   db: SupabaseClient,
   jobId: string,
   timeoutMs: number,
-): Promise<{ status: string; error: string | null; chapter_id: string | null }> {
+): Promise<JobSnapshot> {
   const deadline = Date.now() + timeoutMs;
-  let last = { status: 'unknown', error: null as string | null, chapter_id: null as string | null };
+  let last: JobSnapshot = {
+    status: 'unknown',
+    error: null,
+    chapter_id: null,
+    attempts: null,
+    started_at: null,
+  };
 
   while (Date.now() < deadline) {
     const { data } = await db
       .from('chapter_queue')
-      .select('status,error,chapter_id')
+      .select('status,error,chapter_id,attempts,started_at')
       .eq('id', jobId)
       .maybeSingle();
 
     if (data) {
-      last = data as typeof last;
+      last = data as JobSnapshot;
       if (last.status === 'done' || last.status === 'failed') {
         return last;
       }
@@ -277,4 +338,10 @@ export async function waitForJob(
     await new Promise(resolve => setTimeout(resolve, 5000));
   }
   return last;
+}
+
+/** One line a human can read straight out of a CI log. */
+export function describeJob(job: JobSnapshot): string {
+  return `status=${job.status} attempts=${job.attempts} `
+    + `started_at=${job.started_at ?? 'null'} error=${job.error ?? 'none'}`;
 }
