@@ -1,0 +1,74 @@
+name: Claude Code
+
+# Responds when someone mentions @claude in an issue or pull request.
+#
+# Interactive mode: there is deliberately no `prompt` input. With one, the
+# action runs on every matching event whether or not anyone asked for it;
+# without one, it waits for the trigger phrase. Mentions only, as intended.
+
+on:
+  issue_comment:
+    types: [created]
+  pull_request_review_comment:
+    types: [created]
+  pull_request_review:
+    types: [submitted]
+  issues:
+    types: [opened, assigned]
+
+# Two people mentioning @claude on the same thread should queue, not race — a
+# second run would be working from a tree the first one is still changing.
+concurrency:
+  group: claude-${{ github.event.issue.number || github.event.pull_request.number }}
+  cancel-in-progress: false
+
+jobs:
+  claude:
+    # The action checks the trigger phrase itself, but doing it here as well
+    # means a runner never starts for the many comments that aren't for Claude.
+    if: |
+      (github.event_name == 'issue_comment' && contains(github.event.comment.body, '@claude')) ||
+      (github.event_name == 'pull_request_review_comment' && contains(github.event.comment.body, '@claude')) ||
+      (github.event_name == 'pull_request_review' && contains(github.event.review.body, '@claude')) ||
+      (github.event_name == 'issues' && (contains(github.event.issue.body, '@claude') || contains(github.event.issue.title, '@claude')))
+
+    runs-on: ubuntu-latest
+    # A runaway session should cost less than an hour of runner time.
+    timeout-minutes: 45
+
+    permissions:
+      contents: write # commit and push
+      pull-requests: write # open PRs, comment
+      issues: write # respond on issues
+      id-token: write # required for the action's GitHub App authentication
+      actions: read # lets Claude read CI results on a PR
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          # Claude branches from the head it is given; it does not need history.
+          fetch-depth: 1
+
+      - name: Run Claude Code
+        uses: anthropics/claude-code-action@v1
+        with:
+          # Subscription OAuth, not an API key. Generated with
+          # `claude setup-token` and stored as a repository secret.
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+
+          # `github_token` is deliberately NOT set. Passing the default
+          # GITHUB_TOKEN would make Claude push as the Actions bot, and GitHub
+          # does not run workflows on commits made with it — so lint, types,
+          # tests and the E2E suite would all silently skip on Claude's own
+          # commits, which is the opposite of what CI is for. Omitting it lets
+          # the action authenticate as the Claude GitHub App instead.
+          claude_args: |
+            --allowedTools "Bash(pnpm install),Bash(pnpm lint),Bash(pnpm lint:*),Bash(pnpm type-check),Bash(pnpm test),Bash(pnpm test:*),Bash(pnpm check-all)"
+
+          # This repo's conventions live in CLAUDE.md and are read automatically.
+          # Two things worth knowing before adding more:
+          #   --max-turns caps cost but truncates real work mid-task; prefer a
+          #     narrower request over a tighter cap.
+          #   `pnpm e2e:web` needs a Supabase to talk to and is not allow-listed
+          #     above, so Claude will stop and ask before running it.
