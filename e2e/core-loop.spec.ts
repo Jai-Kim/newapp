@@ -187,6 +187,52 @@ test.describe(`core loop (${MODE})`, () => {
       return chapterPages;
     });
 
+    await test.step('the chapter reads in airplane mode', async () => {
+      // The download is fire-and-forget, so wait for the app to say it landed
+      // rather than guessing at a sleep.
+      await expect(page.locator('[data-testid="saved-offline"]'))
+        .toBeVisible({ timeout: 60_000 });
+
+      // Both of these matter. `setOffline` alone would prove nothing: a route
+      // stub fulfils requests locally, so the stubbed Edge Function and storage
+      // endpoints would keep answering happily with the network "off" and the
+      // test would pass without the cache being involved at all.
+      await page.unrouteAll({ behavior: 'ignoreErrors' });
+      await page.context().setOffline(true);
+
+      // No reload: offline blocks the dev server too, so the document itself
+      // would fail to load. Navigating inside the app is the real bedtime
+      // case anyway — the app is already open when the wifi gives up.
+      await page.locator('[data-testid="read-tonight"]').click();
+
+      // Wait for the first page to actually render. The reader resolves cached
+      // images asynchronously, so reading the body straight after the click
+      // catches an empty frame and says "no Korean" about a page that has not
+      // been drawn yet.
+      await expect(page.locator('[data-testid="page-1"]'))
+        .toBeVisible({ timeout: 30_000 });
+
+      const body = await page.locator('body').innerText();
+      expect(body, 'no Korean on the page with the network off')
+        .toMatch(/[\uAC00-\uD7AF]/);
+      expect(body, 'no English on the page with the network off')
+        .toMatch(/[a-z]{4}/i);
+
+      // The acceptance criterion this slice exists for: images resolve from
+      // the cache, not from a signed URL that needs a network to mint.
+      const images = page.locator('img');
+      expect(await images.count(), 'no illustration rendered offline')
+        .toBeGreaterThan(0);
+      const src = await images.first().getAttribute('src');
+      expect(src, 'the image came from the network, not the cache')
+        .toMatch(/^blob:|^file:/);
+
+      // Back online for the rest of the flow.
+      await page.context().setOffline(false);
+      await installStubs({ page, db, childId: () => childId });
+      await page.goto('/');
+    });
+
     await test.step('reading it shows both languages and art', async () => {
       await expect(page.locator('[data-testid="read-tonight"]'))
         .toBeVisible({ timeout: 60_000 });

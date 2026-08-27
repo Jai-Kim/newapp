@@ -28,7 +28,12 @@ export type NightlyState
   /** Generation gave up. The parent is owed an explanation, not a spinner. */
     | { kind: 'failed'; job: ChapterQueueJob }
   /** Nothing queued and nothing waiting — offer to start one. */
-    | { kind: 'empty' };
+    | { kind: 'empty' }
+    /**
+     * No network and nothing downloaded. Distinct from `empty` because `empty`
+     * offers to queue tomorrow's chapter, which needs a network to do.
+     */
+    | { kind: 'offline_empty' };
 
 /** The oldest approved chapter nobody has read yet. */
 export async function getTonightsChapter(
