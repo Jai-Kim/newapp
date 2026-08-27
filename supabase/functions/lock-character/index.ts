@@ -24,6 +24,11 @@ import {
 } from "../_shared/character.ts";
 import { handlePreflight, jsonResponse } from "../_shared/cors.ts";
 import { HOUSE_STYLE } from "../_shared/illustrate.ts";
+import {
+  friendlyProviderMessage,
+  isTransientProviderError,
+  withRetry,
+} from "../_shared/retry.ts";
 import { reviewIllustration } from "../_shared/safety.ts";
 
 interface Req {
@@ -113,10 +118,27 @@ Deno.serve(async (req: Request) => {
     const wardrobeDefault = buildWardrobeDefault(picked);
     const companion = buildCompanionDescriptor(picked);
 
-    const sheet = await generateSheet(
-      apiKey,
-      buildSheetPrompt(descriptor, wardrobeDefault, companion, HOUSE_STYLE),
-    );
+    // Three attempts, matching chapter generation. Nothing has been written
+    // yet at this point, so a failure here costs the parent a wait and
+    // nothing else — no half-locked child, no orphaned sheet in the bucket.
+    const prompt = buildSheetPrompt(descriptor, wardrobeDefault, companion, HOUSE_STYLE);
+    let sheet;
+    try {
+      sheet = await withRetry(() => generateSheet(apiKey, prompt), {
+        label: `lock-character sheet for child ${child_id}`,
+      });
+    }
+    catch (err) {
+      // A provider having a bad minute is not a server error on our side, and
+      // it is worth the client being able to tell the two apart: 503 means
+      // "try again shortly", 502 means "we could not reach them at all".
+      return jsonResponse({
+        ok: false,
+        error: friendlyProviderMessage(err),
+        retryable: isTransientProviderError(err),
+        provider_detail: err instanceof Error ? err.message : String(err),
+      }, { status: isTransientProviderError(err) ? 503 : 502 });
+    }
 
     // Review before it is stored, same rule as page art: the image model never
     // saw the safety brief, and this one picture becomes the seed for every
