@@ -1,57 +1,26 @@
-import type { ChildReadableChapter } from '@/lib/supabase/types';
 import * as React from 'react';
 
+import { useChapterSource } from '@/features/reader/use-chapter-source';
 import { messageOf } from '@/lib/errors';
-
-import { getReadableChapter, listChildren, signImagePaths } from '@/lib/supabase/chapters';
 import { enqueueTomorrow, markChapterRead } from '@/lib/supabase/nightly';
 
 /**
  * One chapter, read a page at a time.
  *
- * `read_at` is stamped when the reader reaches the end rather than when the
- * chapter is opened — an opened-and-abandoned chapter should still be tonight's
- * chapter tomorrow.
+ * Loading lives in `useChapterSource` (device first, network second); this
+ * hook is the paging and the two things reaching the end does — stamp the
+ * chapter read, and let the parent choose what tomorrow is about.
+ *
+ * `read_at` is stamped at the END rather than on open: an opened-and-abandoned
+ * chapter should still be tonight's chapter tomorrow.
  */
 export function useChapterReader(chapterId: string) {
-  const [chapter, setChapter] = React.useState<ChildReadableChapter | null>(null);
-  const [urls, setUrls] = React.useState<Record<string, string>>({});
-  const [lead, setLead] = React.useState<'en' | 'ko'>('en');
-  const [name, setName] = React.useState('your child');
-  const [childId, setChildId] = React.useState<string | null>(null);
+  const source = useChapterSource(chapterId);
+  const { chapter, urls, child, setError } = source;
+
   const [index, setIndex] = React.useState(0);
   const [finished, setFinished] = React.useState(false);
-  const [loading, setLoading] = React.useState(true);
   const [busy, setBusy] = React.useState(false);
-  const [error, setError] = React.useState<string | null>(null);
-
-  React.useEffect(() => {
-    (async () => {
-      try {
-        const [ch, kids] = await Promise.all([
-          getReadableChapter(chapterId),
-          listChildren(),
-        ]);
-        setChapter(ch);
-        if (kids.length > 0) {
-          setLead(kids[0].primary_language);
-          setName(kids[0].first_name);
-          setChildId(kids[0].id);
-        }
-        setUrls(
-          await signImagePaths(
-            ch.pages.map(p => p.image_path).filter(Boolean) as string[],
-          ),
-        );
-      }
-      catch (e) {
-        setError(messageOf(e));
-      }
-      finally {
-        setLoading(false);
-      }
-    })();
-  }, [chapterId]);
 
   const next = React.useCallback(() => {
     if (!chapter) {
@@ -70,12 +39,12 @@ export function useChapterReader(chapterId: string) {
 
   const queueTomorrow = React.useCallback(
     async (lesson: string | undefined, situation: string | undefined) => {
-      if (!childId) {
+      if (!child) {
         return;
       }
       setBusy(true);
       try {
-        await enqueueTomorrow(childId, lesson, situation);
+        await enqueueTomorrow(child.id, lesson, situation);
       }
       catch (e) {
         setError(messageOf(e));
@@ -84,18 +53,20 @@ export function useChapterReader(chapterId: string) {
         setBusy(false);
       }
     },
-    [childId],
+    [child, setError],
   );
 
   return {
     chapter,
-    lead,
-    name,
+    lead: child?.primary_language ?? 'en',
+    name: child?.first_name ?? 'your child',
     index,
     finished,
-    loading,
+    loading: source.loading,
     busy,
-    error,
+    error: source.error,
+    /** Reading from the device because the network was unreachable. */
+    offline: source.offline,
     next,
     previous,
     queueTomorrow,

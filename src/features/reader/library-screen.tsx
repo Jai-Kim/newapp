@@ -12,6 +12,11 @@ import {
 } from '@/components/ui';
 
 import { messageOf } from '@/lib/errors';
+import {
+  cacheChild,
+  readCachedChapters,
+  readCachedChild,
+} from '@/lib/offline/chapter-cache';
 import { listChildren, listReadableChapters } from '@/lib/supabase/chapters';
 
 /**
@@ -27,21 +32,37 @@ export function LibraryScreen() {
   const [lead, setLead] = React.useState<'en' | 'ko'>('en');
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
+  const [offline, setOffline] = React.useState(false);
 
   React.useEffect(() => {
     (async () => {
       try {
+        // The device first, so the shelf is there with no network at all.
+        const cached = readCachedChild();
+        if (cached !== null) {
+          setLead(cached.primary_language);
+          setChapters(readCachedChapters(cached.id));
+          setLoading(false);
+        }
+
         const kids = await listChildren();
         if (kids.length === 0) {
           setLoading(false);
           return;
         }
         setLead(kids[0].primary_language);
+        cacheChild(kids[0]);
         const list = await listReadableChapters(kids[0].id);
         setChapters(list);
       }
       catch (e) {
-        setError(messageOf(e));
+        const cached = readCachedChild();
+        if (cached === null || readCachedChapters(cached.id).length === 0) {
+          setError(messageOf(e));
+        }
+        else {
+          setOffline(true);
+        }
       }
       finally {
         setLoading(false);
@@ -63,6 +84,12 @@ export function LibraryScreen() {
       <ScrollView>
         <View className="flex-1 gap-4 p-4">
           <Text className="text-2xl font-bold">All chapters</Text>
+
+          {offline && (
+            <Text testID="library-offline" className="text-neutral-500">
+              Offline — showing the chapters saved on this device.
+            </Text>
+          )}
 
           {error !== null && <Text className="text-danger-600">{error}</Text>}
 

@@ -4,11 +4,32 @@ import * as React from 'react';
 
 import { messageOf } from '@/lib/errors';
 
+import {
+  cacheChild,
+  isFullyOffline,
+  readCachedChapters,
+  readCachedChild,
+} from '@/lib/offline/chapter-cache';
+import { downloadChapter } from '@/lib/offline/download-chapter';
 import { listChildren } from '@/lib/supabase/chapters';
 import { enqueueTomorrow, getNightlyState, sweepQueue } from '@/lib/supabase/nightly';
 
 /** How often to re-check while a chapter is being written. */
 const WRITING_POLL_MS = 8000;
+
+/**
+ * What tonight looks like with no network: the oldest downloaded chapter
+ * nobody has read yet. Bedtime does not stop because the wifi did (issue #10).
+ */
+function offlineState(childId: string): NightlyState {
+  const unread = readCachedChapters(childId)
+    .filter(chapter => chapter.read_at === null)
+    .sort((a, b) => a.number - b.number);
+
+  return unread.length > 0
+    ? { kind: 'ready', chapter: unread[0] }
+    : { kind: 'offline_empty' };
+}
 
 /**
  * The home screen's state.
@@ -18,53 +39,40 @@ const WRITING_POLL_MS = 8000;
  * finish; the rest of the time there is nothing to poll for and a timer would
  * just cost battery.
  */
-export function useNightly() {
-  const [child, setChild] = React.useState<ChildRow | null>(null);
-  const [state, setState] = React.useState<NightlyState | null>(null);
-  const [busy, setBusy] = React.useState(false);
-  const [error, setError] = React.useState<string | null>(null);
-
-  const refresh = React.useCallback(async (childId: string) => {
-    try {
-      setState(await getNightlyState(childId));
-    }
-    catch (e) {
-      setError(messageOf(e));
-    }
-  }, []);
-
+/**
+ * Re-checks only while a chapter is actually being written.
+ *
+ * Generation takes ~93s plus illustration, so a parent who opens the app
+ * mid-write wants to watch it land. The rest of the time there is nothing to
+ * poll for and a timer would only cost battery.
+ */
+function usePollWhileWriting(
+  writing: boolean,
+  child: ChildRow | null,
+  refresh: (childId: string) => Promise<void>,
+): void {
   React.useEffect(() => {
-    (async () => {
-      try {
-        const kids = await listChildren();
-        if (kids.length === 0) {
-          setState({ kind: 'empty' });
-          return;
-        }
-        setChild(kids[0]);
-        // Heal a queue whose worker died before showing anything, so the
-        // parent sees "writing" rather than a stuck empty state.
-        await sweepQueue(kids[0].id);
-        await refresh(kids[0].id);
-      }
-      catch (e) {
-        setError(messageOf(e));
-      }
-    })();
-  }, [refresh]);
-
-  const writing = state?.kind === 'writing';
-  React.useEffect(() => {
-    if (!writing || !child) {
+    if (!writing || child === null) {
       return;
     }
     const timer = setInterval(() => refresh(child.id), WRITING_POLL_MS);
     return () => clearInterval(timer);
   }, [writing, child, refresh]);
+}
 
-  const queue = React.useCallback(
+/** Queuing tomorrow's chapter, with its own busy and error handling. */
+function useQueueTomorrow(
+  child: ChildRow | null,
+  refresh: (childId: string) => Promise<void>,
+  report: {
+    setBusy: (busy: boolean) => void;
+    setError: (message: string | null) => void;
+  },
+) {
+  const { setBusy, setError } = report;
+  return React.useCallback(
     async (lesson: string | undefined, situation: string | undefined) => {
-      if (!child) {
+      if (child === null) {
         return;
       }
       setBusy(true);
@@ -80,14 +88,101 @@ export function useNightly() {
         setBusy(false);
       }
     },
-    [child, refresh],
+    [child, refresh, setBusy, setError],
   );
+}
+
+export function useNightly() {
+  const [child, setChild] = React.useState<ChildRow | null>(null);
+  const [state, setState] = React.useState<NightlyState | null>(null);
+  const [busy, setBusy] = React.useState(false);
+  const [offline, setOffline] = React.useState(false);
+  /** Tonight's chapter, pictures and all, is on the device. */
+  const [savedOffline, setSavedOffline] = React.useState(false);
+  const [error, setError] = React.useState<string | null>(null);
+
+  const refresh = React.useCallback(async (childId: string) => {
+    try {
+      const next = await getNightlyState(childId);
+      setState(next);
+      setOffline(false);
+
+      // Tonight's chapter is the one that has to survive a dead connection, so
+      // it gets downloaded as soon as we know which it is. The parent is not
+      // waiting on this, but they are told when it lands — knowing the story
+      // will work in the car is worth a line of text.
+      if (next.kind === 'ready') {
+        const chapterId = next.chapter.id;
+        setSavedOffline(await isFullyOffline(chapterId));
+        downloadChapter(next.chapter)
+          .then(async () => setSavedOffline(await isFullyOffline(chapterId)))
+          .catch(() => {});
+      }
+      else {
+        setSavedOffline(false);
+      }
+    }
+    catch (e) {
+      // Falling back to what is on the device is the whole point; only say
+      // something went wrong if there is nothing to fall back to.
+      const fallback = offlineState(childId);
+      setOffline(true);
+      setState(fallback);
+      if (fallback.kind === 'offline_empty') {
+        setError(messageOf(e));
+      }
+    }
+  }, []);
+
+  // Bootstrap, kept out of the hook body so the hook stays readable: start
+  // from whatever is on the device, then let the network correct it.
+  const start = React.useCallback(async () => {
+    const cached = readCachedChild();
+    if (cached !== null) {
+      // An offline start still knows whose bedtime this is, and can therefore
+      // reach the chapters already downloaded for them.
+      setChild(cached);
+      setState(offlineState(cached.id));
+    }
+
+    try {
+      const kids = await listChildren();
+      if (kids.length === 0) {
+        setState(cached === null ? { kind: 'empty' } : offlineState(cached.id));
+        return;
+      }
+      setChild(kids[0]);
+      cacheChild(kids[0]);
+      // Heal a queue whose worker died before showing anything, so the parent
+      // sees "writing" rather than a stuck empty state.
+      await sweepQueue(kids[0].id);
+      await refresh(kids[0].id);
+    }
+    catch (e) {
+      if (cached === null) {
+        setError(messageOf(e));
+        return;
+      }
+      setOffline(true);
+      setState(offlineState(cached.id));
+    }
+  }, [refresh]);
+
+  React.useEffect(() => {
+    start();
+  }, [start]);
+
+  usePollWhileWriting(state?.kind === 'writing', child, refresh);
+
+  const queue = useQueueTomorrow(child, refresh, { setBusy, setError });
 
   return {
     child,
     name: child?.first_name ?? 'your child',
     state,
     busy,
+    offline,
+    savedOffline,
     error,
     queue,
     refresh: React.useCallback(

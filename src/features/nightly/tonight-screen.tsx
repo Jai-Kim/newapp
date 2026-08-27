@@ -50,6 +50,17 @@ export function TonightScreen() {
             </Pressable>
           </View>
 
+          {nightly.offline && (
+            <View
+              testID="offline-banner"
+              className="rounded-md border border-neutral-300 p-3 dark:border-neutral-600"
+            >
+              <Text className="text-neutral-600 dark:text-neutral-400">
+                You're offline. Reading what's saved on this device.
+              </Text>
+            </View>
+          )}
+
           {nightly.error !== null && (
             <View className="rounded-md bg-danger-100 p-3 dark:bg-danger-900">
               <Text className="text-danger-800 dark:text-danger-100">
@@ -65,6 +76,7 @@ export function TonightScreen() {
                   state={nightly.state}
                   name={nightly.name}
                   busy={nightly.busy}
+                  savedOffline={nightly.savedOffline}
                   onQueue={nightly.queue}
                 />
               )}
@@ -78,11 +90,13 @@ function Body({
   state,
   name,
   busy,
+  savedOffline,
   onQueue,
 }: {
   state: NightlyState;
   name: string;
   busy: boolean;
+  savedOffline: boolean;
   onQueue: (lesson: string | undefined, situation: string | undefined) => void;
 }) {
   const router = useRouter();
@@ -94,6 +108,7 @@ function Body({
           title={state.chapter.title_en ?? ''}
           titleKo={state.chapter.title_ko ?? ''}
           number={state.chapter.number}
+          savedOffline={savedOffline}
           onRead={() => router.push(`/read/${state.chapter.id}`)}
         />
       );
@@ -132,6 +147,18 @@ function Body({
 
     case 'empty':
       return <LessonPicker name={name} busy={busy} onChoose={onQueue} />;
+
+    case 'offline_empty':
+      return (
+        <Card
+          title="No connection, and nothing saved yet"
+          body={`Chapters you've already read stay on this device, so they work `
+            + `anywhere. This one hasn't been downloaded yet — reconnect for a `
+            + `moment and it'll be here for ${name} tonight.`}
+        >
+          <View />
+        </Card>
+      );
   }
 }
 
@@ -139,11 +166,13 @@ function Ready({
   title,
   titleKo,
   number,
+  savedOffline,
   onRead,
 }: {
   title: string;
   titleKo: string;
   number: number;
+  savedOffline: boolean;
   onRead: () => void;
 }) {
   return (
@@ -163,6 +192,11 @@ function Ready({
         </Text>
       </View>
       <Button label="Read together" onPress={onRead} testID="read-tonight" />
+      {savedOffline && (
+        <Text testID="saved-offline" className="text-center text-sm text-neutral-500">
+          Saved on this device — reads with no signal.
+        </Text>
+      )}
     </View>
   );
 }
