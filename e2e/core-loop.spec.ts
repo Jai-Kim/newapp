@@ -9,6 +9,7 @@ import {
   approveLatestChapter,
   chooseTomorrow,
   createChild,
+  describeJob,
   doubleEnqueue,
   liveJobCount,
   lockCharacterLook,
@@ -90,7 +91,27 @@ test.describe(`core loop (${MODE})`, () => {
   let childId: string;
   let accessToken: string;
 
+  // A live failure is expensive to reproduce — ~15 minutes and a couple of
+  // dollars of provider spend — so when one happens the account and its rows
+  // are left in place to be inspected. Passing runs still clean up.
+  let anyFailed = false;
+  // Playwright reads this parameter to work out which fixtures the hook needs,
+  // so it has to be a destructuring pattern even when nothing is destructured.
+  // eslint's no-empty-pattern is off for e2e/ for exactly this reason.
+  test.afterEach(({}, testInfo) => {
+    if (testInfo.status !== testInfo.expectedStatus) {
+      anyFailed = true;
+    }
+  });
+
   test.afterAll(async () => {
+    if (anyFailed && process.env.E2E_CLEANUP_ALWAYS !== '1') {
+      console.warn(
+        `\n[e2e] leaving ${user.email} in place for inspection.`
+        + `\n[e2e] delete it with E2E_CLEANUP_ALWAYS=1, or from the dashboard.\n`,
+      );
+      return;
+    }
     // One delete: families.auth_user_id cascades from auth.users, and every
     // Story Bible table cascades from families.
     await deleteTestUser(user.email);
@@ -215,6 +236,9 @@ test.describe(`core loop (${MODE})`, () => {
   // The sweep only means something against a worker that can really die.
   test('a stranded job is revived by the sweep', async ({ page }) => {
     test.skip(!IS_LIVE, 'the sweep rescues a real worker; stub mode has none');
+    // Without this, a failure in the first test surfaces here as an unrelated
+    // "cannot read properties of undefined", which buries the real cause.
+    test.skip(!db || !childId, 'the core-loop test did not get far enough');
 
     const jobId = await currentJobId(db, childId);
 
@@ -249,7 +273,9 @@ test.describe(`core loop (${MODE})`, () => {
     const outcome = await waitForJob(db, jobId, 10 * 60_000);
     expect(
       outcome.status,
-      `the sweep did not rescue the stranded job: ${outcome.error}`,
+      // started_at is the tell: still 30 minutes back means the sweep never
+      // picked the job up; moved forward means it did and that worker died too.
+      `the sweep did not rescue the stranded job — ${describeJob(outcome)}`,
     ).toBe('done');
 
     // Re-run, not merely re-labelled: `runJob` increments attempts, so a job

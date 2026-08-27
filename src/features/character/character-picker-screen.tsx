@@ -66,7 +66,10 @@ export function CharacterPickerScreen() {
           )}
 
           {look.error !== null && (
-            <View className="rounded-md bg-danger-100 p-3 dark:bg-danger-900">
+            <View
+              testID="picker-error"
+              className="rounded-md bg-danger-100 p-3 dark:bg-danger-900"
+            >
               <Text className="text-danger-800 dark:text-danger-100">
                 {look.error}
               </Text>

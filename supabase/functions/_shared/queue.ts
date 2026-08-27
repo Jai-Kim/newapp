@@ -14,6 +14,7 @@
 import { type SupabaseClient } from "jsr:@supabase/supabase-js@2";
 
 import { generateChapterFor } from "./generate.ts";
+import { isRevivable } from "./revivable.ts";
 import { ChapterBlockedError, illustrateChapter } from "./illustrate-run.ts";
 
 /** Give up after this many tries rather than burning money on a bad job. */
@@ -137,11 +138,10 @@ export async function sweepStuckJobs(
     .in("status", ["queued", "running"]);
 
   const revivable = (data ?? []).filter((j) =>
-    j.status === "queued"
-    // A 'running' job whose worker died holds the one-live-job lock forever,
-    // so anything running longer than a generation could possibly take is
-    // treated as dead.
-    || (j.started_at !== null && j.started_at < staleBefore)
+    isRevivable(
+      { status: j.status as string, started_at: j.started_at as string | null },
+      staleBefore,
+    )
   );
 
   const revived: string[] = [];

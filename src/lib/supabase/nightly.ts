@@ -1,5 +1,7 @@
 import type { ChapterQueueJob, ChildReadableChapter } from './types';
 
+import { messageOf } from '@/lib/errors';
+
 import { supabase } from './client';
 
 /**
@@ -140,7 +142,11 @@ export async function sweepQueue(childId: string): Promise<number> {
   );
 
   if (error) {
-    // A failed sweep is housekeeping, not something to interrupt bedtime over.
+    // A failed sweep is housekeeping, not something to interrupt bedtime over
+    // — but swallowing it silently means a queue that has stopped healing
+    // looks identical to one that never needed to, which cost real time to
+    // diagnose once already.
+    console.warn('[nightly] sweep failed:', messageOf(error));
     return 0;
   }
   return (data as { revived?: number }).revived ?? 0;
