@@ -95,7 +95,10 @@ test.describe(`core loop (${MODE})`, () => {
   // dollars of provider spend — so when one happens the account and its rows
   // are left in place to be inspected. Passing runs still clean up.
   let anyFailed = false;
-  test.afterEach((_fixtures, testInfo) => {
+  // Playwright reads this parameter to work out which fixtures the hook needs,
+  // so it has to be a destructuring pattern even when nothing is destructured.
+  // eslint's no-empty-pattern is off for e2e/ for exactly this reason.
+  test.afterEach(({}, testInfo) => {
     if (testInfo.status !== testInfo.expectedStatus) {
       anyFailed = true;
     }

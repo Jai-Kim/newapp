@@ -174,6 +174,11 @@ export default antfu(
       'node/prefer-global/buffer': 'off', // Node context; Buffer is a global.
       'unicorn/prefer-dom-node-text-content': 'off', // locator.innerText() is Playwright's API, not the DOM's.
       'max-params': ['error', 4],
+      // Playwright determines a test's fixtures by parsing its first parameter,
+      // which must therefore be a destructuring pattern even when empty. Naming
+      // it instead makes Playwright refuse to run the file at all — which is a
+      // CI failure eslint cannot see and this rule directly causes.
+      'no-empty-pattern': 'off',
       // An end-to-end scenario is a single linear story and reads best as one.
       // The app's 110-line limit exists to stop components doing too much;
       // applied here it would only force the flow into artificial fragments.
