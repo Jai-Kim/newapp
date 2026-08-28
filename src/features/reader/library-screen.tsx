@@ -11,6 +11,7 @@ import {
   View,
 } from '@/components/ui';
 
+import { currentVolume, VOLUME_SIZE } from '@/features/reader/volumes';
 import { messageOf } from '@/lib/errors';
 import {
   cacheChild,
@@ -78,12 +79,44 @@ export function LibraryScreen() {
     );
   }
 
+  const volume = currentVolume(chapters);
+
   return (
     <>
       <FocusAwareStatusBar />
       <ScrollView>
         <View className="flex-1 gap-4 p-4">
           <Text className="text-2xl font-bold">All chapters</Text>
+
+          {volume !== null && (
+            <View
+              testID="volume-progress"
+              className="gap-2 rounded-lg border border-neutral-200 p-4 dark:border-neutral-700"
+            >
+              <Text className="font-bold">
+                {`Volume ${volume.index}`}
+              </Text>
+              <View className="h-2 overflow-hidden rounded-full bg-neutral-200 dark:bg-neutral-700">
+                <View
+                  className="h-2 rounded-full bg-primary-600 dark:bg-primary-400"
+                  style={{ width: `${(volume.chapters.length / VOLUME_SIZE) * 100}%` }}
+                />
+              </View>
+              <Text className="text-neutral-500">
+                {`${volume.chapters.length} of ${VOLUME_SIZE} chapters`}
+              </Text>
+              {volume.complete && (
+                <View testID="volume-complete" className="gap-1 pt-2">
+                  <Text className="font-bold text-primary-600 dark:text-primary-400">
+                    {lead === 'ko' ? '책이 완성되었어요!' : 'Your book is ready!'}
+                  </Text>
+                  <Text className="text-neutral-500">
+                    {lead === 'ko' ? 'Your book is ready!' : '책이 완성되었어요!'}
+                  </Text>
+                </View>
+              )}
+            </View>
+          )}
 
           {offline && (
             <Text testID="library-offline" className="text-neutral-500">
