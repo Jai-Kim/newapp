@@ -19,6 +19,8 @@ import {
 } from '@/lib/offline/chapter-cache';
 import { listChildren, listReadableChapters } from '@/lib/supabase/chapters';
 
+import { currentVolume, VOLUME_SIZE, type Volume } from './volumes';
+
 /**
  * Everything they have read so far.
  *
@@ -78,12 +80,16 @@ export function LibraryScreen() {
     );
   }
 
+  const volume = currentVolume(chapters);
+
   return (
     <>
       <FocusAwareStatusBar />
       <ScrollView>
         <View className="flex-1 gap-4 p-4">
           <Text className="text-2xl font-bold">All chapters</Text>
+
+          {volume !== null && <VolumeProgress volume={volume} lead={lead} />}
 
           {offline && (
             <Text testID="library-offline" className="text-neutral-500">
@@ -125,5 +131,65 @@ export function LibraryScreen() {
         </View>
       </ScrollView>
     </>
+  );
+}
+
+/** Both languages always render, lead first (ADR-0001 §3). */
+function bilingual(lead: 'en' | 'ko', en: string, ko: string): [string, string] {
+  return lead === 'ko' ? [ko, en] : [en, ko];
+}
+
+/**
+ * The current Volume filling up, and the "your book is ready" moment at 10
+ * chapters (ADR-0003) — the shelf's spine, not just a list of chapters.
+ */
+function VolumeProgress({ lead, volume }: { lead: 'en' | 'ko'; volume: Volume }) {
+  const count = volume.chapters.length;
+  const pct = Math.round((count / VOLUME_SIZE) * 100);
+
+  const [title, titleSecondary] = bilingual(
+    lead,
+    `Volume ${volume.index}`,
+    `${volume.index}권`,
+  );
+  const [progress, progressSecondary] = bilingual(
+    lead,
+    `${count} of ${VOLUME_SIZE} chapters`,
+    `챕터 ${count}/${VOLUME_SIZE}`,
+  );
+
+  return (
+    <View
+      testID="volume-progress"
+      className="gap-2 rounded-xl border border-primary-300 p-4 dark:border-primary-700"
+    >
+      <Text className="text-lg font-bold">{title}</Text>
+      <Text className="text-sm text-neutral-500">{titleSecondary}</Text>
+
+      <View className="h-2 overflow-hidden rounded-full bg-neutral-200 dark:bg-neutral-700">
+        <View
+          className="h-2 rounded-full bg-primary-600 dark:bg-primary-400"
+          style={{ width: `${pct}%` }}
+        />
+      </View>
+
+      <Text className="text-neutral-600 dark:text-neutral-400">{progress}</Text>
+      <Text className="text-sm text-neutral-500">{progressSecondary}</Text>
+
+      {volume.complete && (
+        <VolumeReadyBanner lead={lead} />
+      )}
+    </View>
+  );
+}
+
+function VolumeReadyBanner({ lead }: { lead: 'en' | 'ko' }) {
+  const [ready, readySecondary] = bilingual(lead, 'Your book is ready!', '책이 완성되었어요!');
+
+  return (
+    <View testID="volume-complete" className="gap-1 pt-2">
+      <Text className="font-bold text-primary-600 dark:text-primary-400">{ready}</Text>
+      <Text className="text-sm text-neutral-500">{readySecondary}</Text>
+    </View>
   );
 }
