@@ -4,6 +4,7 @@ import { useRouter } from 'expo-router';
 import * as React from 'react';
 import {
   ActivityIndicator,
+  Button,
   FocusAwareStatusBar,
   Pressable,
   ScrollView,
@@ -31,6 +32,7 @@ export function LibraryScreen() {
   const router = useRouter();
   const [chapters, setChapters] = React.useState<ChildReadableChapter[]>([]);
   const [lead, setLead] = React.useState<'en' | 'ko'>('en');
+  const [childId, setChildId] = React.useState<string | null>(null);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
   const [offline, setOffline] = React.useState(false);
@@ -42,6 +44,7 @@ export function LibraryScreen() {
         const cached = readCachedChild();
         if (cached !== null) {
           setLead(cached.primary_language);
+          setChildId(cached.id);
           setChapters(readCachedChapters(cached.id));
           setLoading(false);
         }
@@ -52,6 +55,7 @@ export function LibraryScreen() {
           return;
         }
         setLead(kids[0].primary_language);
+        setChildId(kids[0].id);
         cacheChild(kids[0]);
         const list = await listReadableChapters(kids[0].id);
         setChapters(list);
@@ -106,13 +110,26 @@ export function LibraryScreen() {
                 {`${volume.chapters.length} of ${VOLUME_SIZE} chapters`}
               </Text>
               {volume.complete && (
-                <View testID="volume-complete" className="gap-1 pt-2">
+                <View testID="volume-complete" className="gap-2 pt-2">
                   <Text className="font-bold text-primary-600 dark:text-primary-400">
                     {lead === 'ko' ? '책이 완성되었어요!' : 'Your book is ready!'}
                   </Text>
                   <Text className="text-neutral-500">
                     {lead === 'ko' ? 'Your book is ready!' : '책이 완성되었어요!'}
                   </Text>
+                  {childId !== null && (
+                    <Button
+                      testID="print-order-cta"
+                      label={
+                        lead === 'ko'
+                          ? '하드커버 주문 / 선물하기 · Order / gift the hardcover'
+                          : 'Order / gift the hardcover · 하드커버 주문 / 선물하기'
+                      }
+                      onPress={() => router.push(
+                        `/print-order/${volume.index}?childId=${childId}&lead=${lead}`,
+                      )}
+                    />
+                  )}
                 </View>
               )}
             </View>

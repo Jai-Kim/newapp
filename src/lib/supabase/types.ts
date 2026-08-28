@@ -222,6 +222,38 @@ export type LessonTaught = {
   created_at: string;
 };
 
+/** Concierge print capture (issue #22, ADR-0003). Real PII — see 0007_print_orders.sql. */
+export type ShippingAddress = {
+  line1: string;
+  line2?: string | null;
+  city: string;
+  state?: string | null;
+  postal_code: string;
+  country: string;
+};
+
+export type PrintOrderStatus = 'captured' | 'fulfilled' | 'cancelled';
+
+/**
+ * A hardcover order at Volume completion. `chapter_ids` is a server-computed
+ * snapshot (submit-print-order), never trusted from the client — see the
+ * migration comment for why. No payment fields: intent + shipping only.
+ */
+export type PrintOrder = {
+  id: string;
+  child_id: string;
+  volume_index: number;
+  chapter_ids: string[];
+  recipient_name: string;
+  shipping_address: ShippingAddress;
+  gift: boolean;
+  gift_message: string | null;
+  note: string | null;
+  status: PrintOrderStatus;
+  requested_by: string | null;
+  created_at: string;
+};
+
 /**
  * postgrest-js requires every table entry to carry Insert/Update/Relationships,
  * and silently degrades the whole schema to `any` if one is missing — which
@@ -246,6 +278,7 @@ export type Database = {
       chapters: Tbl<Chapter>;
       lessons_taught: Tbl<LessonTaught>;
       chapter_queue: Tbl<ChapterQueueJob>;
+      print_orders: Tbl<PrintOrder>;
     };
     Views: {
       /** Gate-enforcing view — see ChildReadableChapter. */

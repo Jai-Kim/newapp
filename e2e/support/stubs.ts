@@ -9,6 +9,28 @@ import {
   FIXTURE_TITLE_EN,
   FIXTURE_TITLE_KO,
 } from '../fixtures/chapter';
+import { activePrintOrderCount, insertPrintOrder } from './db-print-orders';
+
+/**
+ * Volume grouping (issue #22, ADR-0003), a third copy for a third runtime.
+ * src/features/reader/volumes.ts (the app) and supabase/functions/_shared/
+ * volumes.ts (Deno) already duplicate this for the same reason this one does:
+ * each runtime has its own toolchain (the app is bundled by Metro, the Edge
+ * Function by Deno, this harness by Node/Playwright with the root tsconfig
+ * excluding supabase/), so importing across them is more fragile than a
+ * ten-line duplication. Keep VOLUME_SIZE and the rule in lockstep by hand.
+ */
+const VOLUME_SIZE = 10;
+
+function completedVolumeChapterIds(
+  chapters: { id: string; number: number }[],
+  volumeIndex: number,
+): string[] | null {
+  const ordered = [...chapters].sort((a, b) => a.number - b.number);
+  const start = (volumeIndex - 1) * VOLUME_SIZE;
+  const slice = ordered.slice(start, start + VOLUME_SIZE);
+  return slice.length === VOLUME_SIZE ? slice.map(c => c.id) : null;
+}
 
 /**
  * Stub mode: the AI providers are replaced, and nothing else is.
@@ -136,6 +158,70 @@ async function stubEnqueue(route: Route, ctx: Ctx) {
   });
 }
 
+/**
+ * Concierge print capture (issue #22). Mirrors the real submit-print-order
+ * function's contract: the chapter snapshot is computed here from
+ * `child_readable_chapters`, using the same grouping rule as the real
+ * function, never trusted from the request body — and the write goes through
+ * the same privileged path the real function's service role would use,
+ * because print_orders has no client-facing insert policy.
+ */
+async function stubSubmitPrintOrder(route: Route, ctx: Ctx) {
+  const childId = ctx.childId();
+  if (!childId) {
+    return json(route, { ok: false, error: 'no child yet' }, 400);
+  }
+
+  const body = route.request().postDataJSON() as {
+    volume_index?: number;
+    recipient_name?: string;
+    shipping_address?: Record<string, unknown>;
+    gift?: boolean;
+    gift_message?: string;
+    note?: string;
+  };
+
+  const volumeIndex = body.volume_index ?? 0;
+  if (!Number.isInteger(volumeIndex) || volumeIndex < 1) {
+    return json(route, { ok: false, error: 'a valid volume_index is required' }, 400);
+  }
+  const recipientName = body.recipient_name;
+  if (!recipientName) {
+    return json(route, { ok: false, error: 'recipient_name is required' }, 400);
+  }
+
+  const { data: readable } = await ctx.db
+    .from('child_readable_chapters')
+    .select('id,number')
+    .eq('child_id', childId);
+
+  const chapterIds = completedVolumeChapterIds(readable ?? [], volumeIndex);
+  if (!chapterIds) {
+    return json(route, { ok: false, error: 'that volume is not complete yet' }, 409);
+  }
+
+  if (activePrintOrderCount(childId, volumeIndex) > 0) {
+    return json(route, {
+      ok: true,
+      already_ordered: true,
+      message: 'this book has already been ordered',
+    });
+  }
+
+  const order = insertPrintOrder({
+    childId,
+    volumeIndex,
+    chapterIds,
+    recipientName,
+    shippingAddress: body.shipping_address ?? {},
+    gift: Boolean(body.gift),
+    giftMessage: body.gift_message ?? null,
+    note: body.note ?? null,
+  });
+
+  return json(route, { ok: true, order_id: order?.id, created_at: order?.created_at });
+}
+
 /** Signed-URL requests, and the bytes they point at. */
 async function stubStorage(route: Route) {
   if (route.request().method() === 'GET') {
@@ -175,6 +261,7 @@ export async function installStubs(ctx: Ctx): Promise<void> {
   await ctx.page.route('**/functions/v1/enqueue-chapter', r => stubEnqueue(r, ctx));
   await ctx.page.route('**/functions/v1/generate-chapter', r =>
     json(r, { ok: false, error: 'generate-chapter is not used by the nightly flow' }, 400));
+  await ctx.page.route('**/functions/v1/submit-print-order', r => stubSubmitPrintOrder(r, ctx));
   await ctx.page.route('**/storage/v1/object/sign/**', r => stubStorage(r));
 }
 
