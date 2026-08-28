@@ -76,7 +76,7 @@ describe('libraryScreen — Volume progress', () => {
     mockListReadableChapters.mockResolvedValue(
       Array.from({ length: 10 }, (_, i) => chapter(i + 1)),
     );
-    setup(<LibraryScreen />);
+    const { user } = setup(<LibraryScreen />);
 
     await waitFor(() =>
       expect(screen.getByTestId('volume-complete')).toBeOnTheScreen());
@@ -89,7 +89,7 @@ describe('libraryScreen — Volume progress', () => {
     expect(cta.props.children).toContain('Order / gift the hardcover');
     expect(cta.props.children).toContain('하드커버 주문 / 선물하기');
 
-    screen.getByTestId('print-order-cta').props.onPress();
+    await user.press(screen.getByTestId('print-order-cta'));
     expect(mockPush).toHaveBeenCalledWith('/print-order/1?childId=child-1&lead=en');
   });
 
