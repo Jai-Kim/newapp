@@ -9,7 +9,7 @@ import {
   FIXTURE_TITLE_EN,
   FIXTURE_TITLE_KO,
 } from '../fixtures/chapter';
-import { activePrintOrderCount, insertPrintOrder } from './db-print-orders';
+import { insertPrintOrder } from './db-print-orders';
 
 /**
  * Volume grouping (issue #22, ADR-0003), a third copy for a third runtime.
@@ -200,26 +200,39 @@ async function stubSubmitPrintOrder(route: Route, ctx: Ctx) {
     return json(route, { ok: false, error: 'that volume is not complete yet' }, 409);
   }
 
-  if (activePrintOrderCount(childId, volumeIndex) > 0) {
-    return json(route, {
-      ok: true,
-      already_ordered: true,
-      message: 'this book has already been ordered',
+  // insertPrintOrder goes through the privileged CLI path (print_orders has
+  // no client-facing insert policy), which can throw for reasons the real
+  // function never sees this way — e.g. the CLI itself failing. An unhandled
+  // throw here would leave the route (and the page waiting on it) hanging
+  // rather than resolving, so this gets the same top-level catch the real
+  // submit-print-order function has, translating it into the same shape.
+  try {
+    const order = insertPrintOrder({
+      childId,
+      volumeIndex,
+      chapterIds,
+      recipientName,
+      shippingAddress: body.shipping_address ?? {},
+      gift: Boolean(body.gift),
+      giftMessage: body.gift_message ?? null,
+      note: body.note ?? null,
     });
+
+    // The one-live-order-per-volume index. A double-tap or a retry must not
+    // hand-fulfil the same family's book twice — see insertPrintOrder.
+    if (order === 'already_ordered') {
+      return json(route, {
+        ok: true,
+        already_ordered: true,
+        message: 'this book has already been ordered',
+      });
+    }
+
+    return json(route, { ok: true, order_id: order.id, created_at: order.created_at });
   }
-
-  const order = insertPrintOrder({
-    childId,
-    volumeIndex,
-    chapterIds,
-    recipientName,
-    shippingAddress: body.shipping_address ?? {},
-    gift: Boolean(body.gift),
-    giftMessage: body.gift_message ?? null,
-    note: body.note ?? null,
-  });
-
-  return json(route, { ok: true, order_id: order?.id, created_at: order?.created_at });
+  catch (error) {
+    return json(route, { ok: false, error: error instanceof Error ? error.message : String(error) }, 500);
+  }
 }
 
 /** Signed-URL requests, and the bytes they point at. */

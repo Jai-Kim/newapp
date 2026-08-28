@@ -27,9 +27,17 @@ export type PrintOrderSeed = {
   note?: string | null;
 };
 
+/**
+ * `'already_ordered'` mirrors submit-print-order/index.ts's 23505 branch, but
+ * reached via `on conflict ... do nothing` rather than a caught error: the
+ * constraint under test is the real partial unique index, not a branch in
+ * this file. The `where` clause below has to match
+ * `uniq_print_orders_active_volume`'s predicate exactly for Postgres to infer
+ * it as the arbiter — zero rows back means the index did its job.
+ */
 export function insertPrintOrder(
   order: PrintOrderSeed,
-): { id: string; created_at: string } | null {
+): { id: string; created_at: string } | 'already_ordered' {
   const chapterIdsArray = order.chapterIds.length > 0
     ? `array[${order.chapterIds.map(literal).join(',')}]::uuid[]`
     : 'array[]::uuid[]';
@@ -44,9 +52,13 @@ export function insertPrintOrder(
       ${order.gift}, ${order.giftMessage ? quote(order.giftMessage) : 'null'},
       ${order.note ? quote(order.note) : 'null'}
     )
+    on conflict (child_id, volume_index) where status <> 'cancelled' do nothing
     returning id, created_at;
   `);
-  return (rows[0] as { id: string; created_at: string }) ?? null;
+  if (rows.length === 0) {
+    return 'already_ordered';
+  }
+  return rows[0] as { id: string; created_at: string };
 }
 
 /** Live (non-cancelled) orders for one book — what the unique index protects. */
