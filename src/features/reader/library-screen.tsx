@@ -86,7 +86,14 @@ export function LibraryScreen() {
       <FocusAwareStatusBar />
       <ScrollView>
         <View className="flex-1 gap-4 p-4">
-          <Text className="text-2xl font-bold">All chapters</Text>
+          <View className="flex-row items-center justify-between">
+            <Text className="text-2xl font-bold">All chapters</Text>
+            <Pressable onPress={() => router.push('/paywall')} testID="go-paywall">
+              <Text className="text-primary-600 dark:text-primary-400">
+                {lead === 'ko' ? '멤버십' : 'Membership'}
+              </Text>
+            </Pressable>
+          </View>
 
           {volume !== null && (
             <View

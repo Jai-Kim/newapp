@@ -5,6 +5,8 @@ import * as React from 'react';
 import { cleanup, screen, setup, waitFor } from '@/lib/test-utils';
 import { LibraryScreen } from './library-screen';
 
+const mockPush = jest.fn();
+
 /**
  * The Volume progress this slice adds (issue #22, ADR-0003): the library is
  * the shelf, so it is where "your book is filling up" and "your book is
@@ -15,7 +17,7 @@ const mockListChildren = jest.fn();
 const mockListReadableChapters = jest.fn();
 
 jest.mock('expo-router', () => ({
-  useRouter: () => ({ push: jest.fn() }),
+  useRouter: () => ({ push: mockPush }),
 }));
 
 jest.mock('@/lib/offline/chapter-cache', () => ({
@@ -110,6 +112,17 @@ describe('libraryScreen — Volume progress', () => {
     await waitFor(() => expect(screen.getByText('Volume 2')).toBeOnTheScreen());
     expect(screen.getByText('1 of 10 chapters')).toBeOnTheScreen();
     expect(screen.queryByTestId('volume-complete')).not.toBeOnTheScreen();
+  });
+
+  it('links to the membership screen', async () => {
+    mockListChildren.mockResolvedValue([
+      { id: 'child-1', first_name: 'Yuna', primary_language: 'en' },
+    ]);
+    mockListReadableChapters.mockResolvedValue([]);
+    const { user } = setup(<LibraryScreen />);
+
+    await user.press(await screen.findByTestId('go-paywall'));
+    expect(mockPush).toHaveBeenCalledWith('/paywall');
   });
 
   it('shows no Volume card when the library is empty', async () => {

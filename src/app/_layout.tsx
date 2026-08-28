@@ -48,6 +48,7 @@ export default function RootLayout() {
           options={{ title: 'Their look' }}
         />
         <Stack.Screen name="library" options={{ title: 'All chapters' }} />
+        <Stack.Screen name="paywall" options={{ title: 'Membership' }} />
         {/* No header — the reader should be the whole screen at bedtime. */}
         <Stack.Screen name="read/[id]" options={{ headerShown: false }} />
       </Stack>

@@ -20,6 +20,14 @@ const envSchema = z.object({
   EXPO_PUBLIC_SUPABASE_URL: z.string().url(),
   EXPO_PUBLIC_SUPABASE_ANON_KEY: z.string(),
 
+  // RevenueCat — public per-platform SDK keys only, client-safe by design.
+  // Any RevenueCat secret/webhook key stays server-side, same as every other
+  // provider credential (ARCHITECTURE §5). Optional: unset until Jai sets up
+  // the RevenueCat project (see PR description for what's needed).
+  EXPO_PUBLIC_REVENUECAT_IOS_API_KEY: z.string().optional(),
+  EXPO_PUBLIC_REVENUECAT_ANDROID_API_KEY: z.string().optional(),
+  EXPO_PUBLIC_REVENUECAT_ENTITLEMENT_ID: z.string().optional(),
+
   // only available for app.config.ts usage
   APP_BUILD_ONLY_VAR: z.string().optional(),
 });
@@ -65,6 +73,9 @@ const _env: z.infer<typeof envSchema> = {
   EXPO_PUBLIC_VAR_BOOL: process.env.EXPO_PUBLIC_VAR_BOOL === 'true',
   EXPO_PUBLIC_SUPABASE_URL: process.env.EXPO_PUBLIC_SUPABASE_URL ?? '',
   EXPO_PUBLIC_SUPABASE_ANON_KEY: process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY ?? '',
+  EXPO_PUBLIC_REVENUECAT_IOS_API_KEY: process.env.EXPO_PUBLIC_REVENUECAT_IOS_API_KEY,
+  EXPO_PUBLIC_REVENUECAT_ANDROID_API_KEY: process.env.EXPO_PUBLIC_REVENUECAT_ANDROID_API_KEY,
+  EXPO_PUBLIC_REVENUECAT_ENTITLEMENT_ID: process.env.EXPO_PUBLIC_REVENUECAT_ENTITLEMENT_ID,
   APP_BUILD_ONLY_VAR: process.env.APP_BUILD_ONLY_VAR,
 };
 

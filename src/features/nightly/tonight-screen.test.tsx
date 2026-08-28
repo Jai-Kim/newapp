@@ -16,6 +16,8 @@ import { TonightScreen } from './tonight-screen';
 // has to be named `mock*` to be allowed through.
 const mockEnqueueTomorrow = jest.fn(async () => ({ ok: true }));
 const mockGetNightlyState = jest.fn();
+const mockListReadableChapters = jest.fn(async () => []);
+const mockGetCustomerInfo = jest.fn(async () => ({ entitlements: {} }));
 const mockPush = jest.fn();
 
 jest.mock('expo-router', () => ({
@@ -31,6 +33,7 @@ jest.mock('@/lib/supabase/chapters', () => ({
   listChildren: async () => [
     { id: 'child-1', first_name: 'Yuna', primary_language: 'ko' },
   ],
+  listReadableChapters: (...args: unknown[]) => mockListReadableChapters(...(args as [])),
 }));
 
 jest.mock('@/lib/supabase/nightly', () => ({
@@ -39,9 +42,15 @@ jest.mock('@/lib/supabase/nightly', () => ({
   sweepQueue: async () => 0,
 }));
 
+jest.mock('@/lib/purchases/purchases-client', () => ({
+  getPurchasesClient: () => ({ getCustomerInfo: () => mockGetCustomerInfo() }),
+}));
+
 afterEach(() => {
   cleanup();
   jest.clearAllMocks();
+  mockListReadableChapters.mockResolvedValue([]);
+  mockGetCustomerInfo.mockResolvedValue({ entitlements: {} });
 });
 
 const job = {
@@ -132,5 +141,54 @@ describe('tonightScreen', () => {
     await user.press(screen.getByTestId('queue-auto'));
     await waitFor(() =>
       expect(mockEnqueueTomorrow).toHaveBeenCalledWith('child-1', undefined, undefined));
+  });
+
+  it('shows the allowance notice instead of the picker once this month\'s book is done, with a paywall link when unsubscribed', async () => {
+    mockGetNightlyState.mockResolvedValue({ kind: 'empty' });
+    mockListReadableChapters.mockResolvedValue(
+      Array.from({ length: 10 }, (_, i) => ({
+        id: `ch-${i + 1}`,
+        child_id: 'child-1',
+        number: i + 1,
+        created_at: new Date().toISOString(),
+      })),
+    );
+    const { user } = setup(<TonightScreen />);
+
+    expect(await screen.findByTestId('allowance-blocked')).toBeOnTheScreen();
+    expect(screen.queryByText(/What should tomorrow be about\?/i)).not.toBeOnTheScreen();
+    // Bilingual, per ADR-0001 §1.
+    expect(screen.getByText('이번 달 책이 완성됐어요!')).toBeOnTheScreen();
+    expect(screen.getByText('This month’s book is finished!')).toBeOnTheScreen();
+
+    await user.press(screen.getByTestId('open-paywall-from-allowance'));
+    expect(mockPush).toHaveBeenCalledWith('/paywall');
+  });
+
+  it('hides the paywall link from the allowance notice once already subscribed', async () => {
+    mockGetNightlyState.mockResolvedValue({ kind: 'empty' });
+    mockListReadableChapters.mockResolvedValue(
+      Array.from({ length: 10 }, (_, i) => ({
+        id: `ch-${i + 1}`,
+        child_id: 'child-1',
+        number: i + 1,
+        created_at: new Date().toISOString(),
+      })),
+    );
+    mockGetCustomerInfo.mockResolvedValue({
+      entitlements: {
+        premium: {
+          identifier: 'premium',
+          isActive: true,
+          willRenew: true,
+          periodType: 'normal',
+          expirationDate: null,
+        },
+      },
+    });
+    setup(<TonightScreen />);
+
+    expect(await screen.findByTestId('allowance-blocked')).toBeOnTheScreen();
+    expect(screen.queryByTestId('open-paywall-from-allowance')).not.toBeOnTheScreen();
   });
 });

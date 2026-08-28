@@ -2,6 +2,7 @@ import type { ChildRow } from '@/lib/supabase/chapters';
 import type { NightlyState } from '@/lib/supabase/nightly';
 import * as React from 'react';
 
+import { useAllowance } from '@/features/paywall/use-allowance';
 import { messageOf } from '@/lib/errors';
 
 import {
@@ -176,6 +177,10 @@ export function useNightly() {
 
   const queue = useQueueTomorrow(child, refresh, { setBusy, setError });
 
+  // The allowance (ADR-0003) is counted from what has actually been approved
+  // for this child, independently of tonight's ready/writing/empty state.
+  const allowance = useAllowance(child?.id ?? null);
+
   return {
     child,
     name: child?.first_name ?? 'your child',
@@ -185,6 +190,7 @@ export function useNightly() {
     savedOffline,
     error,
     queue,
+    allowance: allowance.status,
     refresh: React.useCallback(
       () => (child ? refresh(child.id) : Promise.resolve()),
       [child, refresh],

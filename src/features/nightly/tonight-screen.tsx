@@ -1,3 +1,4 @@
+import type { AllowanceStatus } from '@/features/paywall/allowance';
 import type { NightlyState } from '@/lib/supabase/nightly';
 import type { ChapterQueueJob } from '@/lib/supabase/types';
 
@@ -15,6 +16,8 @@ import {
 } from '@/components/ui';
 import { LessonPicker } from '@/features/nightly/lesson-picker';
 import { useNightly } from '@/features/nightly/use-nightly';
+import { AllowanceNotice } from '@/features/paywall/allowance-notice';
+import { useEntitlement } from '@/features/paywall/use-entitlement';
 
 /**
  * The home screen at bedtime.
@@ -26,6 +29,7 @@ import { useNightly } from '@/features/nightly/use-nightly';
 export function TonightScreen() {
   const router = useRouter();
   const nightly = useNightly();
+  const entitlement = useEntitlement();
   const { refresh } = nightly;
 
   // Coming back from the reader, the chapter just read is now read — and the
@@ -75,9 +79,13 @@ export function TonightScreen() {
                 <Body
                   state={nightly.state}
                   name={nightly.name}
+                  lead={nightly.child?.primary_language ?? 'en'}
                   busy={nightly.busy}
                   savedOffline={nightly.savedOffline}
+                  allowance={nightly.allowance}
+                  subscribed={entitlement.state.status === 'active' || entitlement.state.status === 'trial'}
                   onQueue={nightly.queue}
+                  onOpenPaywall={() => router.push('/paywall')}
                 />
               )}
         </View>
@@ -89,15 +97,23 @@ export function TonightScreen() {
 function Body({
   state,
   name,
+  lead,
   busy,
   savedOffline,
+  allowance,
+  subscribed,
   onQueue,
+  onOpenPaywall,
 }: {
   state: NightlyState;
   name: string;
+  lead: 'en' | 'ko';
   busy: boolean;
   savedOffline: boolean;
+  allowance: AllowanceStatus | null;
+  subscribed: boolean;
   onQueue: (lesson: string | undefined, situation: string | undefined) => void;
+  onOpenPaywall: () => void;
 }) {
   const router = useRouter();
 
@@ -146,7 +162,16 @@ function Body({
       );
 
     case 'empty':
-      return <LessonPicker name={name} busy={busy} onChoose={onQueue} />;
+      return allowance?.blocked
+        ? (
+            <AllowanceNotice
+              lead={lead}
+              periodEnds={allowance.periodEnds}
+              subscribed={subscribed}
+              onOpenPaywall={onOpenPaywall}
+            />
+          )
+        : <LessonPicker name={name} busy={busy} onChoose={onQueue} />;
 
     case 'offline_empty':
       return (
