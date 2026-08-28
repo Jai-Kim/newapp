@@ -9,6 +9,8 @@ import {
   FIXTURE_TITLE_EN,
   FIXTURE_TITLE_KO,
 } from '../fixtures/chapter';
+import { MONTHLY_CHAPTER_ALLOWANCE, QUOTA_MESSAGES } from '../fixtures/quota';
+import { monthlyAttemptCount } from './db-generation-attempts';
 
 /**
  * Stub mode: the AI providers are replaced, and nothing else is.
@@ -102,6 +104,23 @@ async function stubEnqueue(route: Route, ctx: Ctx) {
 
   if (body.action === 'sweep') {
     return json(route, { ok: true, revived: 0 });
+  }
+
+  // Mirrors reserve_generation_attempt's month-to-date guard (issue #6). The
+  // real Edge Function never runs in stub mode (see the note at the top of
+  // this file), so the check is replicated here against the same table —
+  // rate-limiting is not, since it depends on wall-clock timing that would
+  // make this suite flaky; supabase/tests/generation_quota.sql covers it
+  // against the real database function instead.
+  if (monthlyAttemptCount(childId) >= MONTHLY_CHAPTER_ALLOWANCE) {
+    const copy = QUOTA_MESSAGES.monthly_quota_reached;
+    return json(route, {
+      ok: false,
+      error: copy.en,
+      code: 'monthly_quota_reached',
+      message_en: copy.en,
+      message_ko: copy.ko,
+    }, 429);
   }
 
   const lesson = body.lesson ?? FIXTURE_LESSON;

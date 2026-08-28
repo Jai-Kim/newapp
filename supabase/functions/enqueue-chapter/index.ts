@@ -19,6 +19,7 @@ import { assertOwnsChild, requireUser, statusFor } from "../_shared/auth.ts";
 import { handlePreflight, jsonResponse } from "../_shared/cors.ts";
 import { pickFallbackLesson } from "../_shared/lessons.ts";
 import { claimJob, runJob, sweepStuckJobs } from "../_shared/queue.ts";
+import { quotaErrorResponse, reserveGenerationSlot } from "../_shared/quota.ts";
 
 interface Req {
   action?: "enqueue" | "sweep";
@@ -78,6 +79,37 @@ Deno.serve(async (req: Request) => {
       return jsonResponse({ ok: true, revived: revived.length });
     }
 
+    // A double-tap or a second device hitting "enqueue" while a job is
+    // already live is not new spend — the unique index below would refuse
+    // the insert anyway — so check first rather than charging the family's
+    // quota for a no-op. (A fully concurrent race can still slip past this
+    // check and consume a reservation before the insert catches it; that is
+    // the same class of race the unique index below already accepts.)
+    const { data: liveJob } = await supabase
+      .from("chapter_queue")
+      .select("id")
+      .eq("child_id", child_id)
+      .in("status", ["queued", "running"])
+      .maybeSingle();
+
+    if (liveJob) {
+      return jsonResponse({
+        ok: true,
+        already_queued: true,
+        message: "a chapter is already being written for this child",
+      });
+    }
+
+    // Queuing a job spends money the moment the worker starts, so it draws on
+    // the same reservation generate-chapter does (issue #6). Sweeping does
+    // not: it only revives jobs that already reserved a slot when first
+    // queued, never creates new spend.
+    await reserveGenerationSlot(supabase, {
+      userId: user.id,
+      childId: child_id,
+      source: "enqueue-chapter",
+    });
+
     const auto = !lesson;
     const chosen = lesson ?? await pickFallbackLesson(supabase, child_id);
 
@@ -120,6 +152,10 @@ Deno.serve(async (req: Request) => {
       status: "running",
     });
   } catch (err) {
+    const quota = quotaErrorResponse(err);
+    if (quota) {
+      return jsonResponse(quota.body, { status: quota.status });
+    }
     return jsonResponse(
       { ok: false, error: err instanceof Error ? err.message : String(err) },
       { status: statusFor(err) },

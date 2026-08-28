@@ -1,5 +1,6 @@
 import * as React from 'react';
 
+import { GenerationQuotaError } from '@/lib/supabase/nightly';
 import { cleanup, screen, setup, waitFor } from '@/lib/test-utils';
 import { TonightScreen } from './tonight-screen';
 
@@ -33,11 +34,31 @@ jest.mock('@/lib/supabase/chapters', () => ({
   ],
 }));
 
-jest.mock('@/lib/supabase/nightly', () => ({
-  getNightlyState: () => mockGetNightlyState(),
-  enqueueTomorrow: (...args: unknown[]) => mockEnqueueTomorrow(...(args as [])),
-  sweepQueue: async () => 0,
-}));
+// A self-contained stand-in, not the real class from '@/lib/supabase/nightly'
+// — that module also constructs the real Supabase client at import time
+// (client.ts), which no test in this suite loads. use-nightly.ts's `e
+// instanceof GenerationQuotaError` and this file both resolve the mocked
+// module, so as long as both sides use this same constructor it works
+// identically to the real one for the purpose of this test.
+jest.mock('@/lib/supabase/nightly', () => {
+  class GenerationQuotaError extends Error {
+    constructor(
+      public code: 'rate_limited' | 'monthly_quota_reached',
+      public messageEn: string,
+      public messageKo: string,
+      public resetsAt?: string,
+    ) {
+      super(messageEn);
+      this.name = 'GenerationQuotaError';
+    }
+  }
+  return {
+    getNightlyState: () => mockGetNightlyState(),
+    enqueueTomorrow: (...args: unknown[]) => mockEnqueueTomorrow(...(args as [])),
+    sweepQueue: async () => 0,
+    GenerationQuotaError,
+  };
+});
 
 afterEach(() => {
   cleanup();
@@ -132,5 +153,25 @@ describe('tonightScreen', () => {
     await user.press(screen.getByTestId('queue-auto'));
     await waitFor(() =>
       expect(mockEnqueueTomorrow).toHaveBeenCalledWith('child-1', undefined, undefined));
+  });
+
+  it('shows a warm, bilingual notice — not a red error — when the spend guard blocks a new chapter', async () => {
+    mockGetNightlyState.mockResolvedValue({ kind: 'empty' });
+    mockEnqueueTomorrow.mockRejectedValueOnce(
+      new GenerationQuotaError(
+        'monthly_quota_reached',
+        "This month's book is already full of chapters.",
+        '이번 달 책이 이야기로 가득 찼어요!',
+      ),
+    );
+    const { user } = setup(<TonightScreen />);
+
+    await user.press(await screen.findByTestId('queue-auto'));
+
+    const notice = await screen.findByTestId('quota-notice');
+    expect(notice).toBeOnTheScreen();
+    // Both languages render regardless of which leads, per ADR-0001 §1.
+    expect(screen.getByText(/full of chapters/)).toBeOnTheScreen();
+    expect(screen.getByText('이번 달 책이 이야기로 가득 찼어요!')).toBeOnTheScreen();
   });
 });

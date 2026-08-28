@@ -1,3 +1,4 @@
+import type { QuotaNotice } from '@/features/nightly/use-nightly';
 import type { NightlyState } from '@/lib/supabase/nightly';
 import type { ChapterQueueJob } from '@/lib/supabase/types';
 
@@ -67,6 +68,13 @@ export function TonightScreen() {
                 {nightly.error}
               </Text>
             </View>
+          )}
+
+          {nightly.quotaNotice !== null && (
+            <QuotaNoticeBanner
+              notice={nightly.quotaNotice}
+              lead={nightly.child?.primary_language ?? 'en'}
+            />
           )}
 
           {nightly.state === null
@@ -222,6 +230,35 @@ function Writing({ job, name }: { job: ChapterQueueJob; name: string }) {
         {' '}
         tomorrow.
       </Text>
+    </View>
+  );
+}
+
+/**
+ * The spend guard (issue #6) declining a new chapter, framed the same warm
+ * way the family-facing book allowance does — a pause in the rhythm, not a
+ * punishment. Both languages always render; which leads follows the child's
+ * primary_language, per ADR-0001 §1, matching the library screen's "book
+ * ready" banner (PR #27).
+ */
+function QuotaNoticeBanner({
+  notice,
+  lead,
+}: {
+  notice: QuotaNotice;
+  lead: 'en' | 'ko';
+}) {
+  const [first, second] = lead === 'ko'
+    ? [notice.messageKo, notice.messageEn]
+    : [notice.messageEn, notice.messageKo];
+
+  return (
+    <View
+      testID="quota-notice"
+      className="gap-1 rounded-md border border-primary-300 bg-primary-50 p-3 dark:border-primary-700 dark:bg-primary-900"
+    >
+      <Text className="text-primary-800 dark:text-primary-100">{first}</Text>
+      <Text className="text-sm text-primary-600 dark:text-primary-300">{second}</Text>
     </View>
   );
 }

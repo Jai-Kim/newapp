@@ -16,6 +16,7 @@ import { createClient } from "jsr:@supabase/supabase-js@2";
 import { assertOwnsChild, requireUser, statusFor } from "../_shared/auth.ts";
 import { handlePreflight, jsonResponse } from "../_shared/cors.ts";
 import { generateChapterFor } from "../_shared/generate.ts";
+import { quotaErrorResponse, reserveGenerationSlot } from "../_shared/quota.ts";
 
 interface GenerateRequest {
   child_id: string;
@@ -52,6 +53,14 @@ Deno.serve(async (req: Request) => {
     );
     await assertOwnsChild(supabase, child_id, user.id);
 
+    // The reservation IS the spend guard: it happens before generation, not
+    // as a report on it (issue #6).
+    await reserveGenerationSlot(supabase, {
+      userId: user.id,
+      childId: child_id,
+      source: "generate-chapter",
+    });
+
     const result = await generateChapterFor(supabase, child_id, lesson, situation);
 
     return jsonResponse({
@@ -69,6 +78,10 @@ Deno.serve(async (req: Request) => {
         : {}),
     });
   } catch (err) {
+    const quota = quotaErrorResponse(err);
+    if (quota) {
+      return jsonResponse(quota.body, { status: quota.status });
+    }
     return jsonResponse(
       { ok: false, error: err instanceof Error ? err.message : String(err) },
       { status: statusFor(err) },

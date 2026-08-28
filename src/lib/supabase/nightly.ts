@@ -3,6 +3,7 @@ import type { ChapterQueueJob, ChildReadableChapter } from './types';
 import { messageOf } from '@/lib/errors';
 
 import { supabase } from './client';
+import { bodyOf } from './function-error';
 
 /**
  * The nightly loop (issue #9).
@@ -112,6 +113,25 @@ export async function getNightlyState(childId: string): Promise<NightlyState> {
 }
 
 /**
+ * Thrown when generate-chapter/enqueue-chapter refuse the call as a spend
+ * guard (issue #6) — a rate limit or the per-child month-to-date allowance,
+ * never a safety or ownership failure. Carries the bilingual, warm copy the
+ * server composed, so the UI never has to invent its own wording for "please
+ * wait" or "this month's book is done".
+ */
+export class GenerationQuotaError extends Error {
+  constructor(
+    readonly code: 'rate_limited' | 'monthly_quota_reached',
+    readonly messageEn: string,
+    readonly messageKo: string,
+    readonly resetsAt?: string,
+  ) {
+    super(messageEn);
+    this.name = 'GenerationQuotaError';
+  }
+}
+
+/**
  * Queues tomorrow's chapter and returns immediately — the Edge Function hands
  * the actual ~93s of work to a background task rather than making the caller
  * hold the connection open.
@@ -130,6 +150,15 @@ export async function enqueueTomorrow(
   );
 
   if (error) {
+    const body = await bodyOf(error);
+    if (body?.code === 'rate_limited' || body?.code === 'monthly_quota_reached') {
+      throw new GenerationQuotaError(
+        body.code,
+        typeof body.message_en === 'string' ? body.message_en : messageOf(error),
+        typeof body.message_ko === 'string' ? body.message_ko : '',
+        typeof body.resets_at === 'string' ? body.resets_at : undefined,
+      );
+    }
     throw error;
   }
   return data as { ok: boolean; already_queued?: boolean; lesson?: string };
