@@ -13,6 +13,7 @@ import {
   Text,
   View,
 } from '@/components/ui';
+import { AiGeneratedBadge } from '@/features/legal/ai-generated-badge';
 import { LessonPicker } from '@/features/nightly/lesson-picker';
 import { useChapterReader } from '@/features/reader/use-chapter-reader';
 
@@ -116,6 +117,8 @@ function Page({
                 <Text className="text-lg text-neutral-500">
                   {lead === 'ko' ? chapter.title_en : chapter.title_ko}
                 </Text>
+                {/* Unobtrusive, once per chapter rather than once per page (issue #12). */}
+                <AiGeneratedBadge lead={lead} />
               </View>
             )}
 

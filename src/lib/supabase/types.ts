@@ -194,6 +194,19 @@ export type ChildReadableChapter = Omit<
   'embedding' | 'safety' | 'review_status'
 >;
 
+/**
+ * One parent's agreement to a version of the privacy/AI-disclosure notice
+ * (issue #12, `docs/privacy/`). Append-only — a later notice revision adds a
+ * new row rather than overwriting this one.
+ */
+export type PrivacyConsent = {
+  id: string;
+  family_id: string;
+  policy_version: string;
+  consented_at: string;
+  created_at: string;
+};
+
 /** Pre-generation job state (issue #9). One live job per child at a time. */
 export type QueueStatus = 'queued' | 'running' | 'done' | 'failed';
 
@@ -246,6 +259,7 @@ export type Database = {
       chapters: Tbl<Chapter>;
       lessons_taught: Tbl<LessonTaught>;
       chapter_queue: Tbl<ChapterQueueJob>;
+      privacy_consents: Tbl<PrivacyConsent>;
     };
     Views: {
       /** Gate-enforcing view — see ChildReadableChapter. */
