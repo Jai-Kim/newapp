@@ -98,6 +98,9 @@ export async function createChild(page: Page, name: string): Promise<void> {
   await page.locator(t('lang-ko')).click();
   await page.locator(t('interest-the sea')).click();
   await page.locator(t('interest-rain')).click();
+  // Explicit privacy consent (issue #12) gates this button — see
+  // src/features/onboarding/child-setup-screen.tsx.
+  await page.locator(t('privacy-consent')).click();
   await page.locator(t('create-child')).click();
 
   // Onboarding hands straight over to the look picker.

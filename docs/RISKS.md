@@ -41,7 +41,13 @@ have a tracked GitHub issue.
 
 ## Safety / privacy / legal
 
-- **Third-party AI disclosure + Korea PIPA + AI-content labeling.** P0. *(issue)*
+- **Third-party AI disclosure + Korea PIPA + AI-content labeling.** P0. *(issue
+  #12)* Engineering draft implemented — `docs/privacy-policy.md`, the
+  `/privacy` screen, the onboarding consent step, and the AI-generated-content
+  label. **Not legally cleared**: legal entity, retention periods, PIPA DPO
+  contact, and a native-Korean legal review are still open (see
+  `docs/privacy-policy.md`'s `TODO(Jai)` markers and
+  `docs/privacy-store-disclosures.md`).
 - **Crisis-input & sensitive-topic policy** + Terms disclaimer; Korean safety
   parity. P0. *(issue)*
 - **Abuse/cost protection on generate-chapter** (auth + rate limiting). P0.

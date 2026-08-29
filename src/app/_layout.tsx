@@ -48,6 +48,7 @@ export default function RootLayout() {
           options={{ title: 'Their look' }}
         />
         <Stack.Screen name="library" options={{ title: 'All chapters' }} />
+        <Stack.Screen name="privacy" options={{ title: 'Privacy & data' }} />
         <Stack.Screen
           name="print-order/[volumeIndex]"
           options={{ title: 'Order the hardcover' }}
