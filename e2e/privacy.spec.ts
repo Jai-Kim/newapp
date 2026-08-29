@@ -47,7 +47,9 @@ test.describe('privacy disclosure + consent', () => {
     await expect(page.locator(t('create-child'))).toHaveAttribute('aria-disabled', 'true');
 
     await page.locator(t('privacy-consent')).click();
-    await expect(page.locator(t('create-child'))).toHaveAttribute('aria-disabled', 'false');
+    // react-native-web omits the attribute entirely when enabled rather than
+    // emitting aria-disabled="false", so assert its absence instead.
+    await expect(page.locator(t('create-child'))).not.toHaveAttribute('aria-disabled', 'true');
     await page.locator(t('create-child')).click();
 
     // Onboarding hands over to the look picker, same as every other flow.
@@ -86,17 +88,21 @@ test.describe('privacy notice screen', () => {
 
     await page.goto('/privacy');
 
-    await expect(page.locator(t('privacy-screen'))).toBeVisible({ timeout: 30_000 });
-    await expect(page.getByText('Privacy & data')).toBeVisible();
-    await expect(page.getByText('개인정보 및 데이터')).toBeVisible();
+    // Scope every text assertion to the screen's own container -- the title
+    // renders once in the stack header and once as the in-screen heading, so
+    // an unscoped getByText() hits a strict-mode violation on duplicate text.
+    const screen = page.locator(t('privacy-screen'));
+    await expect(screen).toBeVisible({ timeout: 30_000 });
+    await expect(screen.getByText('Privacy & data')).toBeVisible();
+    await expect(screen.getByText('개인정보 및 데이터')).toBeVisible();
 
     // Named directly, not "our partners".
-    await expect(page.getByText(/Anthropic \(Claude models\) writes the text/)).toBeVisible();
-    await expect(page.getByText(/Google \(Gemini models\) generates the illustrations/)).toBeVisible();
+    await expect(screen.getByText(/Anthropic \(Claude models\) writes the text/)).toBeVisible();
+    await expect(screen.getByText(/Google \(Gemini models\) generates the illustrations/)).toBeVisible();
 
     // The cross-border transfer is its own section, per PIPA.
-    await expect(page.getByText('Cross-border transfer (Korea PIPA)')).toBeVisible();
-    await expect(page.getByText('국외 이전 (개인정보보호법)')).toBeVisible();
+    await expect(screen.getByText('Cross-border transfer (Korea PIPA)')).toBeVisible();
+    await expect(screen.getByText('국외 이전 (개인정보보호법)')).toBeVisible();
   });
 });
 
