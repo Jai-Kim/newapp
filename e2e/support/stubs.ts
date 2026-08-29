@@ -9,6 +9,7 @@ import {
   FIXTURE_TITLE_EN,
   FIXTURE_TITLE_KO,
 } from '../fixtures/chapter';
+import { monthlyAttemptCount } from './db-generation-attempts';
 import { insertPrintOrder } from './db-print-orders';
 
 /**
@@ -21,6 +22,19 @@ import { insertPrintOrder } from './db-print-orders';
  * ten-line duplication. Keep VOLUME_SIZE and the rule in lockstep by hand.
  */
 const VOLUME_SIZE = 10;
+
+/**
+ * The month-to-date chapter allowance (issue #6), a fourth copy for a fourth
+ * runtime — same justification as VOLUME_SIZE above. Importing supabase/
+ * functions/_shared/quota.ts here would pull in a `Deno.env.get` reference
+ * this harness's Node process cannot satisfy, and this only needs the shape
+ * of a blocked response, not the real config loading.
+ */
+const CHAPTER_MONTHLY_ALLOWANCE = 10;
+const MONTHLY_QUOTA_COPY = {
+  en: "This month's book is finished! A new one starts next month.",
+  ko: '이번 달 책이 완성되었어요! 다음 달에 새 책이 시작돼요.',
+};
 
 function completedVolumeChapterIds(
   chapters: { id: string; number: number }[],
@@ -124,6 +138,22 @@ async function stubEnqueue(route: Route, ctx: Ctx) {
 
   if (body.action === 'sweep') {
     return json(route, { ok: true, revived: 0 });
+  }
+
+  // The server-side spend guard (issue #6). The real reserve_generation_
+  // attempt() also enforces a per-user rate limit, which is exercised by
+  // supabase/tests/generation_quota.sql instead — rate limiting depends on
+  // wall-clock timing, which would make a browser e2e test flaky for no real
+  // coverage gain. This mirrors the response shape the real Edge Function
+  // returns (code + bilingual copy), not a bare error.
+  if (monthlyAttemptCount(childId) >= CHAPTER_MONTHLY_ALLOWANCE) {
+    return json(route, {
+      ok: false,
+      code: 'monthly_quota_exceeded',
+      error: MONTHLY_QUOTA_COPY.en,
+      message_en: MONTHLY_QUOTA_COPY.en,
+      message_ko: MONTHLY_QUOTA_COPY.ko,
+    }, 429);
   }
 
   const lesson = body.lesson ?? FIXTURE_LESSON;

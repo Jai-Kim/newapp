@@ -36,6 +36,33 @@ export function TonightScreen() {
     }, [refresh]),
   );
 
+  // A blocked allowance takes over the whole body — there is nothing else
+  // useful to do tonight until next month, so it replaces the picker rather
+  // than sitting alongside it.
+  let body: React.ReactNode;
+  if (nightly.quotaNotice !== null) {
+    body = (
+      <QuotaNotice
+        notice={nightly.quotaNotice}
+        lead={nightly.child?.primary_language ?? 'en'}
+      />
+    );
+  }
+  else if (nightly.state === null) {
+    body = <ActivityIndicator />;
+  }
+  else {
+    body = (
+      <Body
+        state={nightly.state}
+        name={nightly.name}
+        busy={nightly.busy}
+        savedOffline={nightly.savedOffline}
+        onQueue={nightly.queue}
+      />
+    );
+  }
+
   return (
     <>
       <FocusAwareStatusBar />
@@ -69,17 +96,7 @@ export function TonightScreen() {
             </View>
           )}
 
-          {nightly.state === null
-            ? <ActivityIndicator />
-            : (
-                <Body
-                  state={nightly.state}
-                  name={nightly.name}
-                  busy={nightly.busy}
-                  savedOffline={nightly.savedOffline}
-                  onQueue={nightly.queue}
-                />
-              )}
+          {body}
         </View>
       </ScrollView>
     </>
@@ -222,6 +239,31 @@ function Writing({ job, name }: { job: ChapterQueueJob; name: string }) {
         {' '}
         tomorrow.
       </Text>
+    </View>
+  );
+}
+
+/**
+ * A blocked chapter allowance (issue #6) — a per-volume rhythm, not a
+ * punishment. Bilingual, both languages always rendered per ADR-0001 §1, the
+ * child's own language leading rather than always English.
+ */
+function QuotaNotice({
+  notice,
+  lead,
+}: {
+  notice: { messageEn: string; messageKo: string };
+  lead: 'en' | 'ko';
+}) {
+  const primary = lead === 'ko' ? notice.messageKo : notice.messageEn;
+  const secondary = lead === 'ko' ? notice.messageEn : notice.messageKo;
+  return (
+    <View
+      testID="quota-notice"
+      className="gap-2 rounded-xl border border-primary-300 p-5 dark:border-primary-700"
+    >
+      <Text className="text-lg font-bold">{primary}</Text>
+      <Text className="text-neutral-500">{secondary}</Text>
     </View>
   );
 }

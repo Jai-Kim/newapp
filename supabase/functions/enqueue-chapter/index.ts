@@ -19,6 +19,7 @@ import { assertOwnsChild, requireUser, statusFor } from "../_shared/auth.ts";
 import { handlePreflight, jsonResponse } from "../_shared/cors.ts";
 import { pickFallbackLesson } from "../_shared/lessons.ts";
 import { claimJob, runJob, sweepStuckJobs } from "../_shared/queue.ts";
+import { QuotaExceededError, reserveGenerationSlot } from "../_shared/quota.ts";
 
 interface Req {
   action?: "enqueue" | "sweep";
@@ -78,6 +79,32 @@ Deno.serve(async (req: Request) => {
       return jsonResponse({ ok: true, revived: revived.length });
     }
 
+    // A double-tap or a retry against an already-running job doesn't need
+    // (and must not burn) a fresh reservation — this is a best-effort
+    // pre-check to avoid paying for the common case. It is not atomic: a
+    // fully concurrent race can still slip past it and consume a reservation
+    // that the insert's own unique index then rejects anyway (23505, below)
+    // — the same class of race that index already accepts elsewhere in this
+    // function.
+    const { data: liveJob } = await supabase
+      .from("chapter_queue")
+      .select("id")
+      .eq("child_id", child_id)
+      .in("status", ["queued", "running"])
+      .maybeSingle();
+
+    if (liveJob) {
+      return jsonResponse({
+        ok: true,
+        already_queued: true,
+        message: "a chapter is already being written for this child",
+      });
+    }
+
+    // The spend guard (issue #6): a per-user rate limit and a per-child
+    // month-to-date quota, reserved before the worker below costs money.
+    await reserveGenerationSlot(supabase, user.id, child_id);
+
     const auto = !lesson;
     const chosen = lesson ?? await pickFallbackLesson(supabase, child_id);
 
@@ -120,6 +147,9 @@ Deno.serve(async (req: Request) => {
       status: "running",
     });
   } catch (err) {
+    if (err instanceof QuotaExceededError) {
+      return jsonResponse(err.toBody(), { status: err.status });
+    }
     return jsonResponse(
       { ok: false, error: err instanceof Error ? err.message : String(err) },
       { status: statusFor(err) },

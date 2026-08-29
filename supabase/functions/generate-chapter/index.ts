@@ -16,6 +16,7 @@ import { createClient } from "jsr:@supabase/supabase-js@2";
 import { assertOwnsChild, requireUser, statusFor } from "../_shared/auth.ts";
 import { handlePreflight, jsonResponse } from "../_shared/cors.ts";
 import { generateChapterFor } from "../_shared/generate.ts";
+import { QuotaExceededError, reserveGenerationSlot } from "../_shared/quota.ts";
 
 interface GenerateRequest {
   child_id: string;
@@ -52,6 +53,10 @@ Deno.serve(async (req: Request) => {
     );
     await assertOwnsChild(supabase, child_id, user.id);
 
+    // The spend guard (issue #6): a per-user rate limit and a per-child
+    // month-to-date quota, reserved before anything below costs money.
+    await reserveGenerationSlot(supabase, user.id, child_id);
+
     const result = await generateChapterFor(supabase, child_id, lesson, situation);
 
     return jsonResponse({
@@ -69,6 +74,9 @@ Deno.serve(async (req: Request) => {
         : {}),
     });
   } catch (err) {
+    if (err instanceof QuotaExceededError) {
+      return jsonResponse(err.toBody(), { status: err.status });
+    }
     return jsonResponse(
       { ok: false, error: err instanceof Error ? err.message : String(err) },
       { status: statusFor(err) },
