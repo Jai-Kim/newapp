@@ -1,11 +1,15 @@
 import { Text, View } from '@/components/ui';
 
 type AiGeneratedNoticeProps = {
-  /** Which language renders first. Defaults to English for screens (like
-   * the parent-preview) that don't yet know the child's primary_language. */
+  /**
+   * Which language renders first. Defaults to English for screens (like
+   * the parent-preview) that don't yet know the child's primary_language.
+   */
   lead?: 'en' | 'ko';
-  /** True once a parent has approved the chapter — before that, "reviewed
-   * by a parent" would be a claim the screen can't back up yet. */
+  /**
+   * True once a parent has approved the chapter — before that, "reviewed
+   * by a parent" would be a claim the screen can't back up yet.
+   */
   reviewed?: boolean;
 };
 

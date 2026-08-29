@@ -15,6 +15,7 @@ const mockPush = jest.fn();
 const mockReplace = jest.fn();
 
 jest.mock('expo-router', () => ({
+  // eslint-disable-next-line react/no-unnecessary-use-prefix -- mocking expo-router's actual export name
   useRouter: () => ({ push: mockPush, replace: mockReplace }),
 }));
 

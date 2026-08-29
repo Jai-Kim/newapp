@@ -13,11 +13,14 @@ import { ChapterReaderScreen } from './chapter-reader-screen';
 const mockUseChapterReader = jest.fn();
 
 jest.mock('expo-router', () => ({
+  // eslint-disable-next-line react/no-unnecessary-use-prefix -- mocking expo-router's actual export name
   useLocalSearchParams: () => ({ id: 'chapter-1' }),
+  // eslint-disable-next-line react/no-unnecessary-use-prefix -- mocking expo-router's actual export name
   useRouter: () => ({ back: jest.fn(), replace: jest.fn() }),
 }));
 
 jest.mock('@/features/reader/use-chapter-reader', () => ({
+  // eslint-disable-next-line react/no-unnecessary-use-prefix -- mocking the module's actual export name
   useChapterReader: (...args: unknown[]) => mockUseChapterReader(...args),
 }));
 

@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { cleanup, screen, setup, waitFor } from '@/lib/test-utils';
+import { cleanup, screen, setup } from '@/lib/test-utils';
 import { ChapterReviewScreen } from './chapter-review-screen';
 
 /**
@@ -14,7 +14,9 @@ const mockSetChapterApproval = jest.fn();
 const mockSignImagePaths = jest.fn();
 
 jest.mock('expo-router', () => ({
+  // eslint-disable-next-line react/no-unnecessary-use-prefix -- mocking expo-router's actual export name
   useLocalSearchParams: () => ({ id: 'chapter-1' }),
+  // eslint-disable-next-line react/no-unnecessary-use-prefix -- mocking expo-router's actual export name
   useRouter: () => ({ back: jest.fn() }),
 }));
 
@@ -53,7 +55,7 @@ describe('chapterReviewScreen — AI-content labeling', () => {
     ).toBeOnTheScreen();
 
     // Not yet approved, so it must not claim a parent already reviewed it.
-    await waitFor(() => expect(screen.getByTestId('approve')).toBeOnTheScreen());
+    expect(await screen.findByTestId('approve')).toBeOnTheScreen();
     expect(screen.queryByText(/reviewed by a parent/)).not.toBeOnTheScreen();
   });
 });

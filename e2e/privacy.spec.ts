@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 
-import { createChild, openApp, signIn, signInExisting } from './support/flow';
+import { createChild, openApp, signIn } from './support/flow';
 import {
   clientFor,
   confirmEmail,
@@ -40,10 +40,14 @@ test.describe('privacy disclosure + consent', () => {
     await page.locator(t('age-5-6')).click();
     await page.locator(t('lang-en')).click();
     await page.locator(t('interest-drawing')).click();
-    await expect(page.locator(t('create-child'))).toBeDisabled();
+    // react-native-web renders the button as a plain `<div>` with no ARIA
+    // role, so Playwright's toBeDisabled()/toBeEnabled() (which only honour
+    // aria-disabled on role-bearing elements) can't see it — assert the
+    // rendered attribute directly instead.
+    await expect(page.locator(t('create-child'))).toHaveAttribute('aria-disabled', 'true');
 
     await page.locator(t('privacy-consent')).click();
-    await expect(page.locator(t('create-child'))).toBeEnabled();
+    await expect(page.locator(t('create-child'))).toHaveAttribute('aria-disabled', 'false');
     await page.locator(t('create-child')).click();
 
     // Onboarding hands over to the look picker, same as every other flow.
@@ -61,14 +65,25 @@ test.describe('privacy disclosure + consent', () => {
     expect(family!.privacy_consent_version).toBeTruthy();
     expect(family!.privacy_consented_at).toBeTruthy();
   });
+});
+
+test.describe('privacy notice screen', () => {
+  const user = newTestUser();
+
+  test.afterAll(async () => {
+    await deleteTestUser(user.email);
+  });
 
   test('the full privacy notice is reachable and names both AI providers bilingually', async ({ page }) => {
-    // A fresh Playwright browser context has no session, and this account's
-    // child already exists from the previous test in this file (Playwright
-    // runs a describe block's tests in order by default) -- signInExisting
-    // is the helper for exactly that ("a parent whose child is already set
-    // up"), unlike signIn which expects to walk through sign-up.
-    await signInExisting(page, user);
+    // Stands up its own account and child rather than relying on a sibling
+    // test's side effect -- a failure earlier in the file (or a future
+    // `--grep`/sharded run that skips it) must not turn into a second,
+    // unrelated-looking failure here.
+    await openApp(page);
+    await provisionUser(user);
+    await signIn(page, user, () => confirmEmail(user.email));
+    await createChild(page, 'Rina');
+
     await page.goto('/privacy');
 
     await expect(page.locator(t('privacy-screen'))).toBeVisible({ timeout: 30_000 });

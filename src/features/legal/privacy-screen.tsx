@@ -9,8 +9,8 @@ import {
 import {
   PRIVACY_POLICY_VERSION,
   PRIVACY_SECTIONS,
-  type PrivacySection,
 } from '@/features/legal/privacy-content';
+import type { PrivacySection } from '@/features/legal/privacy-content';
 
 /**
  * The privacy & data disclosure surface (issue #12), reachable from
