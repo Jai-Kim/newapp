@@ -1,16 +1,16 @@
+import type { PrivacySection } from '@/features/legal/privacy-content';
 import * as React from 'react';
+
 import {
   FocusAwareStatusBar,
   ScrollView,
   Text,
   View,
 } from '@/components/ui';
-
 import {
   PRIVACY_POLICY_VERSION,
   PRIVACY_SECTIONS,
 } from '@/features/legal/privacy-content';
-import type { PrivacySection } from '@/features/legal/privacy-content';
 
 /**
  * The privacy & data disclosure surface (issue #12), reachable from
