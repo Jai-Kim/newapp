@@ -4,6 +4,7 @@ import { useRouter } from 'expo-router';
 import * as React from 'react';
 import {
   ActivityIndicator,
+  Button,
   FocusAwareStatusBar,
   Pressable,
   ScrollView,
@@ -11,7 +12,7 @@ import {
   View,
 } from '@/components/ui';
 
-import { currentVolume, VOLUME_SIZE } from '@/features/reader/volumes';
+import { currentVolume, type Volume, VOLUME_SIZE } from '@/features/reader/volumes';
 import { messageOf } from '@/lib/errors';
 import {
   cacheChild,
@@ -19,6 +20,86 @@ import {
   readCachedChild,
 } from '@/lib/offline/chapter-cache';
 import { listChildren, listReadableChapters } from '@/lib/supabase/chapters';
+
+type Lead = 'en' | 'ko';
+
+type VolumeProgressCardProps = {
+  volume: Volume;
+  lead: Lead;
+  childId: string | null;
+  onOrderPrint: (childId: string) => void;
+};
+
+function VolumeProgressCard({ volume, lead, childId, onOrderPrint }: VolumeProgressCardProps) {
+  return (
+    <View
+      testID="volume-progress"
+      className="gap-2 rounded-lg border border-neutral-200 p-4 dark:border-neutral-700"
+    >
+      <Text className="font-bold">
+        {`Volume ${volume.index}`}
+      </Text>
+      <View className="h-2 overflow-hidden rounded-full bg-neutral-200 dark:bg-neutral-700">
+        <View
+          className="h-2 rounded-full bg-primary-600 dark:bg-primary-400"
+          style={{ width: `${(volume.chapters.length / VOLUME_SIZE) * 100}%` }}
+        />
+      </View>
+      <Text className="text-neutral-500">
+        {`${volume.chapters.length} of ${VOLUME_SIZE} chapters`}
+      </Text>
+      {volume.complete && (
+        <View testID="volume-complete" className="gap-2 pt-2">
+          <Text className="font-bold text-primary-600 dark:text-primary-400">
+            {lead === 'ko' ? '책이 완성되었어요!' : 'Your book is ready!'}
+          </Text>
+          <Text className="text-neutral-500">
+            {lead === 'ko' ? 'Your book is ready!' : '책이 완성되었어요!'}
+          </Text>
+          {childId !== null && (
+            <Button
+              testID="print-order-cta"
+              label={
+                lead === 'ko'
+                  ? '하드커버 주문 / 선물하기 · Order / gift the hardcover'
+                  : 'Order / gift the hardcover · 하드커버 주문 / 선물하기'
+              }
+              onPress={() => onOrderPrint(childId)}
+            />
+          )}
+        </View>
+      )}
+    </View>
+  );
+}
+
+type ChapterRowProps = {
+  chapter: ChildReadableChapter;
+  lead: Lead;
+  onPress: () => void;
+};
+
+function ChapterRow({ chapter, lead, onPress }: ChapterRowProps) {
+  return (
+    <Pressable
+      onPress={onPress}
+      className="gap-1 rounded-lg border border-neutral-200 p-4 dark:border-neutral-700"
+      testID={`read-${chapter.number}`}
+    >
+      <Text className="font-bold">
+        {lead === 'ko' ? chapter.title_ko : chapter.title_en}
+      </Text>
+      <Text className="text-neutral-500">
+        {lead === 'ko' ? chapter.title_en : chapter.title_ko}
+      </Text>
+      {chapter.read_at === null && (
+        <Text className="text-xs font-bold text-primary-600 uppercase dark:text-primary-400">
+          not read yet
+        </Text>
+      )}
+    </Pressable>
+  );
+}
 
 /**
  * Everything they have read so far.
@@ -30,7 +111,8 @@ import { listChildren, listReadableChapters } from '@/lib/supabase/chapters';
 export function LibraryScreen() {
   const router = useRouter();
   const [chapters, setChapters] = React.useState<ChildReadableChapter[]>([]);
-  const [lead, setLead] = React.useState<'en' | 'ko'>('en');
+  const [lead, setLead] = React.useState<Lead>('en');
+  const [childId, setChildId] = React.useState<string | null>(null);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
   const [offline, setOffline] = React.useState(false);
@@ -42,6 +124,7 @@ export function LibraryScreen() {
         const cached = readCachedChild();
         if (cached !== null) {
           setLead(cached.primary_language);
+          setChildId(cached.id);
           setChapters(readCachedChapters(cached.id));
           setLoading(false);
         }
@@ -52,6 +135,7 @@ export function LibraryScreen() {
           return;
         }
         setLead(kids[0].primary_language);
+        setChildId(kids[0].id);
         cacheChild(kids[0]);
         const list = await listReadableChapters(kids[0].id);
         setChapters(list);
@@ -89,33 +173,14 @@ export function LibraryScreen() {
           <Text className="text-2xl font-bold">All chapters</Text>
 
           {volume !== null && (
-            <View
-              testID="volume-progress"
-              className="gap-2 rounded-lg border border-neutral-200 p-4 dark:border-neutral-700"
-            >
-              <Text className="font-bold">
-                {`Volume ${volume.index}`}
-              </Text>
-              <View className="h-2 overflow-hidden rounded-full bg-neutral-200 dark:bg-neutral-700">
-                <View
-                  className="h-2 rounded-full bg-primary-600 dark:bg-primary-400"
-                  style={{ width: `${(volume.chapters.length / VOLUME_SIZE) * 100}%` }}
-                />
-              </View>
-              <Text className="text-neutral-500">
-                {`${volume.chapters.length} of ${VOLUME_SIZE} chapters`}
-              </Text>
-              {volume.complete && (
-                <View testID="volume-complete" className="gap-1 pt-2">
-                  <Text className="font-bold text-primary-600 dark:text-primary-400">
-                    {lead === 'ko' ? '책이 완성되었어요!' : 'Your book is ready!'}
-                  </Text>
-                  <Text className="text-neutral-500">
-                    {lead === 'ko' ? 'Your book is ready!' : '책이 완성되었어요!'}
-                  </Text>
-                </View>
+            <VolumeProgressCard
+              volume={volume}
+              lead={lead}
+              childId={childId}
+              onOrderPrint={id => router.push(
+                `/print-order/${volume.index}?childId=${id}&lead=${lead}`,
               )}
-            </View>
+            />
           )}
 
           {offline && (
@@ -136,24 +201,12 @@ export function LibraryScreen() {
           )}
 
           {chapters.map(c => (
-            <Pressable
+            <ChapterRow
               key={c.id}
+              chapter={c}
+              lead={lead}
               onPress={() => router.push(`/read/${c.id}`)}
-              className="gap-1 rounded-lg border border-neutral-200 p-4 dark:border-neutral-700"
-              testID={`read-${c.number}`}
-            >
-              <Text className="font-bold">
-                {lead === 'ko' ? c.title_ko : c.title_en}
-              </Text>
-              <Text className="text-neutral-500">
-                {lead === 'ko' ? c.title_en : c.title_ko}
-              </Text>
-              {c.read_at === null && (
-                <Text className="text-xs font-bold text-primary-600 uppercase dark:text-primary-400">
-                  not read yet
-                </Text>
-              )}
-            </Pressable>
+            />
           ))}
         </View>
       </ScrollView>

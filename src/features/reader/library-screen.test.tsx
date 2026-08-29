@@ -13,9 +13,10 @@ import { LibraryScreen } from './library-screen';
 
 const mockListChildren = jest.fn();
 const mockListReadableChapters = jest.fn();
+const mockPush = jest.fn();
 
 jest.mock('expo-router', () => ({
-  useRouter: () => ({ push: jest.fn() }),
+  useRouter: () => ({ push: mockPush }),
 }));
 
 jest.mock('@/lib/offline/chapter-cache', () => ({
@@ -65,22 +66,31 @@ describe('libraryScreen — Volume progress', () => {
     expect(screen.getByText('Volume 1')).toBeOnTheScreen();
     expect(screen.getByText('4 of 10 chapters')).toBeOnTheScreen();
     expect(screen.queryByTestId('volume-complete')).not.toBeOnTheScreen();
+    expect(screen.queryByTestId('print-order-cta')).not.toBeOnTheScreen();
   });
 
-  it('marks the volume complete at ten, bilingually', async () => {
+  it('marks the volume complete at ten, bilingually, with an order-the-hardcover CTA', async () => {
     mockListChildren.mockResolvedValue([
       { id: 'child-1', first_name: 'Yuna', primary_language: 'en' },
     ]);
     mockListReadableChapters.mockResolvedValue(
       Array.from({ length: 10 }, (_, i) => chapter(i + 1)),
     );
-    setup(<LibraryScreen />);
+    const { user } = setup(<LibraryScreen />);
 
     await waitFor(() =>
       expect(screen.getByTestId('volume-complete')).toBeOnTheScreen());
     expect(screen.getByText('10 of 10 chapters')).toBeOnTheScreen();
     expect(screen.getByText('Your book is ready!')).toBeOnTheScreen();
     expect(screen.getByText('책이 완성되었어요!')).toBeOnTheScreen();
+
+    // Bilingual too (issue #22) — one label, both languages.
+    const cta = screen.getByTestId('print-order-cta-label');
+    expect(cta.props.children).toContain('Order / gift the hardcover');
+    expect(cta.props.children).toContain('하드커버 주문 / 선물하기');
+
+    await user.press(screen.getByTestId('print-order-cta'));
+    expect(mockPush).toHaveBeenCalledWith('/print-order/1?childId=child-1&lead=en');
   });
 
   it('shows the ready banner in both languages for a Korean-led child too', async () => {
