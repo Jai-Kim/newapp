@@ -12,6 +12,7 @@ import {
   View,
 } from '@/components/ui';
 
+import { AiGeneratedBadge } from '@/features/legal/ai-generated-badge';
 import { messageOf } from '@/lib/errors';
 import {
   getChapterForReview,
@@ -84,6 +85,8 @@ export function ChapterReviewScreen() {
       <FocusAwareStatusBar />
       <ScrollView>
         <View className="flex-1 gap-5 p-4 pb-10">
+          <AiGeneratedBadge />
+
           <View className="gap-1">
             <Text className="text-2xl font-bold">{chapter.title_en}</Text>
             <Text className="text-lg text-neutral-600 dark:text-neutral-400">

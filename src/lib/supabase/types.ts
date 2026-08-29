@@ -75,6 +75,10 @@ export type Child = {
   primary_language: Language;
   character_ref: CharacterRef | null;
   interests: string[] | null;
+  /** Which version of the privacy notice the parent agreed to at setup (issue #12). Null before that consent step existed. */
+  privacy_consent_version: string | null;
+  /** When that consent was given. Null before that consent step existed. */
+  privacy_consented_at: string | null;
   created_at: string;
 };
 

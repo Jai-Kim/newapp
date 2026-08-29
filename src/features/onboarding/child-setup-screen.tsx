@@ -4,14 +4,21 @@ import { useRouter } from 'expo-router';
 import * as React from 'react';
 import {
   Button,
+  Checkbox,
   FocusAwareStatusBar,
   Input,
+  Pressable,
   ScrollView,
   Text,
   View,
 } from '@/components/ui';
 
 import { Chip, ChipRow, Field } from '@/components/ui/choice-chips';
+import {
+  CONSENT_STATEMENT_EN,
+  CONSENT_STATEMENT_KO,
+  PRIVACY_NOTICE_VERSION,
+} from '@/features/legal/privacy-content';
 import { messageOf } from '@/lib/errors';
 import { createFamilyAndChild } from '@/lib/supabase/onboarding';
 
@@ -65,6 +72,7 @@ export function ChildSetupScreen() {
   const [ageBand, setAgeBand] = React.useState<AgeBand>('5-6');
   const [language, setLanguage] = React.useState<Language>('en');
   const [interests, setInterests] = React.useState<string[]>([]);
+  const [consent, setConsent] = React.useState(false);
   const [busy, setBusy] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
 
@@ -82,6 +90,8 @@ export function ChildSetupScreen() {
         age_band: ageBand,
         primary_language: language,
         interests,
+        privacy_consent_version: PRIVACY_NOTICE_VERSION,
+        privacy_consented_at: new Date().toISOString(),
       });
       // Straight on to the look picker: a child with no character sheet cannot
       // be illustrated at all, so this is one flow, not two optional screens.
@@ -116,6 +126,7 @@ export function ChildSetupScreen() {
           <AgeField value={ageBand} onChange={setAgeBand} />
           <LanguageField value={language} onChange={setLanguage} />
           <InterestsField selected={interests} onToggle={toggle} />
+          <ConsentField checked={consent} onChange={setConsent} />
 
           {error !== null && (
             <View className="rounded-md bg-danger-100 p-3 dark:bg-danger-900">
@@ -125,7 +136,7 @@ export function ChildSetupScreen() {
 
           <Button
             label={busy ? 'Setting up…' : 'Continue'}
-            disabled={busy || name.trim().length === 0}
+            disabled={busy || name.trim().length === 0 || !consent}
             onPress={submit}
             testID="create-child"
           />
@@ -185,6 +196,49 @@ function LanguageField({
       <Text className="text-sm text-neutral-500">
         {LANGUAGES.find(l => l.value === value)?.hint}
       </Text>
+    </Field>
+  );
+}
+
+/**
+ * PIPA requires separate, explicit consent from a parent/guardian before a
+ * child's personal data is collected — not just agreeing to Terms somewhere
+ * else. This is that step: an unchecked box blocks `Continue` (issue #12).
+ * The account itself (a signed-in, email-verified parent) is what makes this
+ * a *verifiable* parent's consent rather than an anonymous checkbox.
+ */
+function ConsentField({
+  checked,
+  onChange,
+}: {
+  checked: boolean;
+  onChange: (v: boolean) => void;
+}) {
+  const router = useRouter();
+  return (
+    <Field label="Before we set this up">
+      <Checkbox.Root
+        checked={checked}
+        onChange={onChange}
+        accessibilityLabel={CONSENT_STATEMENT_EN}
+        testID="privacy-consent"
+        className="gap-2"
+      >
+        <Checkbox.Icon checked={checked} />
+        <View className="flex-1 gap-1">
+          <Text className="text-sm text-neutral-700 dark:text-neutral-300">
+            {CONSENT_STATEMENT_EN}
+          </Text>
+          <Text className="text-sm text-neutral-500">
+            {CONSENT_STATEMENT_KO}
+          </Text>
+        </View>
+      </Checkbox.Root>
+      <Pressable onPress={() => router.push('/privacy')} testID="read-privacy-notice">
+        <Text className="text-sm text-primary-600 underline dark:text-primary-400">
+          Read the full privacy notice · 전체 안내문 보기
+        </Text>
+      </Pressable>
     </Field>
   );
 }

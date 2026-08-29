@@ -1,4 +1,5 @@
 import Env from 'env';
+import { useRouter } from 'expo-router';
 import { useUniwind } from 'uniwind';
 
 import {
@@ -18,6 +19,7 @@ import { ThemeItem } from './components/theme-item';
 
 export function SettingsScreen() {
   const signOut = useAuth.use.signOut();
+  const router = useRouter();
   const { theme } = useUniwind();
   const iconColor
     = theme === 'dark' ? colors.neutral[400] : colors.neutral[500];
@@ -65,7 +67,11 @@ export function SettingsScreen() {
           </SettingsContainer>
 
           <SettingsContainer title="settings.links">
-            <SettingsItem text="settings.privacy" onPress={() => {}} />
+            <SettingsItem
+              text="settings.privacy"
+              onPress={() => router.push('/privacy')}
+              testID="settings-privacy"
+            />
             <SettingsItem text="settings.terms" onPress={() => {}} />
             <SettingsItem
               text="settings.github"

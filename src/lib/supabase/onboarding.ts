@@ -17,6 +17,13 @@ export type ChildDraft = {
   age_band: AgeBand;
   primary_language: Language;
   interests: string[];
+  /**
+   * The privacy-notice version the parent explicitly agreed to, and when.
+   * Required, not optional: PIPA requires this consent to exist before a
+   * child's data is collected, not attached after the fact (issue #12).
+   */
+  privacy_consent_version: string;
+  privacy_consented_at: string;
 };
 
 /** The signed-in user's family, or null before onboarding. */
@@ -77,6 +84,8 @@ export async function createFamilyAndChild(draft: ChildDraft): Promise<Child> {
       age_band: draft.age_band,
       primary_language: draft.primary_language,
       interests: draft.interests,
+      privacy_consent_version: draft.privacy_consent_version,
+      privacy_consented_at: draft.privacy_consented_at,
     })
     .select('*')
     .single();
