@@ -142,7 +142,7 @@ test.describe('concierge print capture', () => {
 
     // A second attempt on the same book is recognised, not duplicated — the
     // whole point of the one-live-order-per-volume index.
-    await page.goto('/print-order/1?childId=' + childId + '&lead=en');
+    await page.goto(`/print-order/1?childId=${childId}&lead=en`);
     await page.locator('[data-testid="print-order-recipient"]').fill('Grandma Kim, again');
     await page.locator('[data-testid="print-order-line1"]').fill('123 Sea Breeze Rd');
     await page.locator('[data-testid="print-order-city"]').fill('Busan');

@@ -53,30 +53,65 @@ export function sql(statement: string): Record<string, unknown>[] {
 }
 
 /**
- * The CLI does not wrap results in a single `{"rows": [...]}` envelope — a
- * multi-row result prints one JSON value per line (NDJSON), and a single-row
- * result (every read this harness has actually done until now — the rest
- * were skipped or unexercised in CI) prints that one row object with nothing
- * around it. The old parser only understood a `{...}` wrapper with a `.rows`
- * key, which neither shape produces: for a one-row result it found the row
- * itself, parsed fine, found no `.rows` key on it, and silently fell back to
- * `[]` — a live row read back as zero, every time. This throws instead of
- * guessing, so a shape this doesn't understand fails loudly rather than
- * looking like "no rows".
+ * Confirmed against real CI output (see the `print_orders` insert log at
+ * run 33230374369): `supabase db query` does not emit JSON at all. A query
+ * that returns rows prints a box-drawing table —
  *
- * Still tolerates a non-JSON preamble (the CLI may log a connection banner
- * before the result), the same as the old `indexOf('{')` did — just applied
- * per-line, so it doesn't also swallow a genuine parse failure inside the
- * JSON itself.
+ *   ┌──────────────────────────┬──────────────────────────┐
+ *   │ id                       │ created_at               │
+ *   ├──────────────────────────┼──────────────────────────┤
+ *   │ 6418c832-...             │ 2026-08-29 03:05:18 UTC  │
+ *   └──────────────────────────┴──────────────────────────┘
  *
- * A write with no `returning` clause never prints JSON at all — it prints a
- * bare command tag (`DELETE 1`, `UPDATE 1`, `INSERT 0 1`, `DELETE 0`, ...),
- * which is a genuine zero-row result, not a broken read. Throwing on that
- * broke every write's happy path (deleteTestUser, closeJob, ...). Only
- * output that is neither JSON nor a recognised command tag should throw.
+ * — and a write with no `returning` clause prints a bare command tag
+ * (`DELETE 1`, `UPDATE 1`, `INSERT 0 1`, `DELETE 0`, ...), which is a
+ * genuine zero-row result, not a broken read. Every earlier version of this
+ * parser guessed at a JSON shape (an envelope, then NDJSON) that the CLI has
+ * never actually produced; the previous "it must be JSON" assumption is why
+ * `insertPrintOrder`'s own `returning id, created_at` read failed on its
+ * very first (non-conflicting) call. Only output that is neither a table
+ * nor a recognised command tag should throw — that's the case a read
+ * silently returning `[]` actually needs to be loud about.
  */
 const COMMAND_TAG
   = /^(INSERT \d+ \d+|UPDATE \d+|DELETE \d+|MERGE \d+|SELECT \d+|COPY \d+|TRUNCATE(?: TABLE)?|CREATE [A-Z ]+|DROP [A-Z ]+|ALTER [A-Z ]+)$/i;
+
+/** Accepts both the unicode box style observed in CI and a plain-ASCII fallback. */
+const TOP_BORDER = /^[┌╭+][─═-]/;
+const BOTTOM_BORDER = /^[└╰+][─═-]/;
+const CONTENT_LINE = /^[│║|]/;
+
+function splitCells(line: string): string[] {
+  const trimmed = line.replace(/^[│║|]/, '').replace(/[│║|]$/, '');
+  return trimmed.split(/[│║|]/).map(cell => cell.trim());
+}
+
+/** `null` means "this isn't a table at all" — distinct from a table with zero data rows. */
+function parseTable(lines: string[]): Record<string, unknown>[] | null {
+  const top = lines.findIndex(line => TOP_BORDER.test(line));
+  if (top === -1) {
+    return null;
+  }
+  const bottom = lines.findIndex((line, i) => i > top && BOTTOM_BORDER.test(line));
+  if (bottom === -1) {
+    return null;
+  }
+
+  const contentLines = lines.slice(top + 1, bottom).filter(line => CONTENT_LINE.test(line));
+  if (contentLines.length === 0) {
+    return [];
+  }
+  const [headerLine, ...dataLines] = contentLines;
+  const headers = splitCells(headerLine);
+  return dataLines.map((line) => {
+    const cells = splitCells(line);
+    const row: Record<string, unknown> = {};
+    headers.forEach((header, i) => {
+      row[header] = cells[i] ?? null;
+    });
+    return row;
+  });
+}
 
 function parseRows(out: string, statement: string): Record<string, unknown>[] {
   if (out.trim() === '') {
@@ -84,24 +119,31 @@ function parseRows(out: string, statement: string): Record<string, unknown>[] {
   }
 
   const lines = out.split('\n').map(line => line.trim()).filter(Boolean);
-  const start = lines.findIndex(line => /^[[{]/.test(line));
-  if (start === -1) {
-    if (COMMAND_TAG.test(lines[lines.length - 1])) {
-      return [];
-    }
-    throw new Error(
-      `"supabase db query" produced no JSON output for:\n${statement}\n\ngot:\n${out}`,
-    );
-  }
-  const jsonLines = lines.slice(start);
 
-  const rows = asRows(tryParseJson(jsonLines.join('\n'))) ?? parseNdjsonRows(jsonLines);
-  if (rows === null) {
-    throw new Error(
-      `could not parse "supabase db query" output as JSON rows for:\n${statement}\n\ngot:\n${out}`,
-    );
+  const table = parseTable(lines);
+  if (table !== null) {
+    return table;
   }
-  return rows;
+
+  // Kept as a fallback, not the primary path: nothing observed from the real
+  // CLI has produced this shape, but a shape this doesn't understand should
+  // still get one more honest attempt before throwing.
+  const jsonStart = lines.findIndex(line => /^[[{]/.test(line));
+  if (jsonStart !== -1) {
+    const jsonLines = lines.slice(jsonStart);
+    const rows = asRows(tryParseJson(jsonLines.join('\n'))) ?? parseNdjsonRows(jsonLines);
+    if (rows !== null) {
+      return rows;
+    }
+  }
+
+  if (COMMAND_TAG.test(lines[lines.length - 1])) {
+    return [];
+  }
+
+  throw new Error(
+    `could not parse "supabase db query" output for:\n${statement}\n\ngot:\n${out}`,
+  );
 }
 
 function tryParseJson(text: string): unknown {
