@@ -28,12 +28,18 @@ export type PrintOrderSeed = {
 };
 
 /**
- * `'already_ordered'` mirrors submit-print-order/index.ts's 23505 branch, but
- * reached via `on conflict ... do nothing` rather than a caught error: the
- * constraint under test is the real partial unique index, not a branch in
- * this file. The `where` clause below has to match
- * `uniq_print_orders_active_volume`'s predicate exactly for Postgres to infer
- * it as the arbiter — zero rows back means the index did its job.
+ * `'already_ordered'` mirrors submit-print-order/index.ts's 23505 branch. An
+ * unguarded insert is deliberate — the constraint under test is the real
+ * partial unique index, not a branch in this file — but the conflict is
+ * caught by matching the index name in the raised error rather than an
+ * `on conflict ... do nothing` clause: that requires Postgres to infer the
+ * arbiter from a `where` predicate textually matching the partial index, and
+ * inference failing is indistinguishable, from here, from a real conflict —
+ * it broke the *first*, non-conflicting insert too. Matching the constraint
+ * name is exactly the shape `sql()` already surfaces (execFileSync's error
+ * includes the CLI's stderr verbatim, e.g. `duplicate key value violates
+ * unique constraint "uniq_print_orders_active_volume"`), so this needs no
+ * structured error code the CLI doesn't give us.
  */
 export function insertPrintOrder(
   order: PrintOrderSeed,
@@ -42,23 +48,28 @@ export function insertPrintOrder(
     ? `array[${order.chapterIds.map(literal).join(',')}]::uuid[]`
     : 'array[]::uuid[]';
 
-  const rows = sql(`
-    insert into print_orders (
-      child_id, volume_index, chapter_ids, recipient_name, shipping_address,
-      gift, gift_message, note
-    ) values (
-      ${literal(order.childId)}, ${order.volumeIndex}, ${chapterIdsArray},
-      ${quote(order.recipientName)}, ${quote(JSON.stringify(order.shippingAddress))}::jsonb,
-      ${order.gift}, ${order.giftMessage ? quote(order.giftMessage) : 'null'},
-      ${order.note ? quote(order.note) : 'null'}
-    )
-    on conflict (child_id, volume_index) where status <> 'cancelled' do nothing
-    returning id, created_at;
-  `);
-  if (rows.length === 0) {
-    return 'already_ordered';
+  try {
+    const rows = sql(`
+      insert into print_orders (
+        child_id, volume_index, chapter_ids, recipient_name, shipping_address,
+        gift, gift_message, note
+      ) values (
+        ${literal(order.childId)}, ${order.volumeIndex}, ${chapterIdsArray},
+        ${quote(order.recipientName)}, ${quote(JSON.stringify(order.shippingAddress))}::jsonb,
+        ${order.gift}, ${order.giftMessage ? quote(order.giftMessage) : 'null'},
+        ${order.note ? quote(order.note) : 'null'}
+      )
+      returning id, created_at;
+    `);
+    return rows[0] as { id: string; created_at: string };
   }
-  return rows[0] as { id: string; created_at: string };
+  catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    if (message.includes('uniq_print_orders_active_volume')) {
+      return 'already_ordered';
+    }
+    throw error;
+  }
 }
 
 /** Live (non-cancelled) orders for one book — what the unique index protects. */

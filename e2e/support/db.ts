@@ -68,20 +68,32 @@ export function sql(statement: string): Record<string, unknown>[] {
  * before the result), the same as the old `indexOf('{')` did — just applied
  * per-line, so it doesn't also swallow a genuine parse failure inside the
  * JSON itself.
+ *
+ * A write with no `returning` clause never prints JSON at all — it prints a
+ * bare command tag (`DELETE 1`, `UPDATE 1`, `INSERT 0 1`, `DELETE 0`, ...),
+ * which is a genuine zero-row result, not a broken read. Throwing on that
+ * broke every write's happy path (deleteTestUser, closeJob, ...). Only
+ * output that is neither JSON nor a recognised command tag should throw.
  */
+const COMMAND_TAG
+  = /^(INSERT \d+ \d+|UPDATE \d+|DELETE \d+|MERGE \d+|SELECT \d+|COPY \d+|TRUNCATE(?: TABLE)?|CREATE [A-Z ]+|DROP [A-Z ]+|ALTER [A-Z ]+)$/i;
+
 function parseRows(out: string, statement: string): Record<string, unknown>[] {
   if (out.trim() === '') {
     return [];
   }
 
-  const lines = out.split('\n');
-  const start = lines.findIndex(line => /^[[{]/.test(line.trim()));
+  const lines = out.split('\n').map(line => line.trim()).filter(Boolean);
+  const start = lines.findIndex(line => /^[[{]/.test(line));
   if (start === -1) {
+    if (COMMAND_TAG.test(lines[lines.length - 1])) {
+      return [];
+    }
     throw new Error(
       `"supabase db query" produced no JSON output for:\n${statement}\n\ngot:\n${out}`,
     );
   }
-  const jsonLines = lines.slice(start).map(l => l.trim()).filter(Boolean);
+  const jsonLines = lines.slice(start);
 
   const rows = asRows(tryParseJson(jsonLines.join('\n'))) ?? parseNdjsonRows(jsonLines);
   if (rows === null) {

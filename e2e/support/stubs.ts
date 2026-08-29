@@ -231,7 +231,12 @@ async function stubSubmitPrintOrder(route: Route, ctx: Ctx) {
     return json(route, { ok: true, order_id: order.id, created_at: order.created_at });
   }
   catch (error) {
-    return json(route, { ok: false, error: error instanceof Error ? error.message : String(error) }, 500);
+    const message = error instanceof Error ? error.message : String(error);
+    // A 500 here reads as "confirmation never appeared" from the test's side
+    // — no locator names the cause. Log the real error so a future failure
+    // names itself in the CI log instead of requiring a re-run to diagnose.
+    console.error('[stubSubmitPrintOrder] insertPrintOrder failed:', message);
+    return json(route, { ok: false, error: message }, 500);
   }
 }
 
