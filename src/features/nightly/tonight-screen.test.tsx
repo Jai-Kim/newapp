@@ -41,15 +41,29 @@ jest.mock('@/lib/supabase/chapters', () => ({
 // module, so as long as both sides use this same constructor it works
 // identically to the real one for the purpose of this test.
 jest.mock('@/lib/supabase/nightly', () => {
+  // Explicit field declarations, not TS parameter properties: Babel lowers
+  // parameter properties into constructor-body assignments that reference
+  // the bare parameter identifiers, and babel-plugin-jest-hoist rejects any
+  // hoisted jest.mock factory that appears to close over an out-of-scope
+  // variable — it can't tell those identifiers apart from real closures.
   class GenerationQuotaError extends Error {
+    code: 'rate_limited' | 'monthly_quota_reached';
+    messageEn: string;
+    messageKo: string;
+    resetsAt?: string;
+
     constructor(
-      public code: 'rate_limited' | 'monthly_quota_reached',
-      public messageEn: string,
-      public messageKo: string,
-      public resetsAt?: string,
+      code: 'rate_limited' | 'monthly_quota_reached',
+      messageEn: string,
+      messageKo: string,
+      resetsAt?: string,
     ) {
       super(messageEn);
       this.name = 'GenerationQuotaError';
+      this.code = code;
+      this.messageEn = messageEn;
+      this.messageKo = messageKo;
+      this.resetsAt = resetsAt;
     }
   }
   return {
