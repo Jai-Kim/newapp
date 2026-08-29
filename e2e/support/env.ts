@@ -50,6 +50,15 @@ function required(name: string): string {
 export const SUPABASE_URL = required('EXPO_PUBLIC_SUPABASE_URL');
 export const SUPABASE_ANON_KEY = required('EXPO_PUBLIC_SUPABASE_ANON_KEY');
 
+/**
+ * Optional — see docs/runbook-environments.md (issue #19). Unset until Jai
+ * provisions a second (staging) Supabase project; `support/guard-env.ts`
+ * no-ops without it. Read the same way as the required values above so it
+ * comes from either `.env` or the process environment.
+ */
+export const PROD_SUPABASE_PROJECT_REF: string | undefined
+  = process.env.EXPO_PUBLIC_PROD_SUPABASE_PROJECT_REF ?? dotenv.EXPO_PUBLIC_PROD_SUPABASE_PROJECT_REF;
+
 export const MODE: 'stub' | 'live' = process.env.E2E_MODE === 'live' ? 'live' : 'stub';
 export const IS_LIVE = MODE === 'live';
 

@@ -24,6 +24,9 @@ const isLive = process.env.E2E_MODE === 'live';
 
 export default defineConfig({
   testDir: './e2e',
+  // Refuses to start if this run points at the production Supabase project
+  // (issue #19) — see e2e/support/guard-env.ts.
+  globalSetup: './e2e/support/global-setup.ts',
   // The flow is a sequence; running it in parallel against one project would
   // have two tests fighting over the same family's one-live-job lock.
   workers: 1,
