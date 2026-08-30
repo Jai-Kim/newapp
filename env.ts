@@ -39,14 +39,28 @@ const envSchema = z.object({
   APP_BUILD_ONLY_VAR: z.string().optional(),
 });
 
+/**
+ * `dotenv` parses `FOO=` as `''`, not `undefined` — so a plain `??` fallback
+ * never fires for anyone who copies `.env.example` (which ships empty
+ * placeholders) to `.env` verbatim. Treat blank/whitespace-only the same as
+ * unset.
+ */
+function orDefault(value: string | undefined, fallback: string): string {
+  return value?.trim() ? value : fallback;
+}
+
 // Config records per environment
-const EXPO_PUBLIC_APP_ENV = (process.env.EXPO_PUBLIC_APP_ENV
-  ?? 'development') as z.infer<typeof envSchema>['EXPO_PUBLIC_APP_ENV'];
+const EXPO_PUBLIC_APP_ENV = orDefault(
+  process.env.EXPO_PUBLIC_APP_ENV,
+  'development',
+) as z.infer<typeof envSchema>['EXPO_PUBLIC_APP_ENV'];
 
 // Defaults to APP_ENV when unset, so every profile that doesn't set it
 // explicitly (i.e. every profile except `closed-testing`) is unaffected.
-const EXPO_PUBLIC_APP_IDENTITY = (process.env.EXPO_PUBLIC_APP_IDENTITY
-  ?? EXPO_PUBLIC_APP_ENV) as z.infer<typeof envSchema>['EXPO_PUBLIC_APP_IDENTITY'];
+const EXPO_PUBLIC_APP_IDENTITY = orDefault(
+  process.env.EXPO_PUBLIC_APP_IDENTITY,
+  EXPO_PUBLIC_APP_ENV,
+) as z.infer<typeof envSchema>['EXPO_PUBLIC_APP_IDENTITY'];
 
 const BUNDLE_IDS = {
   development: 'com.storyloom.development',
