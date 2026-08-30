@@ -40,7 +40,7 @@ describe('enqueueTomorrow', () => {
     const body = {
       ok: false,
       code: 'monthly_quota_exceeded',
-      message_en: "This month's book is finished! A new one starts next month.",
+      message_en: 'This month\'s book is finished! A new one starts next month.',
       message_ko: '이번 달 책이 완성되었어요! 다음 달에 새 책이 시작돼요.',
     };
     mockInvoke.mockResolvedValue({
@@ -70,7 +70,7 @@ describe('enqueueTomorrow', () => {
     const body = {
       ok: false,
       code: 'rate_limited',
-      message_en: "Let's slow down for just a moment — try again in a minute.",
+      message_en: 'Let\'s slow down for just a moment — try again in a minute.',
       message_ko: '잠시 쉬어가요 — 1분 후에 다시 시도해 주세요.',
     };
     mockInvoke.mockResolvedValue({

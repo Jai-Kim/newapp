@@ -32,7 +32,7 @@ const VOLUME_SIZE = 10;
  */
 const CHAPTER_MONTHLY_ALLOWANCE = 10;
 const MONTHLY_QUOTA_COPY = {
-  en: "This month's book is finished! A new one starts next month.",
+  en: 'This month\'s book is finished! A new one starts next month.',
   ko: '이번 달 책이 완성되었어요! 다음 달에 새 책이 시작돼요.',
 };
 

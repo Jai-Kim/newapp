@@ -64,7 +64,7 @@ test.describe('chapter generation quota', () => {
     await expect(page.locator('[data-testid="quota-notice"]'))
       .toBeVisible({ timeout: 15_000 });
     // Bilingual, per ADR-0001 §1 — both languages render regardless of lead.
-    await expect(page.getByText("This month's book is finished! A new one starts next month."))
+    await expect(page.getByText('This month\'s book is finished! A new one starts next month.'))
       .toBeVisible();
     await expect(page.getByText('이번 달 책이 완성되었어요! 다음 달에 새 책이 시작돼요.'))
       .toBeVisible();

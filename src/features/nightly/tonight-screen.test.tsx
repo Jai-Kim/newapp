@@ -159,7 +159,7 @@ describe('tonightScreen', () => {
     mockGetNightlyState.mockResolvedValue({ kind: 'empty' });
     mockEnqueueTomorrow.mockRejectedValueOnce(new GenerationQuotaError({
       code: 'monthly_quota_exceeded',
-      messageEn: "This month's book is finished! A new one starts next month.",
+      messageEn: 'This month\'s book is finished! A new one starts next month.',
       messageKo: '이번 달 책이 완성되었어요! 다음 달에 새 책이 시작돼요.',
     }));
     const { user } = setup(<TonightScreen />);
