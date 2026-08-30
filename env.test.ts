@@ -50,4 +50,58 @@ describe('assertNotProductionSupabase (issue #19)', () => {
       prodProjectRef: PROD_REF,
     })).not.toThrow();
   });
+
+  it('throws for the closed-testing shape: appEnv=preview pointed at production', () => {
+    // The whole point of splitting identity from backend environment
+    // (issue #22, follow-up to #35): a closed-testing build sets
+    // EXPO_PUBLIC_APP_ENV=preview (to keep this guard live) and
+    // EXPO_PUBLIC_APP_IDENTITY=production (to keep the Play-listing package
+    // name) — so a build that presents as "production" to the app store must
+    // still refuse to start against the real production Supabase project.
+    expect(() => assertNotProductionSupabase({
+      appEnv: 'preview',
+      supabaseUrl: prodUrl,
+      prodProjectRef: PROD_REF,
+    })).toThrow(/PRODUCTION Supabase project/);
+  });
+});
+
+describe('EXPO_PUBLIC_APP_IDENTITY (issue #22, follow-up to #35)', () => {
+  const ORIGINAL_ENV = process.env;
+
+  beforeEach(() => {
+    jest.resetModules();
+    process.env = { ...ORIGINAL_ENV };
+  });
+
+  afterAll(() => {
+    process.env = ORIGINAL_ENV;
+  });
+
+  it('defaults identity to APP_ENV when unset', () => {
+    process.env.EXPO_PUBLIC_APP_ENV = 'preview';
+    delete process.env.EXPO_PUBLIC_APP_IDENTITY;
+
+    const Env = require('./env').default;
+
+    expect(Env.EXPO_PUBLIC_APP_IDENTITY).toBe('preview');
+    expect(Env.EXPO_PUBLIC_PACKAGE).toBe('com.storyloom.preview');
+    expect(Env.EXPO_PUBLIC_BUNDLE_ID).toBe('com.storyloom.preview');
+    expect(Env.EXPO_PUBLIC_SCHEME).toBe('storyloom.preview');
+  });
+
+  it('lets identity override package/bundle/scheme independently of APP_ENV', () => {
+    process.env.EXPO_PUBLIC_APP_ENV = 'preview';
+    process.env.EXPO_PUBLIC_APP_IDENTITY = 'production';
+
+    const Env = require('./env').default;
+
+    // Identity drives the app-store-facing values...
+    expect(Env.EXPO_PUBLIC_APP_IDENTITY).toBe('production');
+    expect(Env.EXPO_PUBLIC_PACKAGE).toBe('com.storyloom');
+    expect(Env.EXPO_PUBLIC_BUNDLE_ID).toBe('com.storyloom');
+    expect(Env.EXPO_PUBLIC_SCHEME).toBe('storyloom');
+    // ...while APP_ENV — what the production-Supabase guard reads — is untouched.
+    expect(Env.EXPO_PUBLIC_APP_ENV).toBe('preview');
+  });
 });

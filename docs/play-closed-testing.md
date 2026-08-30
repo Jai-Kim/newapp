@@ -84,37 +84,55 @@ build that crashes on open.
    (internal testing's "internal app sharing" accepts an APK, but that's a
    separate mechanism from the closed-testing track described above).
 
-   **Read this before running it for real — a real trade-off, not a
-   formality.** The profile's `"env": {"EXPO_PUBLIC_APP_ENV": "production"}`
-   is required to get the plain `com.storyloom` `applicationId` — `env.ts`'s
-   `PACKAGES`/`BUNDLE_IDS` maps tie the package name 1:1 to
-   `EXPO_PUBLIC_APP_ENV`, and only `production` yields the unsuffixed
-   package the Play listing needs (see step 2 above). That, in turn, makes
-   the `assertNotProductionSupabase` guard from #19/#31 a **no-op for this
-   profile** — the guard is designed to stand down whenever
-   `EXPO_PUBLIC_APP_ENV === 'production'`, since a real production build is
-   supposed to point at production, and a closed-testing build inherits
-   that same exemption even though it isn't actually production. This was a
-   deliberate call, not an oversight: getting the package name right is a
-   hard Play requirement (a mismatched `applicationId` can't be uploaded to
-   the listing at all), so it wins over the softer safety goal — and
-   `env.ts`'s package-name derivation was intentionally left unchanged
-   rather than decoupled to fix this, since that's a larger change than
-   this slice's scope.
+   **Read this before running it for real.** Getting the package name right
+   is a hard Play requirement (a mismatched `applicationId` can't be
+   uploaded to the listing at all) — but earlier this profile got that by
+   setting `"env": {"EXPO_PUBLIC_APP_ENV": "production"}`, which as a side
+   effect made the `assertNotProductionSupabase` guard (#19/#31) a **no-op
+   for this profile by construction**, since the guard stands down whenever
+   `EXPO_PUBLIC_APP_ENV === 'production'`.
 
-   What *does* still steer this build away from production data: the
-   profile sets `"environment": "preview"` (the EAS-hosted secrets
-   selector, separate from `EXPO_PUBLIC_APP_ENV`), so the Supabase URL/anon
+   That's fixed (issue #22, follow-up to #35): `env.ts` now splits *which
+   app this build presents as* from *which backend it may talk to* via a
+   second variable, `EXPO_PUBLIC_APP_IDENTITY` (defaults to
+   `EXPO_PUBLIC_APP_ENV` when unset, so every other profile is unaffected —
+   see `docs/runbook-environments.md`). This profile now sets:
+
+   ```json
+   "env": {
+     "EXPO_PUBLIC_APP_ENV": "preview",
+     "EXPO_PUBLIC_APP_IDENTITY": "production"
+   }
+   ```
+
+   `EXPO_PUBLIC_APP_IDENTITY=production` still gets the plain `com.storyloom`
+   `applicationId` the Play listing needs (see step 2 above) —
+   `PACKAGES`/`BUNDLE_IDS`/`SCHEMES` in `env.ts` now key off identity, not
+   app-env. `EXPO_PUBLIC_APP_ENV=preview` keeps the production-Supabase guard
+   **live**: a closed-testing build that somehow points at the production
+   Supabase project now refuses to start, the same as any other
+   non-production build.
+
+   What steers this build away from production data in practice: the
+   profile also sets `"environment": "preview"` (the EAS-hosted secrets
+   selector, separate from both of the above), so the Supabase URL/anon
    key it builds with come from EAS's `preview` environment rather than
    `production` — per `docs/runbook-environments.md`'s Step 3 table,
    `preview` is mapped to the **staging** project once it exists.
    **`TODO(Jai)`**: this only protects real family data once the staging
    project exists (#19) and the `preview` EAS environment is actually
    populated with its URL/keys, not production's — confirm that before
-   running this profile for real. If the `preview` EAS environment is ever
-   accidentally set to production values, this profile would silently
-   build against production with no guard to catch it, precisely because
-   of the exemption above.
+   running this profile for real. Once it is, and
+   `EXPO_PUBLIC_PROD_SUPABASE_PROJECT_REF` is set (per
+   `docs/runbook-environments.md`), the guard is a second, independent line
+   of defense on top of that — not just a hope that `preview`'s secrets were
+   configured correctly.
+
+   One visible side effect: because `EXPO_PUBLIC_APP_ENV` is now `preview`
+   for this profile, the dev app-icon badge (`app.config.ts`) will show a
+   "preview" ribbon on closed-testing builds, where it previously showed
+   none. Not fixed here — `TODO(Jai)`: decide if that's useful (marks it as
+   a test build) or should be suppressed too.
 4. **`TODO(Jai)`** — Play Console → Testing → Closed testing → create a
    track, upload the `.aab`, generate the opt-in URL. Hand that URL to
    `docs/play-tester-onboarding.md`'s tracker.
@@ -173,13 +191,13 @@ form — but the honest, current-facts answers are:
   EAS environment it reads Supabase credentials from needs to actually be
   pointed at the staging project (#19) before the first real build — it
   currently pulls whatever `preview` is configured to today.
-- The production-Supabase guard (`assertNotProductionSupabase`, #19/#31) is
-  inert for `closed-testing` builds by construction, since the profile must
-  set `EXPO_PUBLIC_APP_ENV: "production"` to get the correct
-  `applicationId`. Worth a stronger guard (e.g. one keyed off the EAS
-  profile/channel rather than `EXPO_PUBLIC_APP_ENV` alone) once there's
-  room to revisit `env.ts` — not attempted here since this slice was scoped
-  to config + docs only.
+- ~~The production-Supabase guard is inert for `closed-testing` builds by
+  construction.~~ Fixed (issue #22, follow-up to #35): `env.ts` now splits
+  app identity (`EXPO_PUBLIC_APP_IDENTITY`) from backend environment
+  (`EXPO_PUBLIC_APP_ENV`), so the guard is live for this profile. See the
+  callout in step 3 above.
+- The dev app-icon "preview" ribbon now shows on closed-testing builds as a
+  side effect of the fix above — decide whether that's wanted.
 - No Android signing credentials / Play App Signing enrollment were
   configured — `eas.json`'s `closed-testing` and `submit.closed-testing`
   entries have no credentials wired in; `eas build`/`eas submit` will
