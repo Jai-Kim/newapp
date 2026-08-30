@@ -1,5 +1,5 @@
 import type { ChildRow } from '@/lib/supabase/chapters';
-import type { NightlyState } from '@/lib/supabase/nightly';
+import type { CrisisResource, NightlyState } from '@/lib/supabase/nightly';
 import * as React from 'react';
 
 import { messageOf } from '@/lib/errors';
@@ -14,7 +14,6 @@ import { downloadChapter } from '@/lib/offline/download-chapter';
 import { listChildren } from '@/lib/supabase/chapters';
 import {
   CrisisDetectedError,
-  type CrisisResource,
   enqueueTomorrow,
   GenerationQuotaError,
   getNightlyState,

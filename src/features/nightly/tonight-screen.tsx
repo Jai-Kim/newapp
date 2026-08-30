@@ -1,3 +1,4 @@
+import type { CrisisNotice as CrisisNoticeData } from '@/features/nightly/use-nightly';
 import type { NightlyState } from '@/lib/supabase/nightly';
 import type { ChapterQueueJob } from '@/lib/supabase/types';
 
@@ -14,10 +15,7 @@ import {
   View,
 } from '@/components/ui';
 import { LessonPicker } from '@/features/nightly/lesson-picker';
-import {
-  type CrisisNotice as CrisisNoticeData,
-  useNightly,
-} from '@/features/nightly/use-nightly';
+import { useNightly } from '@/features/nightly/use-nightly';
 
 /**
  * The home screen at bedtime.

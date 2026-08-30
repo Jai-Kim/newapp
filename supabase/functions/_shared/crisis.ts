@@ -32,6 +32,15 @@ export { CrisisDetectedError };
 
 const SAFE_PRESET_LESSONS = new Set(FALLBACK_LESSONS);
 
+// Opus, not a cheaper model, despite this being a 4-option classifier on the
+// hot path every free-text request takes (issue #6 exists to bound that
+// per-request cost). The false-negative side of this call is a disclosure of
+// abuse, self-harm, or a child in acute danger going unnoticed — bilingual
+// (EN+KO) nuance around acuteness ("a death last week" vs. "a grandparent
+// who died a while ago", per SYSTEM above) is exactly where a weaker model is
+// most likely to miss the real signal or, worse, silently drift toward never
+// flagging. That risk is judged worth the cost here; revisit if the cost
+// becomes a problem before the risk does.
 const MODEL = "claude-opus-5";
 
 const SYSTEM = `You are a first-line screener for a bedtime-story app for
@@ -141,7 +150,21 @@ export async function screenParentInput(
     throw new Error("crisis screener returned no text block");
   }
 
-  const raw = JSON.parse(block.text) as RawCrisisVerdict;
+  // A malformed body is not expected — output_config enforces the schema —
+  // but a screener response we can't parse gets the same fail-closed
+  // treatment as a refusal, not a generic 500.
+  let raw: RawCrisisVerdict;
+  try {
+    raw = JSON.parse(block.text) as RawCrisisVerdict;
+  }
+  catch {
+    const result = interpretCrisisVerdict(
+      { signal: "crisis", category: "none", reasoning: "" },
+      true,
+    );
+    throw new CrisisDetectedError(result.category);
+  }
+
   const result = interpretCrisisVerdict(raw, false);
   if (result.blocked) {
     throw new CrisisDetectedError(result.category);
