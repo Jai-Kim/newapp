@@ -4,14 +4,20 @@ import { useRouter } from 'expo-router';
 import * as React from 'react';
 import {
   Button,
+  Checkbox,
   FocusAwareStatusBar,
   Input,
+  Pressable,
   ScrollView,
   Text,
   View,
 } from '@/components/ui';
 
 import { Chip, ChipRow, Field } from '@/components/ui/choice-chips';
+import {
+  ONBOARDING_CONSENT_ITEMS,
+  PRIVACY_POLICY_VERSION,
+} from '@/features/legal/privacy-content';
 import { messageOf } from '@/lib/errors';
 import { createFamilyAndChild } from '@/lib/supabase/onboarding';
 
@@ -65,6 +71,7 @@ export function ChildSetupScreen() {
   const [ageBand, setAgeBand] = React.useState<AgeBand>('5-6');
   const [language, setLanguage] = React.useState<Language>('en');
   const [interests, setInterests] = React.useState<string[]>([]);
+  const [consented, setConsented] = React.useState(false);
   const [busy, setBusy] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
 
@@ -77,12 +84,15 @@ export function ChildSetupScreen() {
     setBusy(true);
     setError(null);
     try {
-      await createFamilyAndChild({
-        first_name: name,
-        age_band: ageBand,
-        primary_language: language,
-        interests,
-      });
+      await createFamilyAndChild(
+        {
+          first_name: name,
+          age_band: ageBand,
+          primary_language: language,
+          interests,
+        },
+        { version: PRIVACY_POLICY_VERSION },
+      );
       // Straight on to the look picker: a child with no character sheet cannot
       // be illustrated at all, so this is one flow, not two optional screens.
       router.replace('/character-setup');
@@ -117,6 +127,12 @@ export function ChildSetupScreen() {
           <LanguageField value={language} onChange={setLanguage} />
           <InterestsField selected={interests} onToggle={toggle} />
 
+          <PrivacyConsentField
+            checked={consented}
+            onChange={setConsented}
+            onReadMore={() => router.push('/privacy')}
+          />
+
           {error !== null && (
             <View className="rounded-md bg-danger-100 p-3 dark:bg-danger-900">
               <Text className="text-danger-800 dark:text-danger-100">{error}</Text>
@@ -125,7 +141,7 @@ export function ChildSetupScreen() {
 
           <Button
             label={busy ? 'Setting up…' : 'Continue'}
-            disabled={busy || name.trim().length === 0}
+            disabled={busy || name.trim().length === 0 || !consented}
             onPress={submit}
             testID="create-child"
           />
@@ -212,6 +228,57 @@ function InterestsField({
           />
         ))}
       </ChipRow>
+    </Field>
+  );
+}
+
+/**
+ * PIPA-shaped consent (issue #12): separate and specific, not a ToS checkbox.
+ * Each item is its own line rather than a paragraph, and the cross-border
+ * transfer to Anthropic/Google is called out on its own — PIPA requires that
+ * one to be disclosed separately from the rest. The full legal text is one
+ * tap away, not reproduced here, so this stays a screen a tired parent can
+ * actually get through.
+ */
+function PrivacyConsentField({
+  checked,
+  onChange,
+  onReadMore,
+}: {
+  checked: boolean;
+  onChange: (value: boolean) => void;
+  onReadMore: () => void;
+}) {
+  return (
+    <Field
+      label="Before we start"
+      hint="시작하기 전에"
+    >
+      <View className="gap-2 rounded-md border border-neutral-200 p-3 dark:border-neutral-700">
+        {ONBOARDING_CONSENT_ITEMS.map(item => (
+          <View key={item.en} className="gap-0.5">
+            <Text className="text-sm text-neutral-700 dark:text-neutral-300">
+              {'• '}
+              {item.en}
+            </Text>
+            <Text className="pl-3 text-sm text-neutral-500">{item.ko}</Text>
+          </View>
+        ))}
+
+        <Pressable onPress={onReadMore} testID="privacy-read-more">
+          <Text className="pt-1 text-sm text-primary-600 dark:text-primary-400">
+            Read the full privacy notice / 전체 개인정보 고지 보기
+          </Text>
+        </Pressable>
+      </View>
+
+      <Checkbox
+        testID="privacy-consent"
+        checked={checked}
+        onChange={onChange}
+        accessibilityLabel="I understand and agree to how this data is used / 이해했으며 동의합니다"
+        label="I understand and agree to how this data is used / 이해했으며 동의합니다"
+      />
     </Field>
   );
 }

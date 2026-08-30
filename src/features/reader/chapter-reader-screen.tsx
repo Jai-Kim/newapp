@@ -13,6 +13,7 @@ import {
   Text,
   View,
 } from '@/components/ui';
+import { AiGeneratedNotice } from '@/features/legal/ai-generated-notice';
 import { LessonPicker } from '@/features/nightly/lesson-picker';
 import { useChapterReader } from '@/features/reader/use-chapter-reader';
 
@@ -109,13 +110,14 @@ function Page({
         <Pressable onPress={onNext} testID={`page-${page.page}`}>
           <View className="flex-1 gap-5 p-4 pb-10">
             {index === 0 && (
-              <View className="gap-1">
+              <View className="gap-2">
                 <Text className="text-2xl font-bold">
                   {lead === 'ko' ? chapter.title_ko : chapter.title_en}
                 </Text>
                 <Text className="text-lg text-neutral-500">
                   {lead === 'ko' ? chapter.title_en : chapter.title_ko}
                 </Text>
+                <AiGeneratedNotice lead={lead} reviewed />
               </View>
             )}
 

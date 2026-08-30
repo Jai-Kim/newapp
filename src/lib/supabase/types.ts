@@ -64,6 +64,9 @@ export type Family = {
   id: string;
   auth_user_id: string | null;
   display_name: string | null;
+  /** docs/privacy-policy.md version the parent agreed to (issue #12, migration 0009). */
+  privacy_consent_version: string | null;
+  privacy_consented_at: string | null;
   created_at: string;
 };
 

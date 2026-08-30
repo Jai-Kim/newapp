@@ -46,11 +46,24 @@ export async function getMyChild(): Promise<Child | null> {
   return (data as Child) ?? null;
 }
 
+export type PrivacyConsent = {
+  /** docs/privacy-policy.md version the parent agreed to (issue #12). */
+  version: string;
+};
+
 /**
  * Creates the family (if absent) and the child. Idempotent on the family so a
  * retry after a failed child insert doesn't strand a second family row.
+ *
+ * `consent` is recorded against the family unconditionally, whether the
+ * family was just created or already existed (a retry after a failed child
+ * insert) -- the child-setup screen re-shows the consent step every time, so
+ * there is no path to a child without a fresh consent record.
  */
-export async function createFamilyAndChild(draft: ChildDraft): Promise<Child> {
+export async function createFamilyAndChild(
+  draft: ChildDraft,
+  consent: PrivacyConsent,
+): Promise<Child> {
   const { data: userData, error: userErr } = await supabase.auth.getUser();
   if (userErr || !userData.user) {
     throw new Error('You need to be signed in to set up a child.');
@@ -67,6 +80,17 @@ export async function createFamilyAndChild(draft: ChildDraft): Promise<Child> {
       throw error;
     }
     family = data;
+  }
+
+  const { error: consentErr } = await supabase
+    .from('families')
+    .update({
+      privacy_consent_version: consent.version,
+      privacy_consented_at: new Date().toISOString(),
+    })
+    .eq('id', family.id);
+  if (consentErr) {
+    throw consentErr;
   }
 
   const { data: child, error: childErr } = await supabase

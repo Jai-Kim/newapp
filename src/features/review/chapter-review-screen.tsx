@@ -12,6 +12,7 @@ import {
   View,
 } from '@/components/ui';
 
+import { AiGeneratedNotice } from '@/features/legal/ai-generated-notice';
 import { messageOf } from '@/lib/errors';
 import {
   getChapterForReview,
@@ -97,6 +98,8 @@ export function ChapterReviewScreen() {
               </Text>
             )}
           </View>
+
+          <AiGeneratedNotice />
 
           {blocked && (
             <View className="rounded-md bg-danger-100 p-3 dark:bg-danger-900">
