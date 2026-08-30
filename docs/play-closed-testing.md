@@ -70,19 +70,51 @@ build that crashes on open.
    matches what Console expects; production and closed-testing builds should
    ship the same `applicationId`, not the `.preview`/`.development`
    variants).
-3. **Build the first testable artifact.** `TODO(Jai)` — flagging a release-config
-   mismatch rather than fixing it (out of scope for this slice, no signing/CI
-   changes were made here): `eas.json`'s `preview` profile builds
-   `"buildType": "apk"`, but Play Console requires an **Android App Bundle
-   (`.aab`)** for anything uploaded through the standard publishing flow,
-   including closed testing (an internal-testing-only shortcut, "internal
-   app sharing," accepts a raw APK, but that's a separate mechanism from the
-   Play Console testing tracks described above). Either add a dedicated
-   `closed-testing` profile to `eas.json` with `"buildType": "app-bundle"`,
-   or reuse `production`'s bundle format pointed at a non-production
-   Supabase project (once #19's staging project exists — see `docs/
-   runbook-environments.md`) so a closed-test crash can't touch real
-   family data.
+3. **Build the first testable artifact.**
+
+   ```sh
+   eas build --profile closed-testing --platform android
+   # or: pnpm build:closed-testing:android
+   ```
+
+   `eas.json` now has a dedicated `closed-testing` profile
+   (`"buildType": "app-bundle"`, `"distribution": "store"`), so this
+   produces an `.aab` — unlike the `preview` profile, which builds a raw
+   `apk` and cannot be uploaded through the standard Play publishing flow
+   (internal testing's "internal app sharing" accepts an APK, but that's a
+   separate mechanism from the closed-testing track described above).
+
+   **Read this before running it for real — a real trade-off, not a
+   formality.** The profile's `"env": {"EXPO_PUBLIC_APP_ENV": "production"}`
+   is required to get the plain `com.storyloom` `applicationId` — `env.ts`'s
+   `PACKAGES`/`BUNDLE_IDS` maps tie the package name 1:1 to
+   `EXPO_PUBLIC_APP_ENV`, and only `production` yields the unsuffixed
+   package the Play listing needs (see step 2 above). That, in turn, makes
+   the `assertNotProductionSupabase` guard from #19/#31 a **no-op for this
+   profile** — the guard is designed to stand down whenever
+   `EXPO_PUBLIC_APP_ENV === 'production'`, since a real production build is
+   supposed to point at production, and a closed-testing build inherits
+   that same exemption even though it isn't actually production. This was a
+   deliberate call, not an oversight: getting the package name right is a
+   hard Play requirement (a mismatched `applicationId` can't be uploaded to
+   the listing at all), so it wins over the softer safety goal — and
+   `env.ts`'s package-name derivation was intentionally left unchanged
+   rather than decoupled to fix this, since that's a larger change than
+   this slice's scope.
+
+   What *does* still steer this build away from production data: the
+   profile sets `"environment": "preview"` (the EAS-hosted secrets
+   selector, separate from `EXPO_PUBLIC_APP_ENV`), so the Supabase URL/anon
+   key it builds with come from EAS's `preview` environment rather than
+   `production` — per `docs/runbook-environments.md`'s Step 3 table,
+   `preview` is mapped to the **staging** project once it exists.
+   **`TODO(Jai)`**: this only protects real family data once the staging
+   project exists (#19) and the `preview` EAS environment is actually
+   populated with its URL/keys, not production's — confirm that before
+   running this profile for real. If the `preview` EAS environment is ever
+   accidentally set to production values, this profile would silently
+   build against production with no guard to catch it, precisely because
+   of the exemption above.
 4. **`TODO(Jai)`** — Play Console → Testing → Closed testing → create a
    track, upload the `.aab`, generate the opt-in URL. Hand that URL to
    `docs/play-tester-onboarding.md`'s tracker.
@@ -137,9 +169,21 @@ form — but the honest, current-facts answers are:
 - Personal-account-and-wait vs. organization-account-and-skip.
 - Confirm the current 12-tester/14-day thresholds and reset condition
   directly in Play Console.
-- Add a Play-ready (`app-bundle`) build profile, or repurpose `production`'s,
-  for the first closed-test upload — no `eas.json`/signing change was made
-  in this PR.
+- The `closed-testing` EAS profile (`eas.json`) is added, but the `preview`
+  EAS environment it reads Supabase credentials from needs to actually be
+  pointed at the staging project (#19) before the first real build — it
+  currently pulls whatever `preview` is configured to today.
+- The production-Supabase guard (`assertNotProductionSupabase`, #19/#31) is
+  inert for `closed-testing` builds by construction, since the profile must
+  set `EXPO_PUBLIC_APP_ENV: "production"` to get the correct
+  `applicationId`. Worth a stronger guard (e.g. one keyed off the EAS
+  profile/channel rather than `EXPO_PUBLIC_APP_ENV` alone) once there's
+  room to revisit `env.ts` — not attempted here since this slice was scoped
+  to config + docs only.
+- No Android signing credentials / Play App Signing enrollment were
+  configured — `eas.json`'s `closed-testing` and `submit.closed-testing`
+  entries have no credentials wired in; `eas build`/`eas submit` will
+  prompt for that interactively when Jai first runs them.
 - Families Policy / "Designed for Families" declaration.
 - Everything under "Run sheet" above that only Jai's Play Console access can
   execute.
