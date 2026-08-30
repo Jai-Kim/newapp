@@ -61,10 +61,24 @@
       "env": {
         "EXPO_PUBLIC_APP_ENV": "development"
       }
+    },
+    "closed-testing": {
+      "channel": "closed-testing",
+      "autoIncrement": true,
+      "distribution": "store",
+      "environment": "preview",
+      "android": {
+        "buildType": "app-bundle",
+        "image": "latest"
+      },
+      "env": {
+        "EXPO_PUBLIC_APP_ENV": "production"
+      }
     }
   },
   "submit": {
     "preview": {},
-    "production": {}
+    "production": {},
+    "closed-testing": {}
   }
 }
