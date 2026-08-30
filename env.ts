@@ -5,6 +5,16 @@ import packageJSON from './package.json';
 // Single unified environment schema
 const envSchema = z.object({
   EXPO_PUBLIC_APP_ENV: z.enum(['development', 'preview', 'production']),
+
+  // Which app identity (bundle id / package / scheme) this build presents as
+  // — independent of which backend it talks to (issue #22, follow-up to
+  // #35/#19). Defaults to EXPO_PUBLIC_APP_ENV when unset, so every existing
+  // profile keeps behaving exactly as it does today. A `closed-testing`
+  // build sets APP_ENV=preview (to keep the production-Supabase guard live)
+  // and APP_IDENTITY=production (to keep the Play-listing package name) —
+  // see docs/runbook-environments.md.
+  EXPO_PUBLIC_APP_IDENTITY: z.enum(['development', 'preview', 'production']),
+
   EXPO_PUBLIC_NAME: z.string(),
   EXPO_PUBLIC_SCHEME: z.string(),
   EXPO_PUBLIC_BUNDLE_ID: z.string(),
@@ -33,6 +43,11 @@ const envSchema = z.object({
 const EXPO_PUBLIC_APP_ENV = (process.env.EXPO_PUBLIC_APP_ENV
   ?? 'development') as z.infer<typeof envSchema>['EXPO_PUBLIC_APP_ENV'];
 
+// Defaults to APP_ENV when unset, so every profile that doesn't set it
+// explicitly (i.e. every profile except `closed-testing`) is unaffected.
+const EXPO_PUBLIC_APP_IDENTITY = (process.env.EXPO_PUBLIC_APP_IDENTITY
+  ?? EXPO_PUBLIC_APP_ENV) as z.infer<typeof envSchema>['EXPO_PUBLIC_APP_IDENTITY'];
+
 const BUNDLE_IDS = {
   development: 'com.storyloom.development',
   preview: 'com.storyloom.preview',
@@ -59,10 +74,11 @@ const STRICT_ENV_VALIDATION = process.env.STRICT_ENV_VALIDATION === '1';
 // Build env object
 const _env: z.infer<typeof envSchema> = {
   EXPO_PUBLIC_APP_ENV,
+  EXPO_PUBLIC_APP_IDENTITY,
   EXPO_PUBLIC_NAME: NAME,
-  EXPO_PUBLIC_SCHEME: SCHEMES[EXPO_PUBLIC_APP_ENV],
-  EXPO_PUBLIC_BUNDLE_ID: BUNDLE_IDS[EXPO_PUBLIC_APP_ENV],
-  EXPO_PUBLIC_PACKAGE: PACKAGES[EXPO_PUBLIC_APP_ENV],
+  EXPO_PUBLIC_SCHEME: SCHEMES[EXPO_PUBLIC_APP_IDENTITY],
+  EXPO_PUBLIC_BUNDLE_ID: BUNDLE_IDS[EXPO_PUBLIC_APP_IDENTITY],
+  EXPO_PUBLIC_PACKAGE: PACKAGES[EXPO_PUBLIC_APP_IDENTITY],
   EXPO_PUBLIC_VERSION: packageJSON.version,
   EXPO_PUBLIC_API_URL: process.env.EXPO_PUBLIC_API_URL ?? '',
   EXPO_PUBLIC_ASSOCIATED_DOMAIN: process.env.EXPO_PUBLIC_ASSOCIATED_DOMAIN,

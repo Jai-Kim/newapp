@@ -34,6 +34,41 @@ that only Jai can do.
 - Both are a **no-op while `EXPO_PUBLIC_PROD_SUPABASE_PROJECT_REF` is unset**,
   so nothing changes until the steps below are done.
 
+## `EXPO_PUBLIC_APP_ENV` vs `EXPO_PUBLIC_APP_IDENTITY` (issue #22, follow-up to #35)
+
+Two different variables answer two different questions, and it matters which
+one a build profile sets:
+
+- **`EXPO_PUBLIC_APP_ENV`** — *which backend does this build talk to, and is
+  it allowed to touch production?* This is what `assertNotProductionSupabase`
+  (above) reads. It must be `"production"` for a build to be exempt from the
+  guard.
+- **`EXPO_PUBLIC_APP_IDENTITY`** — *which app does this build present itself
+  as* (Android package / iOS bundle id / URL scheme)? This is what Play/App
+  Store match against the store listing. **Defaults to `EXPO_PUBLIC_APP_ENV`
+  when unset**, so every profile that doesn't set it explicitly keeps
+  behaving exactly as it always has.
+
+Before this split, one variable did both jobs — so the `closed-testing` EAS
+profile (`eas.json`, #35) had to set `EXPO_PUBLIC_APP_ENV=production` just to
+get the `com.storyloom` package Play requires, which as a side effect made
+`assertNotProductionSupabase` a no-op for that profile by construction. The
+split fixes that: `closed-testing` now sets `EXPO_PUBLIC_APP_ENV=preview`
+(guard stays live) and `EXPO_PUBLIC_APP_IDENTITY=production` (package stays
+`com.storyloom`) — see `env.ts` and `eas.json`. Once
+`EXPO_PUBLIC_PROD_SUPABASE_PROJECT_REF` is set per Step 4 below, a
+closed-testing build that somehow points at production Supabase now refuses
+to start, the same as every other non-production build.
+
+One side effect worth knowing about: the dev app-icon badge
+(`app.config.ts`'s `appIconBadgeConfig`) is keyed off `EXPO_PUBLIC_APP_ENV`,
+not identity, so a `closed-testing` build (`APP_ENV=preview`) will now show
+the "preview" ribbon on its icon, where it previously showed no ribbon at all
+(`APP_ENV=production` suppressed it). This wasn't reshaped as part of this
+change — `TODO(Jai)`: decide whether closed testers should see that ribbon
+(arguably useful, so they can tell it's a test build) or whether the badge
+logic should also be split to read identity instead.
+
 ## Step 1 — create the staging project (Jai, dashboard)
 
 1. Supabase Dashboard → New project. Suggested name: `storyloom-staging`.
