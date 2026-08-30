@@ -7,12 +7,12 @@
 //
 // Nothing here knows about requests or users. The caller establishes ownership.
 
-import { type SupabaseClient } from "jsr:@supabase/supabase-js@2";
+import type { SupabaseClient } from 'jsr:@supabase/supabase-js@2';
 
-import { choosePages, illustratePage } from "./illustrate.ts";
-import { reviewIllustration, type IllustrationVerdict } from "./safety.ts";
+import { choosePages, illustratePage } from './illustrate.ts';
+import { reviewIllustration, type IllustrationVerdict } from './safety.ts';
 
-interface Page {
+type Page = {
   page: number;
   en: string;
   ko: string;
@@ -20,17 +20,17 @@ interface Page {
   wardrobe: string;
   illustrated?: boolean;
   image_path?: string;
-}
+};
 
-export interface PageResult {
+export type PageResult = {
   page: number;
   image_path?: string;
   latency_ms?: number;
   error?: string;
   blocked?: string;
-}
+};
 
-export interface IllustrateChapterResult {
+export type IllustrateChapterResult = {
   ok: boolean;
   illustrated: number[];
   blocked: PageResult[];
@@ -38,14 +38,14 @@ export interface IllustrateChapterResult {
   results: PageResult[];
   image_safety: IllustrationVerdict[];
   images: { page: number; image_base64: string }[];
-}
+};
 
 /** The child's locked identity reference, loaded from the private bucket. */
 async function loadIdentity(supabase: SupabaseClient, childId: string) {
   const { data: child, error } = await supabase
-    .from("children")
-    .select("first_name,character_ref")
-    .eq("id", childId)
+    .from('children')
+    .select('first_name,character_ref')
+    .eq('id', childId)
     .single();
 
   if (error || !child) {
@@ -60,14 +60,14 @@ async function loadIdentity(supabase: SupabaseClient, childId: string) {
     // The look picker has not run. Worth saying plainly, because it is a setup
     // step the parent skipped rather than anything going wrong.
     throw new Error(
-      "this child has no locked character sheet yet — run the look picker first",
+      'this child has no locked character sheet yet — run the look picker first',
     );
   }
 
-  const [bucket, ...rest] = path.split("/");
+  const [bucket, ...rest] = path.split('/');
   const { data: blob, error: dlErr } = await supabase.storage
     .from(bucket)
-    .download(rest.join("/"));
+    .download(rest.join('/'));
   if (dlErr || !blob) {
     throw new Error(`identity reference unreadable at ${path}: ${dlErr?.message}`);
   }
@@ -88,32 +88,32 @@ export async function illustrateChapter(
 ): Promise<IllustrateChapterResult> {
   const { illustrations = 4, returnImages = false } = options;
 
-  const apiKey = Deno.env.get("GEMINI_API_KEY");
+  const apiKey = Deno.env.get('GEMINI_API_KEY');
   if (!apiKey) {
-    throw new Error("GEMINI_API_KEY not set");
+    throw new Error('GEMINI_API_KEY not set');
   }
 
   const { data: chapter, error: chErr } = await supabase
-    .from("chapters")
-    .select("id,child_id,number,pages,review_status,safety,lesson")
-    .eq("id", chapterId)
+    .from('chapters')
+    .select('id,child_id,number,pages,review_status,safety,lesson')
+    .eq('id', chapterId)
     .single();
   if (chErr || !chapter) {
     throw new Error(`chapter not found: ${chErr?.message}`);
   }
 
   // Never spend money illustrating something the filter rejected.
-  if ((chapter.safety as { verdict?: string } | null)?.verdict === "blocked") {
+  if ((chapter.safety as { verdict?: string } | null)?.verdict === 'blocked') {
     throw new ChapterBlockedError(
-      "chapter was blocked by the content filter; not illustrating",
+      'chapter was blocked by the content filter; not illustrating',
     );
   }
 
   const identity = await loadIdentity(supabase, chapter.child_id as string);
 
   const { data: childRow } = await supabase
-    .from("children").select("age_band").eq("id", chapter.child_id).single();
-  const ageBand = (childRow?.age_band as string) ?? "5-6";
+    .from('children').select('age_band').eq('id', chapter.child_id).single();
+  const ageBand = (childRow?.age_band as string) ?? '5-6';
   const pages = chapter.pages as Page[];
 
   // The storyteller marks the emotional beats (ADR-0002); it knows where the
@@ -141,7 +141,7 @@ export async function illustrateChapter(
 
   for (const [i, outcome] of settled.entries()) {
     const pageNo = targets[i];
-    if (outcome.status === "rejected") {
+    if (outcome.status === 'rejected') {
       results.push({ page: pageNo, error: String(outcome.reason) });
       continue;
     }
@@ -152,18 +152,18 @@ export async function illustrateChapter(
     // illustration should never reach the bucket at all.
     const page = pages.find((p) => p.page === pageNo);
     const verdict = await reviewIllustration(
-      Deno.env.get("ANTHROPIC_API_KEY")!,
+      Deno.env.get('ANTHROPIC_API_KEY')!,
       ageBand,
       pageNo,
-      page?.scene ?? "",
+      page?.scene ?? '',
       r.image_base64,
       r.mime_type,
     );
     imageSafety.push(verdict);
 
-    if (verdict.verdict === "blocked") {
+    if (verdict.verdict === 'blocked') {
       // Degrade to a text-only page rather than failing the chapter.
-      results.push({ page: pageNo, blocked: verdict.issue ?? "blocked by image review" });
+      results.push({ page: pageNo, blocked: verdict.issue ?? 'blocked by image review' });
       continue;
     }
 
@@ -171,8 +171,8 @@ export async function illustrateChapter(
     const objectPath = `${chapter.child_id}/ch${chapter.number}/p${pageNo}.png`;
 
     const { error: upErr } = await supabase.storage
-      .from("illustrations")
-      .upload(objectPath, bytes, { contentType: "image/png", upsert: true });
+      .from('illustrations')
+      .upload(objectPath, bytes, { contentType: 'image/png', upsert: true });
     if (upErr) {
       results.push({ page: pageNo, error: `upload failed: ${upErr.message}` });
       continue;
@@ -195,7 +195,7 @@ export async function illustrateChapter(
     illustrations: imageSafety,
   };
   const { error: saveErr } = await supabase
-    .from("chapters").update({ pages, safety: mergedSafety }).eq("id", chapterId);
+    .from('chapters').update({ pages, safety: mergedSafety }).eq('id', chapterId);
   if (saveErr) {
     throw new Error(`failed to save image paths: ${saveErr.message}`);
   }

@@ -11,21 +11,21 @@
 //
 // Deploy: supabase functions deploy generate-chapter
 
-import { createClient } from "jsr:@supabase/supabase-js@2";
+import { createClient } from 'jsr:@supabase/supabase-js@2';
 
-import { assertOwnsChild, requireUser, statusFor } from "../_shared/auth.ts";
-import { handlePreflight, jsonResponse } from "../_shared/cors.ts";
-import { CrisisDetectedError, screenParentInput } from "../_shared/crisis.ts";
-import { generateChapterFor } from "../_shared/generate.ts";
-import { QuotaExceededError, reserveGenerationSlot } from "../_shared/quota.ts";
+import { assertOwnsChild, requireUser, statusFor } from '../_shared/auth.ts';
+import { handlePreflight, jsonResponse } from '../_shared/cors.ts';
+import { CrisisDetectedError, screenParentInput } from '../_shared/crisis.ts';
+import { generateChapterFor } from '../_shared/generate.ts';
+import { QuotaExceededError, reserveGenerationSlot } from '../_shared/quota.ts';
 
-interface GenerateRequest {
+type GenerateRequest = {
   child_id: string;
   lesson: string; // the value/situation the parent chose for tonight
   situation?: string; // optional free-text context
   /** Return the retrieved canon in the response. Spike B evidence; off by default. */
   debug_canon?: boolean;
-}
+};
 
 Deno.serve(async (req: Request) => {
   const preflight = handlePreflight(req);
@@ -39,7 +39,7 @@ Deno.serve(async (req: Request) => {
 
     if (!child_id || !lesson) {
       return jsonResponse(
-        { ok: false, error: "child_id and lesson are required" },
+        { ok: false, error: 'child_id and lesson are required' },
         { status: 400 },
       );
     }
@@ -49,16 +49,16 @@ Deno.serve(async (req: Request) => {
     const user = await requireUser(req);
 
     const supabase = createClient(
-      Deno.env.get("SUPABASE_URL")!,
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+      Deno.env.get('SUPABASE_URL')!,
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
     );
     await assertOwnsChild(supabase, child_id, user.id);
 
     // Screen what the parent typed before anything below costs money
     // (issue #13). A crisis-shaped situation should never generate.
-    const anthropicKey = Deno.env.get("ANTHROPIC_API_KEY");
+    const anthropicKey = Deno.env.get('ANTHROPIC_API_KEY');
     if (!anthropicKey) {
-      throw new Error("ANTHROPIC_API_KEY not set");
+      throw new Error('ANTHROPIC_API_KEY not set');
     }
     await screenParentInput(anthropicKey, { lesson, situation });
 
@@ -75,14 +75,15 @@ Deno.serve(async (req: Request) => {
       chapter: result.chapter,
       safety: result.safety,
       // Always pending (or rejected) at birth — the parent gate is the point.
-      review_status: result.safety.verdict === "blocked" ? "rejected" : "pending",
+      review_status: result.safety.verdict === 'blocked' ? 'rejected' : 'pending',
       latency_ms: result.latency_ms,
       usage: result.usage,
       ...(debug_canon
         ? { retrieved_canon: result.canon, canon_prompt: result.canon_prompt }
         : {}),
     });
-  } catch (err) {
+  }
+  catch (err) {
     if (err instanceof QuotaExceededError) {
       return jsonResponse(err.toBody(), { status: err.status });
     }

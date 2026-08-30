@@ -8,25 +8,25 @@
 // Secrets: supabase secrets set --env-file .env
 // Call:    supabase functions invoke health-check
 
-import Anthropic from "npm:@anthropic-ai/sdk@0.70.0";
-import { createClient } from "jsr:@supabase/supabase-js@2";
+import { createClient } from 'jsr:@supabase/supabase-js@2';
+import Anthropic from 'npm:@anthropic-ai/sdk@0.70.0';
 
-import { handlePreflight, jsonResponse } from "../_shared/cors.ts";
+import { handlePreflight, jsonResponse } from '../_shared/cors.ts';
 
-interface ProviderCheck {
+type ProviderCheck = {
   ok: boolean;
   detail: string;
   latency_ms?: number;
-}
+};
 
-interface HealthCheckResponse {
+type HealthCheckResponse = {
   ok: boolean;
   checks: {
     supabase: ProviderCheck;
     anthropic: ProviderCheck;
     image: ProviderCheck;
   };
-}
+};
 
 /** Times a check and turns a throw into a failed (not crashed) result. */
 async function timed(
@@ -37,7 +37,8 @@ async function timed(
   try {
     const detail = await fn();
     return { ok: true, detail, latency_ms: Date.now() - started };
-  } catch (err) {
+  }
+  catch (err) {
     return {
       ok: false,
       detail: `${name} failed: ${err instanceof Error ? err.message : String(err)}`,
@@ -48,18 +49,18 @@ async function timed(
 
 /** Can we reach Postgres and see the Story Bible schema? */
 function checkSupabase(): Promise<ProviderCheck> {
-  return timed("supabase", async () => {
-    const url = Deno.env.get("SUPABASE_URL");
-    const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+  return timed('supabase', async () => {
+    const url = Deno.env.get('SUPABASE_URL');
+    const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
     if (!url || !serviceKey) {
-      throw new Error("SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY not set");
+      throw new Error('SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY not set');
     }
 
     const supabase = createClient(url, serviceKey);
     // head+count touches the table without pulling rows. Proves the baseline migration ran.
     const { error, count } = await supabase
-      .from("chapters")
-      .select("id", { count: "exact", head: true });
+      .from('chapters')
+      .select('id', { count: 'exact', head: true });
 
     if (error) {
       throw new Error(error.message);
@@ -70,30 +71,30 @@ function checkSupabase(): Promise<ProviderCheck> {
 
 /** Can we reach the Anthropic API with a server-side key? */
 function checkAnthropic(): Promise<ProviderCheck> {
-  return timed("anthropic", async () => {
-    const apiKey = Deno.env.get("ANTHROPIC_API_KEY");
+  return timed('anthropic', async () => {
+    const apiKey = Deno.env.get('ANTHROPIC_API_KEY');
     if (!apiKey) {
-      throw new Error("ANTHROPIC_API_KEY not set");
+      throw new Error('ANTHROPIC_API_KEY not set');
     }
 
     const anthropic = new Anthropic({ apiKey });
     const response = await anthropic.messages.create({
-      model: "claude-opus-5",
+      model: 'claude-opus-5',
       max_tokens: 64,
       // A ping wants a one-word answer, so thinking is off and max_tokens is
       // small. On Opus 5 thinking is ON by default and shares the max_tokens
       // budget with the reply — leaving it on here would truncate the answer.
       // Disabling is only legal at effort `high` or below, which is the default.
-      thinking: { type: "disabled" },
-      messages: [{ role: "user", content: "Reply with the single word: OK" }],
+      thinking: { type: 'disabled' },
+      messages: [{ role: 'user', content: 'Reply with the single word: OK' }],
     });
 
-    if (response.stop_reason === "refusal") {
-      throw new Error("request was declined by safety classifiers");
+    if (response.stop_reason === 'refusal') {
+      throw new Error('request was declined by safety classifiers');
     }
 
-    const text = response.content.find((block) => block.type === "text");
-    return `${response.model} replied "${text?.type === "text" ? text.text.trim() : ""}"`;
+    const text = response.content.find((block) => block.type === 'text');
+    return `${response.model} replied "${text?.type === 'text' ? text.text.trim() : ''}"`;
   });
 }
 
@@ -103,17 +104,17 @@ function checkAnthropic(): Promise<ProviderCheck> {
  * image is generated and nothing is billed.
  */
 function checkImageProvider(): Promise<ProviderCheck> {
-  return timed("image", async () => {
-    const provider = Deno.env.get("IMAGE_PROVIDER");
+  return timed('image', async () => {
+    const provider = Deno.env.get('IMAGE_PROVIDER');
 
-    if (provider === "gemini") {
-      const key = Deno.env.get("GEMINI_API_KEY");
+    if (provider === 'gemini') {
+      const key = Deno.env.get('GEMINI_API_KEY');
       if (!key) {
-        throw new Error("GEMINI_API_KEY not set");
+        throw new Error('GEMINI_API_KEY not set');
       }
       const res = await fetch(
-        "https://generativelanguage.googleapis.com/v1beta/models",
-        { headers: { "x-goog-api-key": key } },
+        'https://generativelanguage.googleapis.com/v1beta/models',
+        { headers: { 'x-goog-api-key': key } },
       );
       if (!res.ok) {
         throw new Error(`Gemini returned ${res.status} ${res.statusText}`);
@@ -128,12 +129,12 @@ function checkImageProvider(): Promise<ProviderCheck> {
         + `(reachability only — does not prove image-generation quota)`;
     }
 
-    if (provider === "replicate") {
-      const token = Deno.env.get("REPLICATE_API_TOKEN");
+    if (provider === 'replicate') {
+      const token = Deno.env.get('REPLICATE_API_TOKEN');
       if (!token) {
-        throw new Error("REPLICATE_API_TOKEN not set");
+        throw new Error('REPLICATE_API_TOKEN not set');
       }
-      const res = await fetch("https://api.replicate.com/v1/account", {
+      const res = await fetch('https://api.replicate.com/v1/account', {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (!res.ok) {
@@ -141,12 +142,12 @@ function checkImageProvider(): Promise<ProviderCheck> {
       }
       const body = (await res.json()) as { username?: string };
       // Same caveat as the Gemini path: token validity, not generation quota.
-      return `Replicate token valid as "${body.username ?? "unknown"}" `
+      return `Replicate token valid as "${body.username ?? 'unknown'}" `
         + `(reachability only — does not prove generation quota)`;
     }
 
     throw new Error(
-      `IMAGE_PROVIDER must be "gemini" or "replicate" (got ${provider ?? "unset"})`,
+      `IMAGE_PROVIDER must be "gemini" or "replicate" (got ${provider ?? 'unset'})`,
     );
   });
 }

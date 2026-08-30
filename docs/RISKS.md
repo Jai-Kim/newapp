@@ -48,12 +48,16 @@ have a tracked GitHub issue.
 - **`supabase/functions/**` has no type-checking.** `tsconfig.json` excludes
   `supabase/` entirely — Deno's `npm:`/`jsr:` specifiers and explicit `.ts`
   import extensions don't resolve under this app's Node/Expo `tsconfig.json`.
-  ESLint now covers `safety.ts`, `crisis.ts`, and `quota.ts` (the three
-  functions review/screen/gate what reaches a child or costs money), but
-  nothing here runs `tsc`-equivalent type-checking, and the rest of
-  `supabase/functions/**` still has no lint coverage at all. `TODO(Jai)`:
-  closing the type-check gap needs `deno check` wired into CI — a
-  `.github/workflows/*` change outside this doc's scope. P1.
+  ESLint now covers all of `supabase/functions/**` (every Edge Function
+  entrypoint and every `_shared/` module, formatting/mechanical rules only —
+  `max-params` and `max-lines-per-function` are relaxed there, same rationale
+  as everywhere else in this directory). What's still missing is real
+  type-checking: nothing here runs a `tsc`-equivalent pass, so a type error in
+  any of these files — including `safety.ts`, `crisis.ts`, and `quota.ts`, the
+  three functions that review/screen/gate what reaches a child or costs money
+  — would only surface at runtime. `TODO(Jai)`: closing that gap needs `deno
+  check` wired into CI — a `.github/workflows/*` change outside this doc's
+  scope. P1.
 
 ## Safety / privacy / legal
 

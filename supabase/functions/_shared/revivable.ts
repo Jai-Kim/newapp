@@ -19,10 +19,10 @@ export function isRevivable(
   staleBefore: string,
 ): boolean {
   // Queued means nothing has claimed it — always ours to take.
-  if (job.status === "queued") {
+  if (job.status === 'queued') {
     return true;
   }
-  if (job.status !== "running" || job.started_at === null) {
+  if (job.status !== 'running' || job.started_at === null) {
     return false;
   }
   // A 'running' job whose worker died holds the one-live-job lock forever, so

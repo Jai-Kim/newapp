@@ -18,18 +18,18 @@
 // fragments below must not retroactively change a book already being drawn, so
 // nothing downstream recomposes it — it is read back out of `character_ref`.
 
-const GEMINI_BASE = "https://generativelanguage.googleapis.com/v1beta";
+const GEMINI_BASE = 'https://generativelanguage.googleapis.com/v1beta';
 
 // The same model the pages use, deliberately. Spike A rated Flash *closer* to
 // the gouache house style than Pro, and a reference drawn by a different model
 // than the pages would anchor them to a style they can't reproduce. Matching the
 // models matters more here than one-shot quality — and at $0.04 a sheet, a
 // parent can press "try another" as often as they like.
-const MODEL = "gemini-2.5-flash-image";
+const MODEL = 'gemini-2.5-flash-image';
 
-export type Presentation = "girl" | "boy" | "child";
+export type Presentation = 'girl' | 'boy' | 'child';
 
-export interface CharacterChoices {
+export type CharacterChoices = {
   presentation: Presentation;
   skin_tone: string;
   hair_color: string;
@@ -42,9 +42,9 @@ export interface CharacterChoices {
   detail: string;
   signature_color: string;
   companion: string;
-}
+};
 
-interface Pronouns {
+type Pronouns = {
   noun: string;
   subject: string;
   possessive: string;
@@ -52,34 +52,34 @@ interface Pronouns {
   has: string;
   wears: string;
   looks: string;
-}
+};
 
 const PRESENTATION: Record<Presentation, Pronouns> = {
   girl: {
-    noun: "girl",
-    subject: "she",
-    possessive: "her",
-    has: "has",
-    wears: "wears",
-    looks: "looks",
+    noun: 'girl',
+    subject: 'she',
+    possessive: 'her',
+    has: 'has',
+    wears: 'wears',
+    looks: 'looks',
   },
   boy: {
-    noun: "boy",
-    subject: "he",
-    possessive: "his",
-    has: "has",
-    wears: "wears",
-    looks: "looks",
+    noun: 'boy',
+    subject: 'he',
+    possessive: 'his',
+    has: 'has',
+    wears: 'wears',
+    looks: 'looks',
   },
   // The neutral option. It has to read as natural English in a prompt, not as a
   // placeholder, or the model treats it as a description it cannot draw.
   child: {
-    noun: "child",
-    subject: "they",
-    possessive: "their",
-    has: "have",
-    wears: "wear",
-    looks: "look",
+    noun: 'child',
+    subject: 'they',
+    possessive: 'their',
+    has: 'have',
+    wears: 'wear',
+    looks: 'look',
   },
 };
 
@@ -98,130 +98,130 @@ const PRESENTATION: Record<Presentation, Pronouns> = {
 // ---------------------------------------------------------------------------
 
 const SKIN_TONE: Record<string, string> = {
-  "porcelain": "very fair porcelain skin with cool undertones",
-  "fair": "fair skin with warm peach undertones",
-  "light-golden": "light golden skin",
-  "olive": "warm olive skin",
-  "tan": "warm tan skin",
-  "golden-brown": "golden brown skin",
-  "deep-brown": "deep brown skin",
-  "rich-dark": "rich dark brown skin",
+  'porcelain': 'very fair porcelain skin with cool undertones',
+  'fair': 'fair skin with warm peach undertones',
+  'light-golden': 'light golden skin',
+  'olive': 'warm olive skin',
+  'tan': 'warm tan skin',
+  'golden-brown': 'golden brown skin',
+  'deep-brown': 'deep brown skin',
+  'rich-dark': 'rich dark brown skin',
 };
 
 const HAIR_COLOR: Record<string, string> = {
-  "black": "black",
-  "dark-brown": "dark brown",
-  "light-brown": "light brown",
-  "auburn": "warm auburn",
-  "red": "coppery red",
-  "blonde": "golden blonde",
-  "platinum": "very pale blonde",
+  'black': 'black',
+  'dark-brown': 'dark brown',
+  'light-brown': 'light brown',
+  'auburn': 'warm auburn',
+  'red': 'coppery red',
+  'blonde': 'golden blonde',
+  'platinum': 'very pale blonde',
 };
 
 const HAIR_TEXTURE: Record<string, string> = {
-  "straight": "straight",
-  "wavy": "softly wavy",
-  "curly": "springy curly",
-  "coily": "tightly coiled",
+  'straight': 'straight',
+  'wavy': 'softly wavy',
+  'curly': 'springy curly',
+  'coily': 'tightly coiled',
 };
 
 const HAIR_STYLE: Record<string, string> = {
-  "short-crop": "cut short and neat, close to the head",
-  "bob": "cut in a chin-length bob",
-  "shoulder-length": "worn loose to the shoulders",
-  "long-loose": "worn long and loose down the back",
-  "ponytail": "gathered into a high ponytail",
-  "two-pigtails": "worn in two low pigtails",
-  "two-puffs": "worn in two round puffs, one on each side",
-  "braids": "worn in two neat braids",
-  "top-bun": "gathered into a small bun on top of the head",
+  'short-crop': 'cut short and neat, close to the head',
+  'bob': 'cut in a chin-length bob',
+  'shoulder-length': 'worn loose to the shoulders',
+  'long-loose': 'worn long and loose down the back',
+  'ponytail': 'gathered into a high ponytail',
+  'two-pigtails': 'worn in two low pigtails',
+  'two-puffs': 'worn in two round puffs, one on each side',
+  'braids': 'worn in two neat braids',
+  'top-bun': 'gathered into a small bun on top of the head',
 };
 
 // A fringe changes the silhouette more than anything else on this list, which
 // makes it one of the strongest things to hold constant across pages.
 const FRINGE: Record<string, string> = {
-  "none": "",
-  "blunt": ", with a blunt fringe cut straight across above the eyebrows",
-  "side-swept": ", with a side-swept fringe falling across one eyebrow",
-  "wispy": ", with a soft wispy fringe",
+  'none': '',
+  'blunt': ', with a blunt fringe cut straight across above the eyebrows',
+  'side-swept': ', with a side-swept fringe falling across one eyebrow',
+  'wispy': ', with a soft wispy fringe',
 };
 
 const EYE_COLOR: Record<string, string> = {
-  "dark-brown": "dark brown",
-  "brown": "warm brown",
-  "hazel": "hazel",
-  "green": "green",
-  "blue": "blue",
-  "grey": "grey-blue",
+  'dark-brown': 'dark brown',
+  'brown': 'warm brown',
+  'hazel': 'hazel',
+  'green': 'green',
+  'blue': 'blue',
+  'grey': 'grey-blue',
 };
 
 // Written as post-modifiers ("eyes are dark brown, almond-shaped") rather than
 // adjectives, because "almond-shaped, with gentle monolids" cannot sit in front
 // of a colour without producing word salad.
 const EYE_SHAPE: Record<string, string> = {
-  "round": "large and round",
-  "almond": "almond-shaped",
-  "monolid": "almond-shaped with gentle monolids",
-  "upturned": "upturned, crinkling at the outer corners",
+  'round': 'large and round',
+  'almond': 'almond-shaped',
+  'monolid': 'almond-shaped with gentle monolids',
+  'upturned': 'upturned, crinkling at the outer corners',
 };
 
 // Glasses are identity, not wardrobe — they stay on in the bath scene. The
 // frame picks up the signature colour so the two choices agree.
 const GLASSES: Record<string, string> = {
-  "none": "",
+  'none': '',
   // "glasses with sage green rims", not "sage green-rimmed glasses" — the
   // signature colours are two words, and the hyphenated form reads as though
   // only the second word describes the rim.
-  "round": "round glasses with {color} rims",
-  "oval": "oval glasses with {color} rims",
-  "rectangular": "small rectangular glasses with {color} rims",
+  'round': 'round glasses with {color} rims',
+  'oval': 'oval glasses with {color} rims',
+  'rectangular': 'small rectangular glasses with {color} rims',
 };
 
 // One fine detail, and the reason to offer it is not decoration: Spike A found
 // small features are the FIRST thing a model drops when it drifts. A mole the
 // parent chose is a drift alarm they can check in two seconds.
 const DETAIL: Record<string, string> = {
-  "none": "",
-  "freckles": "a light scatter of freckles across the nose and cheeks",
-  "dimples": "deep dimples that show when smiling",
-  "mole-left": "a tiny dark mole just below the LEFT eye",
-  "gap-tooth": "a gap between the two front teeth, visible when smiling",
-  "round-cheeks": "very round full cheeks",
+  'none': '',
+  'freckles': 'a light scatter of freckles across the nose and cheeks',
+  'dimples': 'deep dimples that show when smiling',
+  'mole-left': 'a tiny dark mole just below the LEFT eye',
+  'gap-tooth': 'a gap between the two front teeth, visible when smiling',
+  'round-cheeks': 'very round full cheeks',
 };
 
 // Constrained to the house palette (cream, terracotta, sage, dusty teal and
 // close neighbours). A colour from outside it would fight the gouache style on
 // every single page.
 const SIGNATURE_COLOR: Record<string, string> = {
-  "terracotta": "terracotta",
-  "mustard": "mustard yellow",
-  "sage": "sage green",
-  "dusty-teal": "dusty teal",
-  "coral": "soft coral",
-  "cream": "warm cream",
-  "plum": "muted plum",
+  'terracotta': 'terracotta',
+  'mustard': 'mustard yellow',
+  'sage': 'sage green',
+  'dusty-teal': 'dusty teal',
+  'coral': 'soft coral',
+  'cream': 'warm cream',
+  'plum': 'muted plum',
 };
 
 // Optional, and offered now rather than later on purpose: adding a companion
 // after the sheet is locked would mean re-drawing the sheet, and every chapter
 // already illustrated from the old one would no longer match.
 const COMPANION: Record<string, string> = {
-  "none": "",
-  "owl": "a small round owl, about the size of a teapot, with a fluffy body, "
-    + "large amber eyes and a tiny hooked beak",
-  "magpie": "a small round magpie, about the size of a teapot, with a glossy "
-    + "black head and back, a crisp white belly and blue-sheen tail feathers",
-  "rabbit": "a small round rabbit, about the size of a teapot, with soft "
-    + "grey-brown fur, long ears and dark gentle eyes",
-  "cat": "a small round cat, about the size of a teapot, with soft ginger fur, "
-    + "white paws and wide green eyes",
-  "fox": "a small round fox cub, about the size of a teapot, with russet fur, "
-    + "a white-tipped brushy tail and bright dark eyes",
-  "turtle": "a small round turtle, about the size of a teapot, with a "
-    + "sage-green patterned shell and a slow friendly face",
+  'none': '',
+  'owl': 'a small round owl, about the size of a teapot, with a fluffy body, '
+    + 'large amber eyes and a tiny hooked beak',
+  'magpie': 'a small round magpie, about the size of a teapot, with a glossy '
+    + 'black head and back, a crisp white belly and blue-sheen tail feathers',
+  'rabbit': 'a small round rabbit, about the size of a teapot, with soft '
+    + 'grey-brown fur, long ears and dark gentle eyes',
+  'cat': 'a small round cat, about the size of a teapot, with soft ginger fur, '
+    + 'white paws and wide green eyes',
+  'fox': 'a small round fox cub, about the size of a teapot, with russet fur, '
+    + 'a white-tipped brushy tail and bright dark eyes',
+  'turtle': 'a small round turtle, about the size of a teapot, with a '
+    + 'sage-green patterned shell and a slow friendly face',
 };
 
-const CATALOGUE: Record<keyof Omit<CharacterChoices, "presentation">, Record<string, string>> = {
+const CATALOGUE: Record<keyof Omit<CharacterChoices, 'presentation'>, Record<string, string>> = {
   skin_tone: SKIN_TONE,
   hair_color: HAIR_COLOR,
   hair_texture: HAIR_TEXTURE,
@@ -254,22 +254,22 @@ export function optionValues(): Record<string, string[]> {
  * into an image prompt, which is exactly what the picker exists to prevent.
  */
 export function validateChoices(input: unknown): CharacterChoices {
-  if (typeof input !== "object" || input === null) {
-    throw new Error("choices must be an object");
+  if (typeof input !== 'object' || input === null) {
+    throw new Error('choices must be an object');
   }
   const raw = input as Record<string, unknown>;
 
   const presentation = raw.presentation;
-  if (typeof presentation !== "string" || !(presentation in PRESENTATION)) {
-    throw new Error(`presentation must be one of: ${Object.keys(PRESENTATION).join(", ")}`);
+  if (typeof presentation !== 'string' || !(presentation in PRESENTATION)) {
+    throw new Error(`presentation must be one of: ${Object.keys(PRESENTATION).join(', ')}`);
   }
 
   const out = { presentation } as CharacterChoices;
   for (const [field, table] of Object.entries(CATALOGUE)) {
     const value = raw[field];
-    if (typeof value !== "string" || !(value in table)) {
+    if (typeof value !== 'string' || !(value in table)) {
       throw new Error(
-        `${field} must be one of: ${Object.keys(table).join(", ")}`,
+        `${field} must be one of: ${Object.keys(table).join(', ')}`,
       );
     }
     (out as unknown as Record<string, string>)[field] = value;
@@ -279,7 +279,7 @@ export function validateChoices(input: unknown): CharacterChoices {
 
 /** Middle of the age band — "a 5-year-old" reads better than "a 5-6-year-old". */
 function ageOf(ageBand: string): number {
-  const [lo, hi] = ageBand.split("-").map(Number);
+  const [lo, hi] = ageBand.split('-').map(Number);
   return Number.isFinite(lo) && Number.isFinite(hi) ? Math.round((lo + hi) / 2) : 5;
 }
 
@@ -289,7 +289,7 @@ function capitalise(s: string): string {
 
 /** "an 8-year-old", not "a 8-year-old". Only 8 and 11 need it in this range. */
 function article(n: number): string {
-  return n === 8 || n === 11 || n === 18 ? "an" : "a";
+  return n === 8 || n === 11 || n === 18 ? 'an' : 'a';
 }
 
 /**
@@ -320,7 +320,7 @@ export function buildIdentityDescriptor(
     + `${EYE_SHAPE[c.eye_shape]}.`,
   ];
 
-  const glasses = GLASSES[c.glasses].replace("{color}", colour);
+  const glasses = GLASSES[c.glasses].replace('{color}', colour);
   if (glasses) {
     sentences.push(`${capitalise(p.subject)} ${p.wears} ${glasses}.`);
   }
@@ -336,7 +336,7 @@ export function buildIdentityDescriptor(
     + `manga style.`,
   );
 
-  return sentences.join(" ");
+  return sentences.join(' ');
 }
 
 /**
@@ -353,7 +353,7 @@ export function buildWardrobeDefault(c: CharacterChoices): string {
 export function buildCompanionDescriptor(c: CharacterChoices): string {
   const base = COMPANION[c.companion];
   if (!base) {
-    return "";
+    return '';
   }
   const colour = SIGNATURE_COLOR[c.signature_color];
   return `${capitalise(base)}, wearing a small knitted ${colour} scarf.`;
@@ -374,7 +374,7 @@ export function buildSheetPrompt(
   const companionBlock = companionDescriptor
     ? `\nThen, at the lower right, one full-body view of the child's animal `
       + `companion:\n${companionDescriptor}\n`
-    : "\n";
+    : '\n';
 
   return `Draw a CHARACTER MODEL SHEET for a children's picture book, on a plain
 neutral cream background with no scenery and no props.
@@ -402,12 +402,12 @@ captions or handwriting anywhere on the sheet. Figures only.
 Art style: ${houseStyle}`;
 }
 
-export interface SheetResult {
+export type SheetResult = {
   image_base64: string;
   mime_type: string;
   latency_ms: number;
   model: string;
-}
+};
 
 /** Text-to-image, no reference — this IS the reference everything else uses. */
 export async function generateSheet(
@@ -417,16 +417,16 @@ export async function generateSheet(
   const started = Date.now();
 
   const res = await fetch(`${GEMINI_BASE}/models/${MODEL}:generateContent`, {
-    method: "POST",
-    headers: { "x-goog-api-key": apiKey, "Content-Type": "application/json" },
+    method: 'POST',
+    headers: { 'x-goog-api-key': apiKey, 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      contents: [{ role: "user", parts: [{ text: prompt }] }],
+      contents: [{ role: 'user', parts: [{ text: prompt }] }],
       generationConfig: {
-        responseModalities: ["IMAGE"],
+        responseModalities: ['IMAGE'],
         // 4:3 matches the page renders, and 2K because every future
         // illustration is conditioned on this image — detail lost here is
         // detail no page can recover.
-        imageConfig: { aspectRatio: "4:3", imageSize: "2K" },
+        imageConfig: { aspectRatio: '4:3', imageSize: '2K' },
       },
     }),
   });

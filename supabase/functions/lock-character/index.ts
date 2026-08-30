@@ -11,9 +11,9 @@
 //
 // Deploy: supabase functions deploy lock-character
 
-import { createClient, type SupabaseClient } from "jsr:@supabase/supabase-js@2";
+import { createClient, type SupabaseClient } from 'jsr:@supabase/supabase-js@2';
 
-import { assertOwnsChild, requireUser, statusFor } from "../_shared/auth.ts";
+import { assertOwnsChild, requireUser, statusFor } from '../_shared/auth.ts';
 import {
   buildCompanionDescriptor,
   buildIdentityDescriptor,
@@ -21,22 +21,22 @@ import {
   buildWardrobeDefault,
   generateSheet,
   validateChoices,
-} from "../_shared/character.ts";
-import { handlePreflight, jsonResponse } from "../_shared/cors.ts";
-import { HOUSE_STYLE } from "../_shared/illustrate.ts";
+} from '../_shared/character.ts';
+import { handlePreflight, jsonResponse } from '../_shared/cors.ts';
+import { HOUSE_STYLE } from '../_shared/illustrate.ts';
 import {
   friendlyProviderMessage,
   isTransientProviderError,
   withRetry,
-} from "../_shared/retry.ts";
-import { reviewIllustration } from "../_shared/safety.ts";
+} from '../_shared/retry.ts';
+import { reviewIllustration } from '../_shared/safety.ts';
 
-interface Req {
+type Req = {
   child_id: string;
   choices: unknown;
   /** Required to overwrite a sheet that already exists. */
   relock?: boolean;
-}
+};
 
 /** How many pages are already drawn from the current sheet. */
 async function illustratedPageCount(
@@ -44,9 +44,9 @@ async function illustratedPageCount(
   childId: string,
 ): Promise<number> {
   const { data } = await supabase
-    .from("chapters")
-    .select("pages")
-    .eq("child_id", childId);
+    .from('chapters')
+    .select('pages')
+    .eq('child_id', childId);
 
   return (data ?? []).reduce(
     (n, row) =>
@@ -65,20 +65,20 @@ Deno.serve(async (req: Request) => {
   try {
     const { child_id, choices, relock = false } = (await req.json()) as Req;
     if (!child_id) {
-      return jsonResponse({ ok: false, error: "child_id required" }, { status: 400 });
+      return jsonResponse({ ok: false, error: 'child_id required' }, { status: 400 });
     }
 
-    const apiKey = Deno.env.get("GEMINI_API_KEY");
+    const apiKey = Deno.env.get('GEMINI_API_KEY');
     if (!apiKey) {
-      throw new Error("GEMINI_API_KEY not set");
+      throw new Error('GEMINI_API_KEY not set');
     }
 
     // Drawing a 2K sheet costs money at a paid provider (issue #6).
     const user = await requireUser(req);
 
     const supabase = createClient(
-      Deno.env.get("SUPABASE_URL")!,
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+      Deno.env.get('SUPABASE_URL')!,
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
     );
     await assertOwnsChild(supabase, child_id, user.id);
 
@@ -88,9 +88,9 @@ Deno.serve(async (req: Request) => {
     const picked = validateChoices(choices);
 
     const { data: child, error: childErr } = await supabase
-      .from("children")
-      .select("first_name,age_band,character_ref")
-      .eq("id", child_id)
+      .from('children')
+      .select('first_name,age_band,character_ref')
+      .eq('id', child_id)
       .single();
     if (childErr || !child) {
       throw new Error(`child not found: ${childErr?.message}`);
@@ -100,13 +100,13 @@ Deno.serve(async (req: Request) => {
       const drawn = await illustratedPageCount(supabase, child_id);
       return jsonResponse({
         ok: false,
-        error: "this child already has a locked character sheet",
+        error: 'this child already has a locked character sheet',
         already_locked: true,
         illustrated_pages: drawn,
         // The number is the whole message: re-locking with nothing drawn is
         // free, and re-locking with 20 pages drawn splits the book in two.
-        hint: "send relock: true to replace it; pages already illustrated will "
-          + "keep the old look and no longer match",
+        hint: 'send relock: true to replace it; pages already illustrated will '
+          + 'keep the old look and no longer match',
       }, { status: 409 });
     }
 
@@ -144,17 +144,17 @@ Deno.serve(async (req: Request) => {
     // saw the safety brief, and this one picture becomes the seed for every
     // later illustration — a bad sheet propagates rather than staying local.
     const verdict = await reviewIllustration(
-      Deno.env.get("ANTHROPIC_API_KEY")!,
+      Deno.env.get('ANTHROPIC_API_KEY')!,
       child.age_band as string,
       0,
-      "character model sheet: three views of the child on a plain background",
+      'character model sheet: three views of the child on a plain background',
       sheet.image_base64,
       sheet.mime_type,
     );
-    if (verdict.verdict === "blocked") {
+    if (verdict.verdict === 'blocked') {
       return jsonResponse({
         ok: false,
-        error: "the drawing was blocked by the safety reviewer; nothing was saved",
+        error: 'the drawing was blocked by the safety reviewer; nothing was saved',
         issue: verdict.issue,
       }, { status: 422 });
     }
@@ -166,8 +166,8 @@ Deno.serve(async (req: Request) => {
     const bytes = Uint8Array.from(atob(sheet.image_base64), (c) => c.charCodeAt(0));
 
     const { error: upErr } = await supabase.storage
-      .from("character-refs")
-      .upload(objectPath, bytes, { contentType: "image/png", upsert: false });
+      .from('character-refs')
+      .upload(objectPath, bytes, { contentType: 'image/png', upsert: false });
     if (upErr) {
       throw new Error(`could not store the sheet: ${upErr.message}`);
     }
@@ -185,9 +185,9 @@ Deno.serve(async (req: Request) => {
     };
 
     const { error: saveErr } = await supabase
-      .from("children")
+      .from('children')
       .update({ character_ref })
-      .eq("id", child_id);
+      .eq('id', child_id);
     if (saveErr) {
       throw new Error(`could not save the character reference: ${saveErr.message}`);
     }
@@ -196,7 +196,7 @@ Deno.serve(async (req: Request) => {
     // straight away; the client's own read policy also allows it, but only
     // after character_ref points at this path.
     const { data: signed } = await supabase.storage
-      .from("character-refs")
+      .from('character-refs')
       .createSignedUrl(objectPath, 3600);
 
     return jsonResponse({
@@ -209,7 +209,8 @@ Deno.serve(async (req: Request) => {
       latency_ms: sheet.latency_ms,
       model: sheet.model,
     });
-  } catch (err) {
+  }
+  catch (err) {
     return jsonResponse(
       { ok: false, error: err instanceof Error ? err.message : String(err) },
       { status: statusFor(err) },

@@ -11,22 +11,22 @@
 // child before inserting it; RLS forbids a client from creating a job for
 // anyone else's child, or from creating one in any state but 'queued'.
 
-import { type SupabaseClient } from "jsr:@supabase/supabase-js@2";
+import type { SupabaseClient } from 'jsr:@supabase/supabase-js@2';
 
-import { generateChapterFor } from "./generate.ts";
-import { isRevivable } from "./revivable.ts";
-import { ChapterBlockedError, illustrateChapter } from "./illustrate-run.ts";
+import { generateChapterFor } from './generate.ts';
+import { ChapterBlockedError, illustrateChapter } from './illustrate-run.ts';
+import { isRevivable } from './revivable.ts';
 
 /** Give up after this many tries rather than burning money on a bad job. */
 const MAX_ATTEMPTS = 3;
 
-export interface QueueJob {
+export type QueueJob = {
   id: string;
   child_id: string;
   lesson: string;
   situation: string | null;
   attempts: number;
-}
+};
 
 /**
  * Claims a queued job.
@@ -41,11 +41,11 @@ export async function claimJob(
   jobId: string,
 ): Promise<QueueJob | null> {
   const { data } = await supabase
-    .from("chapter_queue")
-    .update({ status: "running", started_at: new Date().toISOString() })
-    .eq("id", jobId)
-    .eq("status", "queued")
-    .select("id,child_id,lesson,situation,attempts")
+    .from('chapter_queue')
+    .update({ status: 'running', started_at: new Date().toISOString() })
+    .eq('id', jobId)
+    .eq('status', 'queued')
+    .select('id,child_id,lesson,situation,attempts')
     .maybeSingle();
 
   return (data as QueueJob | null) ?? null;
@@ -85,15 +85,15 @@ export async function runJob(
     }
 
     await supabase
-      .from("chapter_queue")
+      .from('chapter_queue')
       .update({
-        status: "done",
+        status: 'done',
         attempts,
         chapter_id: result.chapter_id,
         error: illustrationError,
         finished_at: new Date().toISOString(),
       })
-      .eq("id", job.id);
+      .eq('id', job.id);
   }
   catch (err) {
     const message = err instanceof Error ? err.message : String(err);
@@ -103,15 +103,15 @@ export async function runJob(
     // was promised a chapter needs to be told there isn't one.
     const exhausted = attempts >= MAX_ATTEMPTS;
     await supabase
-      .from("chapter_queue")
+      .from('chapter_queue')
       .update({
-        status: exhausted ? "failed" : "queued",
+        status: exhausted ? 'failed' : 'queued',
         attempts,
         error: message,
         started_at: null,
         ...(exhausted ? { finished_at: new Date().toISOString() } : {}),
       })
-      .eq("id", job.id);
+      .eq('id', job.id);
   }
 }
 
@@ -132,10 +132,10 @@ export async function sweepStuckJobs(
 
   const staleBefore = new Date(Date.now() - staleAfterMs).toISOString();
   const { data } = await supabase
-    .from("chapter_queue")
-    .select("id,child_id,lesson,situation,attempts,status,started_at")
-    .in("child_id", childIds)
-    .in("status", ["queued", "running"]);
+    .from('chapter_queue')
+    .select('id,child_id,lesson,situation,attempts,status,started_at')
+    .in('child_id', childIds)
+    .in('status', ['queued', 'running']);
 
   const revivable = (data ?? []).filter((j) =>
     isRevivable(
@@ -151,9 +151,9 @@ export async function sweepStuckJobs(
     }
     // Reset to 'queued' first so claimJob's conditional update still applies.
     await supabase
-      .from("chapter_queue")
-      .update({ status: "queued", started_at: null })
-      .eq("id", j.id);
+      .from('chapter_queue')
+      .update({ status: 'queued', started_at: null })
+      .eq('id', j.id);
     revived.push(j.id as string);
   }
   return revived;

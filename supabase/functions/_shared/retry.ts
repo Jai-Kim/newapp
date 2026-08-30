@@ -21,13 +21,13 @@ export function isTransientProviderError(error: unknown): boolean {
   return TRANSIENT.test(message);
 }
 
-export interface RetryOptions {
+export type RetryOptions = {
   attempts?: number;
   /** First backoff, doubled each time. Image generation is slow anyway. */
   baseDelayMs?: number;
   isRetryable?: (error: unknown) => boolean;
   label?: string;
-}
+};
 
 /**
  * Runs `work`, retrying only what is worth retrying.
@@ -43,7 +43,7 @@ export async function withRetry<T>(
     attempts = MAX_PROVIDER_ATTEMPTS,
     baseDelayMs = 2000,
     isRetryable = isTransientProviderError,
-    label = "provider call",
+    label = 'provider call',
   } = options;
 
   let lastError: unknown;
@@ -77,9 +77,9 @@ export async function withRetry<T>(
  */
 export function friendlyProviderMessage(error: unknown): string {
   if (isTransientProviderError(error)) {
-    return "The illustrator is busy right now. Nothing was saved and nothing "
-      + "was charged — please try again in a minute.";
+    return 'The illustrator is busy right now. Nothing was saved and nothing '
+      + 'was charged — please try again in a minute.';
   }
-  return "Something went wrong while drawing. Nothing was saved — please try "
-    + "again, and if it keeps happening let us know.";
+  return 'Something went wrong while drawing. Nothing was saved — please try '
+    + 'again, and if it keeps happening let us know.';
 }
