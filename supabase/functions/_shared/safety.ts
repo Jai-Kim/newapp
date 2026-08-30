@@ -9,25 +9,25 @@
 // half of every book — and the Korean is the half the child's grandparents will
 // read aloud.
 
-import Anthropic from "npm:@anthropic-ai/sdk@0.70.0";
+import Anthropic from 'npm:@anthropic-ai/sdk@0.70.0';
 
-export interface SafetyConcern {
+export type SafetyConcern = {
   page: number;
-  language: "en" | "ko" | "both";
+  language: 'en' | 'ko' | 'both';
   issue: string;
-  severity: "note" | "concern" | "blocking";
-}
+  severity: 'note' | 'concern' | 'blocking';
+};
 
-export interface SafetyVerdict {
+export type SafetyVerdict = {
   /** safe = may be offered to the parent. blocked = never shown, regenerate. */
-  verdict: "safe" | "blocked";
+  verdict: 'safe' | 'blocked';
   concerns: SafetyConcern[];
   checked_languages: string[];
   model: string;
   latency_ms: number;
-}
+};
 
-interface Page { page: number; en: string; ko: string }
+type Page = { page: number; en: string; ko: string };
 
 const SYSTEM = `You are a child-safety reviewer for a bedtime story app. The
 audience is a young child (age band given below) being read to at bedtime by a
@@ -59,40 +59,40 @@ Sensitivity handled well is the product working, not a failure. Reserve
 Return ONLY the JSON object.`;
 
 const SCHEMA = {
-  type: "object",
+  type: 'object',
   additionalProperties: false,
-  required: ["verdict", "concerns"],
+  required: ['verdict', 'concerns'],
   properties: {
-    verdict: { type: "string", enum: ["safe", "blocked"] },
+    verdict: { type: 'string', enum: ['safe', 'blocked'] },
     concerns: {
-      type: "array",
+      type: 'array',
       items: {
-        type: "object",
+        type: 'object',
         additionalProperties: false,
-        required: ["page", "language", "issue", "severity"],
+        required: ['page', 'language', 'issue', 'severity'],
         properties: {
-          page: { type: "integer" },
-          language: { type: "string", enum: ["en", "ko", "both"] },
-          issue: { type: "string" },
-          severity: { type: "string", enum: ["note", "concern", "blocking"] },
+          page: { type: 'integer' },
+          language: { type: 'string', enum: ['en', 'ko', 'both'] },
+          issue: { type: 'string' },
+          severity: { type: 'string', enum: ['note', 'concern', 'blocking'] },
         },
       },
     },
   },
 } as const;
 
-const MODEL = "claude-opus-5";
+const MODEL = 'claude-opus-5';
 
 // ---------------------------------------------------------------------------
 // Illustration review
 // ---------------------------------------------------------------------------
 
-export interface IllustrationVerdict {
+export type IllustrationVerdict = {
   page: number;
-  verdict: "safe" | "blocked";
+  verdict: 'safe' | 'blocked';
   issue: string | null;
   latency_ms: number;
-}
+};
 
 const IMAGE_SYSTEM = `You are a child-safety reviewer for a bedtime story app.
 You are shown ONE illustration from a picture book for a young child, together
@@ -117,14 +117,14 @@ Do NOT block for:
 Judge the picture as a five-year-old would see it at bedtime. Return ONLY JSON.`;
 
 const IMAGE_SCHEMA = {
-  type: "object",
+  type: 'object',
   additionalProperties: false,
-  required: ["verdict", "issue"],
+  required: ['verdict', 'issue'],
   properties: {
-    verdict: { type: "string", enum: ["safe", "blocked"] },
+    verdict: { type: 'string', enum: ['safe', 'blocked'] },
     issue: {
-      type: ["string", "null"],
-      description: "Why it was blocked, or null when safe",
+      type: ['string', 'null'],
+      description: 'Why it was blocked, or null when safe',
     },
   },
 } as const;
@@ -143,7 +143,7 @@ export async function reviewIllustration(
   page: number,
   scene: string,
   imageBase64: string,
-  mediaType = "image/png",
+  mediaType = 'image/png',
 ): Promise<IllustrationVerdict> {
   const anthropic = new Anthropic({ apiKey });
   const started = Date.now();
@@ -152,15 +152,15 @@ export async function reviewIllustration(
     model: MODEL,
     max_tokens: 1000,
     system: IMAGE_SYSTEM,
-    output_config: { format: { type: "json_schema", schema: IMAGE_SCHEMA } },
+    output_config: { format: { type: 'json_schema', schema: IMAGE_SCHEMA } },
     messages: [{
-      role: "user",
+      role: 'user',
       content: [
         {
-          type: "image",
-          source: { type: "base64", media_type: mediaType, data: imageBase64 },
+          type: 'image',
+          source: { type: 'base64', media_type: mediaType, data: imageBase64 },
         },
-        { type: "text", text: `Age band: ${ageBand}\nIntended scene: ${scene}` },
+        { type: 'text', text: `Age band: ${ageBand}\nIntended scene: ${scene}` },
       ],
     }],
   });
@@ -168,21 +168,21 @@ export async function reviewIllustration(
   const latency_ms = Date.now() - started;
 
   // A reviewer refusal is itself a signal: fail closed.
-  if (response.stop_reason === "refusal") {
+  if (response.stop_reason === 'refusal') {
     return {
       page,
-      verdict: "blocked",
-      issue: "safety reviewer declined to assess this illustration",
+      verdict: 'blocked',
+      issue: 'safety reviewer declined to assess this illustration',
       latency_ms,
     };
   }
 
-  const text = response.content.find((b) => b.type === "text");
-  if (!text || text.type !== "text") {
-    throw new Error("illustration reviewer returned no text block");
+  const text = response.content.find((b) => b.type === 'text');
+  if (!text || text.type !== 'text') {
+    throw new Error('illustration reviewer returned no text block');
   }
 
-  const parsed = JSON.parse(text.text) as { verdict: "safe" | "blocked"; issue: string | null };
+  const parsed = JSON.parse(text.text) as { verdict: 'safe' | 'blocked'; issue: string | null };
   return { page, verdict: parsed.verdict, issue: parsed.issue, latency_ms };
 }
 
@@ -197,15 +197,15 @@ export async function reviewChapter(
 
   const body = pages
     .map((p) => `--- page ${p.page} ---\nEN: ${p.en}\nKO: ${p.ko}`)
-    .join("\n\n");
+    .join('\n\n');
 
   const response = await anthropic.messages.create({
     model: MODEL,
     max_tokens: 4000,
     system: SYSTEM,
-    output_config: { format: { type: "json_schema", schema: SCHEMA } },
+    output_config: { format: { type: 'json_schema', schema: SCHEMA } },
     messages: [{
-      role: "user",
+      role: 'user',
       content: `Age band: ${ageBand}\nChapter title: ${titleEn}\n\n${body}`,
     }],
   });
@@ -213,39 +213,39 @@ export async function reviewChapter(
   const latency_ms = Date.now() - started;
 
   // A refusal from the reviewer is itself a signal: fail closed.
-  if (response.stop_reason === "refusal") {
+  if (response.stop_reason === 'refusal') {
     return {
-      verdict: "blocked",
+      verdict: 'blocked',
       concerns: [{
         page: 0,
-        language: "both",
-        issue: "safety reviewer declined to assess this chapter",
-        severity: "blocking",
+        language: 'both',
+        issue: 'safety reviewer declined to assess this chapter',
+        severity: 'blocking',
       }],
-      checked_languages: ["en", "ko"],
+      checked_languages: ['en', 'ko'],
       model: MODEL,
       latency_ms,
     };
   }
 
-  const text = response.content.find((b) => b.type === "text");
-  if (!text || text.type !== "text") {
-    throw new Error("safety reviewer returned no text block");
+  const text = response.content.find((b) => b.type === 'text');
+  if (!text || text.type !== 'text') {
+    throw new Error('safety reviewer returned no text block');
   }
 
   const parsed = JSON.parse(text.text) as {
-    verdict: "safe" | "blocked";
+    verdict: 'safe' | 'blocked';
     concerns: SafetyConcern[];
   };
 
   // Belt and braces: any blocking concern forces a block even if the model
   // labelled the overall verdict safe.
-  const hasBlocking = parsed.concerns.some((c) => c.severity === "blocking");
+  const hasBlocking = parsed.concerns.some((c) => c.severity === 'blocking');
 
   return {
-    verdict: hasBlocking ? "blocked" : parsed.verdict,
+    verdict: hasBlocking ? 'blocked' : parsed.verdict,
     concerns: parsed.concerns,
-    checked_languages: ["en", "ko"],
+    checked_languages: ['en', 'ko'],
     model: MODEL,
     latency_ms,
   };

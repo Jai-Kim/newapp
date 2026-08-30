@@ -17,15 +17,15 @@
 // particles, honorifics all defeat a naive substring match) and this has to
 // screen Korean and English with equal rigour.
 
-import Anthropic from "npm:@anthropic-ai/sdk@0.70.0";
+import Anthropic from 'npm:@anthropic-ai/sdk@0.70.0';
 
 import {
   buildScreeningText,
   CrisisDetectedError,
   interpretCrisisVerdict,
   type RawCrisisVerdict,
-} from "./crisis-response.ts";
-import { FALLBACK_LESSONS } from "./lessons.ts";
+} from './crisis-response.ts';
+import { FALLBACK_LESSONS } from './lessons.ts';
 
 /** Re-exported so callers only need one import path for both. */
 export { CrisisDetectedError };
@@ -41,7 +41,7 @@ const SAFE_PRESET_LESSONS = new Set(FALLBACK_LESSONS);
 // most likely to miss the real signal or, worse, silently drift toward never
 // flagging. That risk is judged worth the cost here; revisit if the cost
 // becomes a problem before the risk does.
-const MODEL = "claude-opus-5";
+const MODEL = 'claude-opus-5';
 
 const SYSTEM = `You are a first-line screener for a bedtime-story app for
 young children. A parent has just typed what tomorrow's chapter should be
@@ -84,23 +84,23 @@ something ordinary. Reserve "crisis" for a signal you would act on yourself.
 Return ONLY the JSON object.`;
 
 const SCHEMA = {
-  type: "object",
+  type: 'object',
   additionalProperties: false,
-  required: ["signal", "category", "reasoning"],
+  required: ['signal', 'category', 'reasoning'],
   properties: {
-    signal: { type: "string", enum: ["none", "crisis"] },
+    signal: { type: 'string', enum: ['none', 'crisis'] },
     category: {
-      type: "string",
-      enum: ["none", "abuse", "self_harm", "acute_grief", "acute_danger"],
+      type: 'string',
+      enum: ['none', 'abuse', 'self_harm', 'acute_grief', 'acute_danger'],
     },
-    reasoning: { type: "string" },
+    reasoning: { type: 'string' },
   },
 } as const;
 
-export interface ScreenInputFields {
+export type ScreenInputFields = {
   lesson?: string;
   situation?: string;
-}
+};
 
 /**
  * Screens what a parent typed before it reaches generation.
@@ -131,23 +131,23 @@ export async function screenParentInput(
     model: MODEL,
     max_tokens: 500,
     system: SYSTEM,
-    output_config: { format: { type: "json_schema", schema: SCHEMA } },
-    messages: [{ role: "user", content: text }],
+    output_config: { format: { type: 'json_schema', schema: SCHEMA } },
+    messages: [{ role: 'user', content: text }],
   });
 
   // A refusal from the screener is itself a signal: fail closed, same
   // convention as reviewChapter/reviewIllustration in safety.ts.
-  if (response.stop_reason === "refusal") {
+  if (response.stop_reason === 'refusal') {
     const result = interpretCrisisVerdict(
-      { signal: "crisis", category: "none", reasoning: "" },
+      { signal: 'crisis', category: 'none', reasoning: '' },
       true,
     );
     throw new CrisisDetectedError(result.category);
   }
 
-  const block = response.content.find((b) => b.type === "text");
-  if (!block || block.type !== "text") {
-    throw new Error("crisis screener returned no text block");
+  const block = response.content.find((b) => b.type === 'text');
+  if (!block || block.type !== 'text') {
+    throw new Error('crisis screener returned no text block');
   }
 
   // A malformed body is not expected — output_config enforces the schema —
@@ -159,7 +159,7 @@ export async function screenParentInput(
   }
   catch {
     const result = interpretCrisisVerdict(
-      { signal: "crisis", category: "none", reasoning: "" },
+      { signal: 'crisis', category: 'none', reasoning: '' },
       true,
     );
     throw new CrisisDetectedError(result.category);
