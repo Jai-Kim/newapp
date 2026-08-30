@@ -56,7 +56,18 @@ have a tracked GitHub issue.
   `docs/privacy-policy.md`'s `TODO(Jai)` markers and
   `docs/privacy-store-disclosures.md`).
 - **Crisis-input & sensitive-topic policy** + Terms disclaimer; Korean safety
-  parity. P0. *(issue)*
+  parity. P0. *(issue #13)* Engineering draft implemented — input-side
+  screening (`supabase/functions/_shared/crisis.ts`, ahead of
+  `generate-chapter`/`enqueue-chapter`) for abuse, self-harm, acute grief, and
+  acute danger, with a warm bilingual care response and real KR/US resources
+  (`docs/sensitive-topics-policy.md`, `crisis-resources.ts`) rather than a
+  generated story. Screens Korean and English with equal rigour via a model
+  call, not keyword matching. **Not verified against a live model in this
+  environment** (no network/API key in the build sandbox) — classification
+  logic is unit-tested against simulated verdicts
+  (`crisis-response.test.ts`), but real phrasing needs a human spot-check
+  before launch, and the `acute_grief` boundary is flagged in the policy doc
+  as needing your review.
 - **Abuse/cost protection on generate-chapter** (auth + rate limiting). P0.
   *(issue #6)*
 

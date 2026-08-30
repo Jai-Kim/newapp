@@ -17,6 +17,7 @@ import { createClient } from "jsr:@supabase/supabase-js@2";
 
 import { assertOwnsChild, requireUser, statusFor } from "../_shared/auth.ts";
 import { handlePreflight, jsonResponse } from "../_shared/cors.ts";
+import { CrisisDetectedError, screenParentInput } from "../_shared/crisis.ts";
 import { pickFallbackLesson } from "../_shared/lessons.ts";
 import { claimJob, runJob, sweepStuckJobs } from "../_shared/queue.ts";
 import { QuotaExceededError, reserveGenerationSlot } from "../_shared/quota.ts";
@@ -78,6 +79,15 @@ Deno.serve(async (req: Request) => {
       }
       return jsonResponse({ ok: true, revived: revived.length });
     }
+
+    // Screen what the parent typed before anything else — before the
+    // live-job check, before the quota reservation, before a job row exists
+    // at all (issue #13). A crisis-shaped situation should never queue.
+    const anthropicKey = Deno.env.get("ANTHROPIC_API_KEY");
+    if (!anthropicKey) {
+      throw new Error("ANTHROPIC_API_KEY not set");
+    }
+    await screenParentInput(anthropicKey, { lesson, situation });
 
     // A double-tap or a retry against an already-running job doesn't need
     // (and must not burn) a fresh reservation — this is a best-effort
@@ -148,6 +158,9 @@ Deno.serve(async (req: Request) => {
     });
   } catch (err) {
     if (err instanceof QuotaExceededError) {
+      return jsonResponse(err.toBody(), { status: err.status });
+    }
+    if (err instanceof CrisisDetectedError) {
       return jsonResponse(err.toBody(), { status: err.status });
     }
     return jsonResponse(

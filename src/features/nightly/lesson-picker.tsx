@@ -2,6 +2,7 @@ import * as React from 'react';
 
 import { Button, Input, Text, View } from '@/components/ui';
 import { Chip, ChipRow, Field } from '@/components/ui/choice-chips';
+import { SENSITIVE_TOPIC_DISCLAIMER } from '@/features/legal/sensitive-topic-content';
 
 /**
  * What tomorrow is about.
@@ -76,6 +77,11 @@ export function LessonPicker({
         {' '}
         {name}
         's chapter something real to hold on to.
+      </Text>
+      <Text testID="sensitive-topic-disclaimer" className="text-xs text-neutral-400">
+        {SENSITIVE_TOPIC_DISCLAIMER.en}
+        {' / '}
+        {SENSITIVE_TOPIC_DISCLAIMER.ko}
       </Text>
 
       <Button
