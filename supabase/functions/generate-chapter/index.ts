@@ -15,6 +15,7 @@ import { createClient } from "jsr:@supabase/supabase-js@2";
 
 import { assertOwnsChild, requireUser, statusFor } from "../_shared/auth.ts";
 import { handlePreflight, jsonResponse } from "../_shared/cors.ts";
+import { CrisisDetectedError, screenParentInput } from "../_shared/crisis.ts";
 import { generateChapterFor } from "../_shared/generate.ts";
 import { QuotaExceededError, reserveGenerationSlot } from "../_shared/quota.ts";
 
@@ -53,6 +54,14 @@ Deno.serve(async (req: Request) => {
     );
     await assertOwnsChild(supabase, child_id, user.id);
 
+    // Screen what the parent typed before anything below costs money
+    // (issue #13). A crisis-shaped situation should never generate.
+    const anthropicKey = Deno.env.get("ANTHROPIC_API_KEY");
+    if (!anthropicKey) {
+      throw new Error("ANTHROPIC_API_KEY not set");
+    }
+    await screenParentInput(anthropicKey, { lesson, situation });
+
     // The spend guard (issue #6): a per-user rate limit and a per-child
     // month-to-date quota, reserved before anything below costs money.
     await reserveGenerationSlot(supabase, user.id, child_id);
@@ -75,6 +84,9 @@ Deno.serve(async (req: Request) => {
     });
   } catch (err) {
     if (err instanceof QuotaExceededError) {
+      return jsonResponse(err.toBody(), { status: err.status });
+    }
+    if (err instanceof CrisisDetectedError) {
       return jsonResponse(err.toBody(), { status: err.status });
     }
     return jsonResponse(

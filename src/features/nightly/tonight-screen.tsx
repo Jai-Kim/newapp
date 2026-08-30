@@ -14,7 +14,10 @@ import {
   View,
 } from '@/components/ui';
 import { LessonPicker } from '@/features/nightly/lesson-picker';
-import { useNightly } from '@/features/nightly/use-nightly';
+import {
+  type CrisisNotice as CrisisNoticeData,
+  useNightly,
+} from '@/features/nightly/use-nightly';
 
 /**
  * The home screen at bedtime.
@@ -36,11 +39,20 @@ export function TonightScreen() {
     }, [refresh]),
   );
 
-  // A blocked allowance takes over the whole body — there is nothing else
-  // useful to do tonight until next month, so it replaces the picker rather
-  // than sitting alongside it.
+  // A crisis notice takes priority over a quota notice — a crisis-screened
+  // request never reached the quota check (issue #13), and there is nothing
+  // else useful to do tonight either way, so either replaces the picker
+  // rather than sitting alongside it.
   let body: React.ReactNode;
-  if (nightly.quotaNotice !== null) {
+  if (nightly.crisisNotice !== null) {
+    body = (
+      <CrisisNotice
+        notice={nightly.crisisNotice}
+        lead={nightly.child?.primary_language ?? 'en'}
+      />
+    );
+  }
+  else if (nightly.quotaNotice !== null) {
     body = (
       <QuotaNotice
         notice={nightly.quotaNotice}
@@ -239,6 +251,65 @@ function Writing({ job, name }: { job: ChapterQueueJob; name: string }) {
         {' '}
         tomorrow.
       </Text>
+    </View>
+  );
+}
+
+/**
+ * A crisis-screened request (issue #13) — the parent's words weren't turned
+ * into a story, and here is who to talk to instead. Bilingual, both
+ * languages always rendered per ADR-0001 §1, and never the generic red error
+ * box: this is a warm, deliberate hand-off, not a failure state.
+ */
+function CrisisNotice({
+  notice,
+  lead,
+}: {
+  notice: CrisisNoticeData;
+  lead: 'en' | 'ko';
+}) {
+  const primary = lead === 'ko' ? notice.messageKo : notice.messageEn;
+  const secondary = lead === 'ko' ? notice.messageEn : notice.messageKo;
+  const disclaimerPrimary = lead === 'ko' ? notice.disclaimerKo : notice.disclaimerEn;
+  const disclaimerSecondary = lead === 'ko' ? notice.disclaimerEn : notice.disclaimerKo;
+
+  return (
+    <View
+      testID="crisis-notice"
+      className="gap-4 rounded-xl border border-primary-300 p-5 dark:border-primary-700"
+    >
+      <View className="gap-2">
+        <Text className="text-lg font-bold">{primary}</Text>
+        <Text className="text-neutral-500">{secondary}</Text>
+      </View>
+
+      <View className="gap-3">
+        {notice.resources.map(resource => (
+          <View key={resource.contact} className="gap-0.5">
+            <Text className="font-bold">
+              {lead === 'ko' ? resource.nameKo : resource.nameEn}
+              {' — '}
+              {resource.contact}
+            </Text>
+            <Text className="text-sm text-neutral-500">
+              {lead === 'ko' ? resource.nameEn : resource.nameKo}
+            </Text>
+            <Text className="text-sm text-neutral-500">
+              {lead === 'ko' ? resource.noteKo : resource.noteEn}
+            </Text>
+            <Text className="text-sm text-neutral-500">
+              {lead === 'ko' ? resource.noteEn : resource.noteKo}
+            </Text>
+          </View>
+        ))}
+      </View>
+
+      {disclaimerPrimary !== '' && (
+        <View className="gap-0.5">
+          <Text className="text-xs text-neutral-400">{disclaimerPrimary}</Text>
+          <Text className="text-xs text-neutral-400">{disclaimerSecondary}</Text>
+        </View>
+      )}
     </View>
   );
 }

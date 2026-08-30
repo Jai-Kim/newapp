@@ -1,4 +1,4 @@
-import { enqueueTomorrow, GenerationQuotaError } from './nightly';
+import { CrisisDetectedError, enqueueTomorrow, GenerationQuotaError } from './nightly';
 
 /**
  * The client-side half of the server-side spend guard (issue #6): a blocked
@@ -89,5 +89,58 @@ describe('enqueueTomorrow', () => {
     mockInvoke.mockResolvedValue({ data: null, error: plain });
 
     await expect(enqueueTomorrow('child-1')).rejects.toBe(plain);
+  });
+
+  it('translates a crisis-blocked response into a bilingual CrisisDetectedError with resources', async () => {
+    const body = {
+      ok: false,
+      code: 'crisis_detected',
+      category: 'self_harm',
+      message_en: 'Thank you for telling us.',
+      message_ko: '말씀해 주셔서 감사해요.',
+      disclaimer_en: 'Storyloom is not a crisis service.',
+      disclaimer_ko: 'Storyloom은 위기 상담 서비스가 아니에요.',
+      resources: [
+        {
+          region: 'kr',
+          name_en: 'Suicide Prevention Counseling Center (Korea)',
+          name_ko: '자살예방상담전화',
+          contact: '109',
+          note_en: 'Free, 24/7.',
+          note_ko: '24시간 무료.',
+        },
+      ],
+    };
+    mockInvoke.mockResolvedValue({
+      data: null,
+      error: {
+        message: 'Edge Function returned a non-2xx status code',
+        context: new Response(JSON.stringify(body), { status: 422 }),
+      },
+    });
+
+    let caught: unknown;
+    try {
+      await enqueueTomorrow('child-1', undefined, 'situation the parent typed');
+    }
+    catch (e) {
+      caught = e;
+    }
+
+    expect(caught).toBeInstanceOf(CrisisDetectedError);
+    const err = caught as CrisisDetectedError;
+    expect(err.category).toBe('self_harm');
+    expect(err.messageEn).toBe(body.message_en);
+    expect(err.messageKo).toBe(body.message_ko);
+    expect(err.resources).toEqual([
+      {
+        region: 'kr',
+        nameEn: 'Suicide Prevention Counseling Center (Korea)',
+        nameKo: '자살예방상담전화',
+        contact: '109',
+        noteEn: 'Free, 24/7.',
+        noteKo: '24시간 무료.',
+      },
+    ]);
   });
 });

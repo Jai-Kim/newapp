@@ -131,6 +131,52 @@ export class GenerationQuotaError extends Error {
   }
 }
 
+/** A human resource to reach out to, bilingual (issue #13). */
+export type CrisisResource = {
+  region: 'kr' | 'us';
+  nameEn: string;
+  nameKo: string;
+  contact: string;
+  noteEn: string;
+  noteKo: string;
+};
+
+/**
+ * Thrown when the server-side crisis screener (issue #13) recognises the
+ * lesson/situation text as something a bedtime story is not the right
+ * response to — a disclosure of abuse, self-harm, acute grief, or danger in
+ * the home. Never queues a job and never consumes a quota slot; carries warm,
+ * bilingual copy and real resources so the caller can show a care notice
+ * instead of a bare error string.
+ */
+export class CrisisDetectedError extends Error {
+  readonly code = 'crisis_detected';
+  readonly category: string | null;
+  readonly messageEn: string;
+  readonly messageKo: string;
+  readonly disclaimerEn: string;
+  readonly disclaimerKo: string;
+  readonly resources: CrisisResource[];
+
+  constructor(options: {
+    category: string | null;
+    messageEn: string;
+    messageKo: string;
+    disclaimerEn: string;
+    disclaimerKo: string;
+    resources: CrisisResource[];
+  }) {
+    super(options.messageEn);
+    this.name = 'CrisisDetectedError';
+    this.category = options.category;
+    this.messageEn = options.messageEn;
+    this.messageKo = options.messageKo;
+    this.disclaimerEn = options.disclaimerEn;
+    this.disclaimerKo = options.disclaimerKo;
+    this.resources = options.resources;
+  }
+}
+
 /**
  * supabase-js reports any non-2xx as a FunctionsHttpError whose message is
  * just "Edge Function returned a non-2xx status code" — the useful part is
@@ -175,6 +221,24 @@ export async function enqueueTomorrow(
         code,
         messageEn: typeof body?.message_en === 'string' ? body.message_en : messageOf(error),
         messageKo: typeof body?.message_ko === 'string' ? body.message_ko : messageOf(error),
+      });
+    }
+    if (code === 'crisis_detected') {
+      const rawResources = Array.isArray(body?.resources) ? body.resources : [];
+      throw new CrisisDetectedError({
+        category: typeof body?.category === 'string' ? body.category : null,
+        messageEn: typeof body?.message_en === 'string' ? body.message_en : messageOf(error),
+        messageKo: typeof body?.message_ko === 'string' ? body.message_ko : messageOf(error),
+        disclaimerEn: typeof body?.disclaimer_en === 'string' ? body.disclaimer_en : '',
+        disclaimerKo: typeof body?.disclaimer_ko === 'string' ? body.disclaimer_ko : '',
+        resources: (rawResources as Record<string, unknown>[]).map(r => ({
+          region: r.region as 'kr' | 'us',
+          nameEn: String(r.name_en ?? ''),
+          nameKo: String(r.name_ko ?? ''),
+          contact: String(r.contact ?? ''),
+          noteEn: String(r.note_en ?? ''),
+          noteKo: String(r.note_ko ?? ''),
+        })),
       });
     }
     throw error;

@@ -11,8 +11,16 @@
 
 import { type SupabaseClient } from "jsr:@supabase/supabase-js@2";
 
-/** Everyday, age-neutral, and none of them frightening. */
-const FALLBACK_LESSONS = [
+/**
+ * Everyday, age-neutral, and none of them frightening. Exported so
+ * crisis.ts (issue #13) can skip screening a `lesson` value that exactly
+ * matches one of these known-safe presets — the picker only ever sends one
+ * of these ten, so screening it on every single request would be a real,
+ * needless model call on the common path. Free text (`situation`, or a
+ * `lesson` that doesn't match this list — possible via direct API use, not
+ * through the app's own picker) is always screened.
+ */
+export const FALLBACK_LESSONS = [
   "trying again after something goes wrong",
   "sharing something you don't want to share",
   "being brave about something new",

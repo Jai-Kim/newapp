@@ -13,6 +13,8 @@ import {
 import { downloadChapter } from '@/lib/offline/download-chapter';
 import { listChildren } from '@/lib/supabase/chapters';
 import {
+  CrisisDetectedError,
+  type CrisisResource,
   enqueueTomorrow,
   GenerationQuotaError,
   getNightlyState,
@@ -24,6 +26,18 @@ const WRITING_POLL_MS = 8000;
 
 /** Bilingual copy for a blocked request (issue #6) — not a punishment. */
 export type QuotaNotice = { messageEn: string; messageKo: string };
+
+/**
+ * Bilingual copy for a crisis-screened request (issue #13) — the parent's
+ * words weren't turned into a story, and here's who to talk to instead.
+ */
+export type CrisisNotice = {
+  messageEn: string;
+  messageKo: string;
+  disclaimerEn: string;
+  disclaimerKo: string;
+  resources: CrisisResource[];
+};
 
 /**
  * What tonight looks like with no network: the oldest downloaded chapter
@@ -76,9 +90,10 @@ function useQueueTomorrow(
     setBusy: (busy: boolean) => void;
     setError: (message: string | null) => void;
     setQuotaNotice: (notice: QuotaNotice | null) => void;
+    setCrisisNotice: (notice: CrisisNotice | null) => void;
   },
 ) {
-  const { setBusy, setError, setQuotaNotice } = report;
+  const { setBusy, setError, setQuotaNotice, setCrisisNotice } = report;
   return React.useCallback(
     async (lesson: string | undefined, situation: string | undefined) => {
       if (child === null) {
@@ -87,14 +102,27 @@ function useQueueTomorrow(
       setBusy(true);
       setError(null);
       setQuotaNotice(null);
+      setCrisisNotice(null);
       try {
         await enqueueTomorrow(child.id, lesson, situation);
         await refresh(child.id);
       }
       catch (e) {
         // A blocked allowance is a warm, expected state, not the generic red
-        // error — it gets its own bilingual notice instead (issue #6).
-        if (e instanceof GenerationQuotaError) {
+        // error — it gets its own bilingual notice instead (issue #6). A
+        // crisis-screened request gets its own notice too, and takes
+        // priority in the UI over a quota notice (issue #13) — it never
+        // reached the quota check, since it's screened first.
+        if (e instanceof CrisisDetectedError) {
+          setCrisisNotice({
+            messageEn: e.messageEn,
+            messageKo: e.messageKo,
+            disclaimerEn: e.disclaimerEn,
+            disclaimerKo: e.disclaimerKo,
+            resources: e.resources,
+          });
+        }
+        else if (e instanceof GenerationQuotaError) {
           setQuotaNotice({ messageEn: e.messageEn, messageKo: e.messageKo });
         }
         else {
@@ -105,7 +133,7 @@ function useQueueTomorrow(
         setBusy(false);
       }
     },
-    [child, refresh, setBusy, setError, setQuotaNotice],
+    [child, refresh, setBusy, setError, setQuotaNotice, setCrisisNotice],
   );
 }
 
@@ -118,6 +146,7 @@ export function useNightly() {
   const [savedOffline, setSavedOffline] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
   const [quotaNotice, setQuotaNotice] = React.useState<QuotaNotice | null>(null);
+  const [crisisNotice, setCrisisNotice] = React.useState<CrisisNotice | null>(null);
 
   const refresh = React.useCallback(async (childId: string) => {
     try {
@@ -192,7 +221,12 @@ export function useNightly() {
 
   usePollWhileWriting(state?.kind === 'writing', child, refresh);
 
-  const queue = useQueueTomorrow(child, refresh, { setBusy, setError, setQuotaNotice });
+  const queue = useQueueTomorrow(child, refresh, {
+    setBusy,
+    setError,
+    setQuotaNotice,
+    setCrisisNotice,
+  });
 
   return {
     child,
@@ -203,6 +237,7 @@ export function useNightly() {
     savedOffline,
     error,
     quotaNotice,
+    crisisNotice,
     queue,
     refresh: React.useCallback(
       () => (child ? refresh(child.id) : Promise.resolve()),
