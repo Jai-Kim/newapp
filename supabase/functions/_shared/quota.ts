@@ -11,7 +11,7 @@
 // product/pricing calls for Jai, not something to guess. They are read from
 // env with labelled defaults instead.
 
-import type { SupabaseClient } from "jsr:@supabase/supabase-js@2";
+import type { SupabaseClient } from 'jsr:@supabase/supabase-js@2';
 
 const DEFAULT_RATE_LIMIT_MAX = 3;
 const DEFAULT_RATE_LIMIT_WINDOW_MS = 60_000;
@@ -33,24 +33,24 @@ function envInt(name: string, fallback: number): number {
   return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
 }
 
-export interface QuotaConfig {
+export type QuotaConfig = {
   rateLimitMax: number;
   rateLimitWindowMs: number;
   monthlyAllowance: number;
-}
+};
 
 export function loadQuotaConfig(): QuotaConfig {
   return {
-    rateLimitMax: envInt("GENERATION_RATE_LIMIT_MAX", DEFAULT_RATE_LIMIT_MAX),
+    rateLimitMax: envInt('GENERATION_RATE_LIMIT_MAX', DEFAULT_RATE_LIMIT_MAX),
     rateLimitWindowMs: envInt(
-      "GENERATION_RATE_LIMIT_WINDOW_MS",
+      'GENERATION_RATE_LIMIT_WINDOW_MS',
       DEFAULT_RATE_LIMIT_WINDOW_MS,
     ),
-    monthlyAllowance: envInt("CHAPTER_MONTHLY_ALLOWANCE", DEFAULT_MONTHLY_ALLOWANCE),
+    monthlyAllowance: envInt('CHAPTER_MONTHLY_ALLOWANCE', DEFAULT_MONTHLY_ALLOWANCE),
   };
 }
 
-export type QuotaCode = "rate_limited" | "monthly_quota_exceeded";
+export type QuotaCode = 'rate_limited' | 'monthly_quota_exceeded';
 
 /**
  * Warm, bilingual copy for a blocked request — a family that hits the cap
@@ -58,12 +58,12 @@ export type QuotaCode = "rate_limited" | "monthly_quota_exceeded";
  */
 const QUOTA_COPY: Record<QuotaCode, { en: string; ko: string }> = {
   rate_limited: {
-    en: "Let's slow down for just a moment — try again in a minute.",
-    ko: "잠시 쉬어가요 — 1분 후에 다시 시도해 주세요.",
+    en: 'Let\'s slow down for just a moment — try again in a minute.',
+    ko: '잠시 쉬어가요 — 1분 후에 다시 시도해 주세요.',
   },
   monthly_quota_exceeded: {
-    en: "This month's book is finished! A new one starts next month.",
-    ko: "이번 달 책이 완성되었어요! 다음 달에 새 책이 시작돼요.",
+    en: 'This month\'s book is finished! A new one starts next month.',
+    ko: '이번 달 책이 완성되었어요! 다음 달에 새 책이 시작돼요.',
   },
 };
 
@@ -81,7 +81,7 @@ export class QuotaExceededError extends Error {
   constructor(code: QuotaCode) {
     const copy = QUOTA_COPY[code];
     super(copy.en);
-    this.name = "QuotaExceededError";
+    this.name = 'QuotaExceededError';
     this.code = code;
     this.messageEn = copy.en;
     this.messageKo = copy.ko;
@@ -113,7 +113,7 @@ export async function reserveGenerationSlot(
   childId: string,
   config: QuotaConfig = loadQuotaConfig(),
 ): Promise<void> {
-  const { data, error } = await supabase.rpc("reserve_generation_attempt", {
+  const { data, error } = await supabase.rpc('reserve_generation_attempt', {
     p_user_id: userId,
     p_child_id: childId,
     p_rate_limit_max: config.rateLimitMax,
@@ -124,7 +124,7 @@ export async function reserveGenerationSlot(
   if (error) {
     throw error;
   }
-  if (data === "rate_limited" || data === "monthly_quota_exceeded") {
+  if (data === 'rate_limited' || data === 'monthly_quota_exceeded') {
     throw new QuotaExceededError(data);
   }
 }

@@ -45,6 +45,15 @@ have a tracked GitHub issue.
   model before the canon grows. P1.
 - **Partial-failure handling** in the text → safety → images → persist pipeline. P1.
 - **Storage growth** — illustrations in Supabase Storage; model cost over time. P2.
+- **`supabase/functions/**` has no type-checking.** `tsconfig.json` excludes
+  `supabase/` entirely — Deno's `npm:`/`jsr:` specifiers and explicit `.ts`
+  import extensions don't resolve under this app's Node/Expo `tsconfig.json`.
+  ESLint now covers `safety.ts`, `crisis.ts`, and `quota.ts` (the three
+  functions review/screen/gate what reaches a child or costs money), but
+  nothing here runs `tsc`-equivalent type-checking, and the rest of
+  `supabase/functions/**` still has no lint coverage at all. `TODO(Jai)`:
+  closing the type-check gap needs `deno check` wired into CI — a
+  `.github/workflows/*` change outside this doc's scope. P1.
 
 ## Safety / privacy / legal
 
