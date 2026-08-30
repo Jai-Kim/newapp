@@ -33,14 +33,23 @@ not week 4.
 
 - Chapter library / revisit past chapters; streak + "tune in tomorrow" hook.
 - Paywall + trial via RevenueCat; free-tier limit enforced.
-- Content-rating/data-safety/target-audience prep; privacy policy; parent gate.
+- Content-rating/data-safety/target-audience prep ([`docs/
+  play-data-safety.md`](./play-data-safety.md), the content-rating section of
+  [`docs/play-closed-testing.md`](./play-closed-testing.md)); privacy policy
+  ([`docs/privacy-policy.md`](./privacy-policy.md)); parent gate.
 - Seed 5–10 friends-&-family parents for private testing; collect feedback.
+  Google Play closed testing run sheet: [`docs/
+  play-closed-testing.md`](./play-closed-testing.md), tester recruiting +
+  tracker: [`docs/play-tester-onboarding.md`](./play-tester-onboarding.md).
 
 ## Week 4 — Ship
 
 - Bugfix + polish from test feedback; empty/error states; onboarding cleanup.
 - EAS Build → `.aab` (+ `.ipa`); EAS Submit to **Google Play** (iOS if ready).
-- Store listing: name, icon, screenshots, description, privacy forms.
+- Store listing: name, icon, screenshots, description, privacy forms — draft
+  copy at [`docs/play-store-listing.md`](./play-store-listing.md), Data
+  safety form worksheet at [`docs/
+  play-data-safety.md`](./play-data-safety.md).
 - **Milestone: submitted for review.** Then expand rollout toward the first 100.
 
 ## Fast-follows (post-August)

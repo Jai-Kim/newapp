@@ -32,6 +32,22 @@ Source of truth for detail: `docs/ROADMAP.md`, `docs/WEEK-1-SPIKES.md`, ADRs.
 | C · Unit economics | Healthy margin at a believable price | ☑ passed |
 | D · Safety | Sensitive topics safe (EN+KO); parent-preview gate | ☑ passed |
 
+## Pre-launch reference docs
+
+Operational docs that don't fit the phase log below, kept here so they're
+easy to find as launch approaches. All are engineering drafts — none is
+legally cleared, and every one has open `TODO(Jai)` items.
+
+| Doc | Covers |
+|---|---|
+| [`docs/privacy-policy.md`](./privacy-policy.md) | Bilingual EN+KO privacy notice the app's `/privacy` screen renders from; Korea PIPA cross-border-transfer disclosure |
+| [`docs/privacy-store-disclosures.md`](./privacy-store-disclosures.md) | Facts for Google Play's Data Safety form and Apple's App Privacy label |
+| [`docs/runbook-environments.md`](./runbook-environments.md) | Separating dev/staging from production Supabase (issue #19) |
+| [`docs/play-closed-testing.md`](./play-closed-testing.md) | Google Play closed-testing run sheet, 12-tester/14-day rule, org-account exemption (issue #11) |
+| [`docs/play-store-listing.md`](./play-store-listing.md) | Draft bilingual EN+KO Play Store listing copy, no price stated |
+| [`docs/play-data-safety.md`](./play-data-safety.md) | Play Console Data safety form worksheet, derived from the two privacy docs above |
+| [`docs/play-tester-onboarding.md`](./play-tester-onboarding.md) | Bilingual recruiting message, tester install steps, opt-in tracker |
+
 ## Log
 
 - **Aug 2026** — Concept locked. Founding docs (PR #1), kickoff (#2), progress
@@ -46,3 +62,9 @@ Source of truth for detail: `docs/ROADMAP.md`, `docs/WEEK-1-SPIKES.md`, ADRs.
   harness. The live smoke closes ADR-0004's open question — background
   `waitUntil` generation and the sweep that rescues a dead worker are both
   verified end to end against real providers.
+- **Aug 2026** — Week 3 (issue #22): offline reading (#26), Volumes (#27),
+  concierge print (#28), rate-limit/quota (#32), privacy/PIPA/AI-labeling
+  (#30), dev/staging Supabase guard (#31) all merged. Paywall (slice 3)
+  gated on Jai's RevenueCat setup. Repo-side Play closed-testing prep
+  (issue #11) added — see the reference table above; starting the actual
+  12-tester/14-day clock is Jai's step.
