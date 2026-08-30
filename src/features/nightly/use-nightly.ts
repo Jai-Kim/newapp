@@ -12,10 +12,18 @@ import {
 } from '@/lib/offline/chapter-cache';
 import { downloadChapter } from '@/lib/offline/download-chapter';
 import { listChildren } from '@/lib/supabase/chapters';
-import { enqueueTomorrow, getNightlyState, sweepQueue } from '@/lib/supabase/nightly';
+import {
+  enqueueTomorrow,
+  GenerationQuotaError,
+  getNightlyState,
+  sweepQueue,
+} from '@/lib/supabase/nightly';
 
 /** How often to re-check while a chapter is being written. */
 const WRITING_POLL_MS = 8000;
+
+/** Bilingual copy for a blocked request (issue #6) — not a punishment. */
+export type QuotaNotice = { messageEn: string; messageKo: string };
 
 /**
  * What tonight looks like with no network: the oldest downloaded chapter
@@ -67,9 +75,10 @@ function useQueueTomorrow(
   report: {
     setBusy: (busy: boolean) => void;
     setError: (message: string | null) => void;
+    setQuotaNotice: (notice: QuotaNotice | null) => void;
   },
 ) {
-  const { setBusy, setError } = report;
+  const { setBusy, setError, setQuotaNotice } = report;
   return React.useCallback(
     async (lesson: string | undefined, situation: string | undefined) => {
       if (child === null) {
@@ -77,18 +86,26 @@ function useQueueTomorrow(
       }
       setBusy(true);
       setError(null);
+      setQuotaNotice(null);
       try {
         await enqueueTomorrow(child.id, lesson, situation);
         await refresh(child.id);
       }
       catch (e) {
-        setError(messageOf(e));
+        // A blocked allowance is a warm, expected state, not the generic red
+        // error — it gets its own bilingual notice instead (issue #6).
+        if (e instanceof GenerationQuotaError) {
+          setQuotaNotice({ messageEn: e.messageEn, messageKo: e.messageKo });
+        }
+        else {
+          setError(messageOf(e));
+        }
       }
       finally {
         setBusy(false);
       }
     },
-    [child, refresh, setBusy, setError],
+    [child, refresh, setBusy, setError, setQuotaNotice],
   );
 }
 
@@ -100,6 +117,7 @@ export function useNightly() {
   /** Tonight's chapter, pictures and all, is on the device. */
   const [savedOffline, setSavedOffline] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
+  const [quotaNotice, setQuotaNotice] = React.useState<QuotaNotice | null>(null);
 
   const refresh = React.useCallback(async (childId: string) => {
     try {
@@ -174,7 +192,7 @@ export function useNightly() {
 
   usePollWhileWriting(state?.kind === 'writing', child, refresh);
 
-  const queue = useQueueTomorrow(child, refresh, { setBusy, setError });
+  const queue = useQueueTomorrow(child, refresh, { setBusy, setError, setQuotaNotice });
 
   return {
     child,
@@ -184,6 +202,7 @@ export function useNightly() {
     offline,
     savedOffline,
     error,
+    quotaNotice,
     queue,
     refresh: React.useCallback(
       () => (child ? refresh(child.id) : Promise.resolve()),

@@ -112,6 +112,44 @@ export async function getNightlyState(childId: string): Promise<NightlyState> {
 }
 
 /**
+ * Thrown when the server-side spend guard (issue #6) blocks a request — a
+ * per-user rate limit or the per-child month-to-date chapter allowance.
+ * Carries warm, bilingual copy so the caller can show a notice rather than a
+ * bare error string.
+ */
+export class GenerationQuotaError extends Error {
+  readonly code: string;
+  readonly messageEn: string;
+  readonly messageKo: string;
+
+  constructor(options: { code: string; messageEn: string; messageKo: string }) {
+    super(options.messageEn);
+    this.name = 'GenerationQuotaError';
+    this.code = options.code;
+    this.messageEn = options.messageEn;
+    this.messageKo = options.messageKo;
+  }
+}
+
+/**
+ * supabase-js reports any non-2xx as a FunctionsHttpError whose message is
+ * just "Edge Function returned a non-2xx status code" — the useful part is
+ * the response body, which has to be read off the attached Response.
+ */
+async function bodyOf(error: unknown): Promise<Record<string, unknown> | null> {
+  const context = (error as { context?: unknown }).context;
+  if (!(context instanceof Response)) {
+    return null;
+  }
+  try {
+    return (await context.clone().json()) as Record<string, unknown>;
+  }
+  catch {
+    return null;
+  }
+}
+
+/**
  * Queues tomorrow's chapter and returns immediately — the Edge Function hands
  * the actual ~93s of work to a background task rather than making the caller
  * hold the connection open.
@@ -130,6 +168,15 @@ export async function enqueueTomorrow(
   );
 
   if (error) {
+    const body = await bodyOf(error);
+    const code = body?.code;
+    if (code === 'rate_limited' || code === 'monthly_quota_exceeded') {
+      throw new GenerationQuotaError({
+        code,
+        messageEn: typeof body?.message_en === 'string' ? body.message_en : messageOf(error),
+        messageKo: typeof body?.message_ko === 'string' ? body.message_ko : messageOf(error),
+      });
+    }
     throw error;
   }
   return data as { ok: boolean; already_queued?: boolean; lesson?: string };

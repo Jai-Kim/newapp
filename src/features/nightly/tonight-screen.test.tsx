@@ -33,11 +33,31 @@ jest.mock('@/lib/supabase/chapters', () => ({
   ],
 }));
 
-jest.mock('@/lib/supabase/nightly', () => ({
-  getNightlyState: () => mockGetNightlyState(),
-  enqueueTomorrow: (...args: unknown[]) => mockEnqueueTomorrow(...(args as [])),
-  sweepQueue: async () => 0,
-}));
+jest.mock('@/lib/supabase/nightly', () => {
+  // Defined entirely inside the factory (no outer closure) so it survives
+  // babel-plugin-jest-hoist's out-of-scope check. use-nightly.ts checks a
+  // caught error with `instanceof GenerationQuotaError`, so the mock has to
+  // export a real class, not a plain object shape.
+  class GenerationQuotaError extends Error {
+    code: string;
+    messageEn: string;
+    messageKo: string;
+
+    constructor(options: { code: string; messageEn: string; messageKo: string }) {
+      super(options.messageEn);
+      this.code = options.code;
+      this.messageEn = options.messageEn;
+      this.messageKo = options.messageKo;
+    }
+  }
+
+  return {
+    getNightlyState: () => mockGetNightlyState(),
+    enqueueTomorrow: (...args: unknown[]) => mockEnqueueTomorrow(...(args as [])),
+    sweepQueue: async () => 0,
+    GenerationQuotaError,
+  };
+});
 
 afterEach(() => {
   cleanup();
@@ -132,5 +152,26 @@ describe('tonightScreen', () => {
     await user.press(screen.getByTestId('queue-auto'));
     await waitFor(() =>
       expect(mockEnqueueTomorrow).toHaveBeenCalledWith('child-1', undefined, undefined));
+  });
+
+  it('shows a warm bilingual notice, not the generic red error, when the monthly allowance is used up', async () => {
+    const { GenerationQuotaError } = jest.requireMock('@/lib/supabase/nightly');
+    mockGetNightlyState.mockResolvedValue({ kind: 'empty' });
+    mockEnqueueTomorrow.mockRejectedValueOnce(new GenerationQuotaError({
+      code: 'monthly_quota_exceeded',
+      messageEn: 'This month\'s book is finished! A new one starts next month.',
+      messageKo: '이번 달 책이 완성되었어요! 다음 달에 새 책이 시작돼요.',
+    }));
+    const { user } = setup(<TonightScreen />);
+
+    expect(await screen.findByText(/What should tomorrow be about\?/i)).toBeOnTheScreen();
+    await user.press(screen.getByTestId('queue-auto'));
+
+    expect(await screen.findByTestId('quota-notice')).toBeOnTheScreen();
+    // Bilingual, per ADR-0001 §1 — both languages render regardless of lead.
+    expect(screen.getByText(/This month's book is finished!/)).toBeOnTheScreen();
+    expect(screen.getByText('이번 달 책이 완성되었어요! 다음 달에 새 책이 시작돼요.')).toBeOnTheScreen();
+    // The notice replaces the picker, and is not the generic red error box.
+    expect(screen.queryByText(/What should tomorrow be about\?/i)).not.toBeOnTheScreen();
   });
 });
