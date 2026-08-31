@@ -37,7 +37,10 @@ function VolumeProgressCard({ volume, lead, childId, onOrderPrint }: VolumeProgr
       className="gap-2 rounded-lg border border-neutral-200 p-4 dark:border-neutral-700"
     >
       <Text className="font-bold">
-        {`Volume ${volume.index}`}
+        {lead === 'ko' ? `${volume.index}권` : `Volume ${volume.index}`}
+      </Text>
+      <Text className="text-neutral-500">
+        {lead === 'ko' ? `Volume ${volume.index}` : `${volume.index}권`}
       </Text>
       <View className="h-2 overflow-hidden rounded-full bg-neutral-200 dark:bg-neutral-700">
         <View
@@ -46,7 +49,14 @@ function VolumeProgressCard({ volume, lead, childId, onOrderPrint }: VolumeProgr
         />
       </View>
       <Text className="text-neutral-500">
-        {`${volume.chapters.length} of ${VOLUME_SIZE} chapters`}
+        {lead === 'ko'
+          ? `${VOLUME_SIZE}장 중 ${volume.chapters.length}장`
+          : `${volume.chapters.length} of ${VOLUME_SIZE} chapters`}
+      </Text>
+      <Text className="text-neutral-500">
+        {lead === 'ko'
+          ? `${volume.chapters.length} of ${VOLUME_SIZE} chapters`
+          : `${VOLUME_SIZE}장 중 ${volume.chapters.length}장`}
       </Text>
       {volume.complete && (
         <View testID="volume-complete" className="gap-2 pt-2">
@@ -93,11 +103,56 @@ function ChapterRow({ chapter, lead, onPress }: ChapterRowProps) {
         {lead === 'ko' ? chapter.title_en : chapter.title_ko}
       </Text>
       {chapter.read_at === null && (
-        <Text className="text-xs font-bold text-primary-600 uppercase dark:text-primary-400">
-          not read yet
-        </Text>
+        <>
+          <Text className="text-xs font-bold text-primary-600 uppercase dark:text-primary-400">
+            {lead === 'ko' ? '아직 안 읽었어요' : 'not read yet'}
+          </Text>
+          <Text className="text-xs font-bold text-neutral-500 uppercase">
+            {lead === 'ko' ? 'not read yet' : '아직 안 읽었어요'}
+          </Text>
+        </>
       )}
     </Pressable>
+  );
+}
+
+function LibraryEmptyState({ lead }: { lead: Lead }) {
+  return (
+    <View className="gap-2 rounded-lg border border-neutral-200 p-4 dark:border-neutral-700">
+      <Text className="font-bold">
+        {lead === 'ko' ? '아직 읽을 챕터가 없어요' : 'Nothing to read yet'}
+      </Text>
+      <Text className="text-neutral-500">
+        {lead === 'ko' ? 'Nothing to read yet' : '아직 읽을 챕터가 없어요'}
+      </Text>
+      <Text className="text-neutral-600 dark:text-neutral-400">
+        {lead === 'ko'
+          ? '어른이 먼저 읽고 괜찮다고 하면 여기에 챕터가 나타나요.'
+          : 'Chapters appear here once a grown-up has read them and said yes.'}
+      </Text>
+      <Text className="text-neutral-600 dark:text-neutral-400">
+        {lead === 'ko'
+          ? 'Chapters appear here once a grown-up has read them and said yes.'
+          : '어른이 먼저 읽고 괜찮다고 하면 여기에 챕터가 나타나요.'}
+      </Text>
+    </View>
+  );
+}
+
+function OfflineNotice({ lead }: { lead: Lead }) {
+  return (
+    <View testID="library-offline" className="gap-1">
+      <Text className="text-neutral-500">
+        {lead === 'ko'
+          ? '오프라인이에요 — 기기에 저장된 챕터를 보여드려요.'
+          : 'Offline — showing the chapters saved on this device.'}
+      </Text>
+      <Text className="text-neutral-500">
+        {lead === 'ko'
+          ? 'Offline — showing the chapters saved on this device.'
+          : '오프라인이에요 — 기기에 저장된 챕터를 보여드려요.'}
+      </Text>
+    </View>
   );
 }
 
@@ -170,7 +225,14 @@ export function LibraryScreen() {
       <FocusAwareStatusBar />
       <ScrollView>
         <View className="flex-1 gap-4 p-4">
-          <Text className="text-2xl font-bold">All chapters</Text>
+          <View className="gap-1">
+            <Text className="text-2xl font-bold">
+              {lead === 'ko' ? '전체 챕터' : 'All chapters'}
+            </Text>
+            <Text className="text-neutral-500">
+              {lead === 'ko' ? 'All chapters' : '전체 챕터'}
+            </Text>
+          </View>
 
           {volume !== null && (
             <VolumeProgressCard
@@ -183,22 +245,11 @@ export function LibraryScreen() {
             />
           )}
 
-          {offline && (
-            <Text testID="library-offline" className="text-neutral-500">
-              Offline — showing the chapters saved on this device.
-            </Text>
-          )}
+          {offline && <OfflineNotice lead={lead} />}
 
           {error !== null && <Text className="text-danger-600">{error}</Text>}
 
-          {chapters.length === 0 && error === null && (
-            <View className="gap-2 rounded-lg border border-neutral-200 p-4 dark:border-neutral-700">
-              <Text className="font-bold">Nothing to read yet</Text>
-              <Text className="text-neutral-600 dark:text-neutral-400">
-                Chapters appear here once a grown-up has read them and said yes.
-              </Text>
-            </View>
-          )}
+          {chapters.length === 0 && error === null && <LibraryEmptyState lead={lead} />}
 
           {chapters.map(c => (
             <ChapterRow
