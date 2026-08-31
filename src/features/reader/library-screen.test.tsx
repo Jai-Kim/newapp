@@ -14,6 +14,8 @@ import { LibraryScreen } from './library-screen';
 const mockListChildren = jest.fn();
 const mockListReadableChapters = jest.fn();
 const mockPush = jest.fn();
+const mockReadCachedChild = jest.fn();
+const mockReadCachedChapters = jest.fn();
 
 jest.mock('expo-router', () => ({
   useRouter: () => ({ push: mockPush }),
@@ -21,14 +23,19 @@ jest.mock('expo-router', () => ({
 
 jest.mock('@/lib/offline/chapter-cache', () => ({
   cacheChild: jest.fn(),
-  readCachedChild: () => null,
-  readCachedChapters: () => [],
+  readCachedChild: (...args: unknown[]) => mockReadCachedChild(...args),
+  readCachedChapters: (...args: unknown[]) => mockReadCachedChapters(...args),
 }));
 
 jest.mock('@/lib/supabase/chapters', () => ({
   listChildren: (...args: unknown[]) => mockListChildren(...args),
   listReadableChapters: (...args: unknown[]) => mockListReadableChapters(...args),
 }));
+
+beforeEach(() => {
+  mockReadCachedChild.mockReturnValue(null);
+  mockReadCachedChapters.mockReturnValue([]);
+});
 
 afterEach(() => {
   cleanup();
@@ -53,7 +60,7 @@ function chapter(number: number): ChildReadableChapter {
 }
 
 describe('libraryScreen — Volume progress', () => {
-  it('shows the current Volume filling up', async () => {
+  it('shows the current Volume filling up, bilingually', async () => {
     mockListChildren.mockResolvedValue([
       { id: 'child-1', first_name: 'Yuna', primary_language: 'en' },
     ]);
@@ -64,9 +71,40 @@ describe('libraryScreen — Volume progress', () => {
 
     expect(await screen.findByTestId('volume-progress')).toBeOnTheScreen();
     expect(screen.getByText('Volume 1')).toBeOnTheScreen();
+    expect(screen.getByText('1권')).toBeOnTheScreen();
     expect(screen.getByText('4 of 10 chapters')).toBeOnTheScreen();
+    expect(screen.getByText('10장 중 4장')).toBeOnTheScreen();
     expect(screen.queryByTestId('volume-complete')).not.toBeOnTheScreen();
     expect(screen.queryByTestId('print-order-cta')).not.toBeOnTheScreen();
+  });
+
+  it('leads with Korean for a Korean-first child, still showing both languages', async () => {
+    mockListChildren.mockResolvedValue([
+      { id: 'child-1', first_name: 'Yuna', primary_language: 'ko' },
+    ]);
+    mockListReadableChapters.mockResolvedValue(
+      Array.from({ length: 4 }, (_, i) => chapter(i + 1)),
+    );
+    setup(<LibraryScreen />);
+
+    expect(await screen.findByTestId('volume-progress')).toBeOnTheScreen();
+    expect(screen.getByText('1권')).toBeOnTheScreen();
+    expect(screen.getByText('Volume 1')).toBeOnTheScreen();
+    expect(screen.getByText('10장 중 4장')).toBeOnTheScreen();
+    expect(screen.getByText('4 of 10 chapters')).toBeOnTheScreen();
+  });
+
+  it('shows the screen header and an unread chapter label bilingually', async () => {
+    mockListChildren.mockResolvedValue([
+      { id: 'child-1', first_name: 'Yuna', primary_language: 'en' },
+    ]);
+    mockListReadableChapters.mockResolvedValue([chapter(1)]);
+    setup(<LibraryScreen />);
+
+    expect(await screen.findByText('All chapters')).toBeOnTheScreen();
+    expect(screen.getByText('전체 챕터')).toBeOnTheScreen();
+    expect(screen.getByText('not read yet')).toBeOnTheScreen();
+    expect(screen.getByText('아직 안 읽었어요')).toBeOnTheScreen();
   });
 
   it('marks the volume complete at ten, bilingually, with an order-the-hardcover CTA', async () => {
@@ -122,7 +160,7 @@ describe('libraryScreen — Volume progress', () => {
     expect(screen.queryByTestId('volume-complete')).not.toBeOnTheScreen();
   });
 
-  it('shows no Volume card when the library is empty', async () => {
+  it('shows no Volume card when the library is empty, bilingually', async () => {
     mockListChildren.mockResolvedValue([
       { id: 'child-1', first_name: 'Yuna', primary_language: 'en' },
     ]);
@@ -130,6 +168,30 @@ describe('libraryScreen — Volume progress', () => {
     setup(<LibraryScreen />);
 
     expect(await screen.findByText('Nothing to read yet')).toBeOnTheScreen();
+    expect(screen.getByText('아직 읽을 챕터가 없어요')).toBeOnTheScreen();
+    expect(
+      screen.getByText('Chapters appear here once a grown-up has read them and said yes.'),
+    ).toBeOnTheScreen();
+    expect(
+      screen.getByText('어른이 먼저 읽고 괜찮다고 하면 여기에 챕터가 나타나요.'),
+    ).toBeOnTheScreen();
     expect(screen.queryByTestId('volume-progress')).not.toBeOnTheScreen();
+  });
+
+  it('shows a bilingual offline notice when the network fails but a cached child exists', async () => {
+    mockReadCachedChild.mockReturnValue(
+      { id: 'child-1', first_name: 'Yuna', primary_language: 'en' },
+    );
+    mockReadCachedChapters.mockReturnValue([chapter(1)]);
+    mockListChildren.mockRejectedValue(new Error('network down'));
+    setup(<LibraryScreen />);
+
+    expect(await screen.findByTestId('library-offline')).toBeOnTheScreen();
+    expect(
+      screen.getByText('Offline — showing the chapters saved on this device.'),
+    ).toBeOnTheScreen();
+    expect(
+      screen.getByText('오프라인이에요 — 기기에 저장된 챕터를 보여드려요.'),
+    ).toBeOnTheScreen();
   });
 });
