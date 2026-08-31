@@ -236,9 +236,11 @@ function Page({
   );
 }
 
-/** Lead title + off-lead title, same standard `Page` holds itself to — and
+/**
+ * Lead title + off-lead title, same standard `Page` holds itself to — and
  * the sign-off travels with whichever title line it follows, since
- * "goodnight" is a language, not a fact. */
+ * "goodnight" is a language, not a fact.
+ */
 function TheEndBanner({ chapter, lead }: { chapter: ChildReadableChapter; lead: Lead }) {
   return (
     <View className="gap-1">
