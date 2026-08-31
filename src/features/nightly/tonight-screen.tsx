@@ -41,22 +41,13 @@ export function TonightScreen() {
   // request never reached the quota check (issue #13), and there is nothing
   // else useful to do tonight either way, so either replaces the picker
   // rather than sitting alongside it.
+  const lead = nightly.child?.primary_language ?? 'en';
   let body: React.ReactNode;
   if (nightly.crisisNotice !== null) {
-    body = (
-      <CrisisNotice
-        notice={nightly.crisisNotice}
-        lead={nightly.child?.primary_language ?? 'en'}
-      />
-    );
+    body = <CrisisNotice notice={nightly.crisisNotice} lead={lead} />;
   }
   else if (nightly.quotaNotice !== null) {
-    body = (
-      <QuotaNotice
-        notice={nightly.quotaNotice}
-        lead={nightly.child?.primary_language ?? 'en'}
-      />
-    );
+    body = <QuotaNotice notice={nightly.quotaNotice} lead={lead} />;
   }
   else if (nightly.state === null) {
     body = <ActivityIndicator />;
@@ -68,6 +59,7 @@ export function TonightScreen() {
         name={nightly.name}
         busy={nightly.busy}
         savedOffline={nightly.savedOffline}
+        lead={lead}
         onQueue={nightly.queue}
       />
     );
@@ -118,12 +110,14 @@ function Body({
   name,
   busy,
   savedOffline,
+  lead,
   onQueue,
 }: {
   state: NightlyState;
   name: string;
   busy: boolean;
   savedOffline: boolean;
+  lead: 'en' | 'ko';
   onQueue: (lesson: string | undefined, situation: string | undefined) => void;
 }) {
   const router = useRouter();
@@ -173,7 +167,7 @@ function Body({
       );
 
     case 'empty':
-      return <LessonPicker name={name} busy={busy} onChoose={onQueue} />;
+      return <LessonPicker name={name} busy={busy} lead={lead} onChoose={onQueue} />;
 
     case 'offline_empty':
       return (

@@ -198,7 +198,7 @@ function TheEnd({
             </Text>
           </View>
 
-          <LessonPicker name={name} busy={busy} onChoose={onQueue} />
+          <LessonPicker name={name} busy={busy} lead={lead} onChoose={onQueue} />
 
           <Pressable onPress={onSkip} testID="skip-tomorrow">
             <Text className="text-center text-neutral-500">
