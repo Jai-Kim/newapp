@@ -116,6 +116,46 @@ function ChapterRow({ chapter, lead, onPress }: ChapterRowProps) {
   );
 }
 
+function LibraryEmptyState({ lead }: { lead: Lead }) {
+  return (
+    <View className="gap-2 rounded-lg border border-neutral-200 p-4 dark:border-neutral-700">
+      <Text className="font-bold">
+        {lead === 'ko' ? '아직 읽을 챕터가 없어요' : 'Nothing to read yet'}
+      </Text>
+      <Text className="text-neutral-500">
+        {lead === 'ko' ? 'Nothing to read yet' : '아직 읽을 챕터가 없어요'}
+      </Text>
+      <Text className="text-neutral-600 dark:text-neutral-400">
+        {lead === 'ko'
+          ? '어른이 먼저 읽고 괜찮다고 하면 여기에 챕터가 나타나요.'
+          : 'Chapters appear here once a grown-up has read them and said yes.'}
+      </Text>
+      <Text className="text-neutral-600 dark:text-neutral-400">
+        {lead === 'ko'
+          ? 'Chapters appear here once a grown-up has read them and said yes.'
+          : '어른이 먼저 읽고 괜찮다고 하면 여기에 챕터가 나타나요.'}
+      </Text>
+    </View>
+  );
+}
+
+function OfflineNotice({ lead }: { lead: Lead }) {
+  return (
+    <View testID="library-offline" className="gap-1">
+      <Text className="text-neutral-500">
+        {lead === 'ko'
+          ? '오프라인이에요 — 기기에 저장된 챕터를 보여드려요.'
+          : 'Offline — showing the chapters saved on this device.'}
+      </Text>
+      <Text className="text-neutral-500">
+        {lead === 'ko'
+          ? 'Offline — showing the chapters saved on this device.'
+          : '오프라인이에요 — 기기에 저장된 챕터를 보여드려요.'}
+      </Text>
+    </View>
+  );
+}
+
 /**
  * Everything they have read so far.
  *
@@ -205,43 +245,11 @@ export function LibraryScreen() {
             />
           )}
 
-          {offline && (
-            <View testID="library-offline" className="gap-1">
-              <Text className="text-neutral-500">
-                {lead === 'ko'
-                  ? '오프라인이에요 — 기기에 저장된 챕터를 보여드려요.'
-                  : 'Offline — showing the chapters saved on this device.'}
-              </Text>
-              <Text className="text-neutral-500">
-                {lead === 'ko'
-                  ? 'Offline — showing the chapters saved on this device.'
-                  : '오프라인이에요 — 기기에 저장된 챕터를 보여드려요.'}
-              </Text>
-            </View>
-          )}
+          {offline && <OfflineNotice lead={lead} />}
 
           {error !== null && <Text className="text-danger-600">{error}</Text>}
 
-          {chapters.length === 0 && error === null && (
-            <View className="gap-2 rounded-lg border border-neutral-200 p-4 dark:border-neutral-700">
-              <Text className="font-bold">
-                {lead === 'ko' ? '아직 읽을 챕터가 없어요' : 'Nothing to read yet'}
-              </Text>
-              <Text className="text-neutral-500">
-                {lead === 'ko' ? 'Nothing to read yet' : '아직 읽을 챕터가 없어요'}
-              </Text>
-              <Text className="text-neutral-600 dark:text-neutral-400">
-                {lead === 'ko'
-                  ? '어른이 먼저 읽고 괜찮다고 하면 여기에 챕터가 나타나요.'
-                  : 'Chapters appear here once a grown-up has read them and said yes.'}
-              </Text>
-              <Text className="text-neutral-600 dark:text-neutral-400">
-                {lead === 'ko'
-                  ? 'Chapters appear here once a grown-up has read them and said yes.'
-                  : '어른이 먼저 읽고 괜찮다고 하면 여기에 챕터가 나타나요.'}
-              </Text>
-            </View>
-          )}
+          {chapters.length === 0 && error === null && <LibraryEmptyState lead={lead} />}
 
           {chapters.map(c => (
             <ChapterRow

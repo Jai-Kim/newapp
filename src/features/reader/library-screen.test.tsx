@@ -94,19 +94,6 @@ describe('libraryScreen — Volume progress', () => {
     expect(screen.getByText('4 of 10 chapters')).toBeOnTheScreen();
   });
 
-  it('shows the screen header and an unread chapter label bilingually', async () => {
-    mockListChildren.mockResolvedValue([
-      { id: 'child-1', first_name: 'Yuna', primary_language: 'en' },
-    ]);
-    mockListReadableChapters.mockResolvedValue([chapter(1)]);
-    setup(<LibraryScreen />);
-
-    expect(await screen.findByText('All chapters')).toBeOnTheScreen();
-    expect(screen.getByText('전체 챕터')).toBeOnTheScreen();
-    expect(screen.getByText('not read yet')).toBeOnTheScreen();
-    expect(screen.getByText('아직 안 읽었어요')).toBeOnTheScreen();
-  });
-
   it('marks the volume complete at ten, bilingually, with an order-the-hardcover CTA', async () => {
     mockListChildren.mockResolvedValue([
       { id: 'child-1', first_name: 'Yuna', primary_language: 'en' },
@@ -158,6 +145,21 @@ describe('libraryScreen — Volume progress', () => {
     await waitFor(() => expect(screen.getByText('Volume 2')).toBeOnTheScreen());
     expect(screen.getByText('1 of 10 chapters')).toBeOnTheScreen();
     expect(screen.queryByTestId('volume-complete')).not.toBeOnTheScreen();
+  });
+});
+
+describe('libraryScreen — bilingual chrome', () => {
+  it('shows the screen header and an unread chapter label bilingually', async () => {
+    mockListChildren.mockResolvedValue([
+      { id: 'child-1', first_name: 'Yuna', primary_language: 'en' },
+    ]);
+    mockListReadableChapters.mockResolvedValue([chapter(1)]);
+    setup(<LibraryScreen />);
+
+    expect(await screen.findByText('All chapters')).toBeOnTheScreen();
+    expect(screen.getByText('전체 챕터')).toBeOnTheScreen();
+    expect(screen.getByText('not read yet')).toBeOnTheScreen();
+    expect(screen.getByText('아직 안 읽었어요')).toBeOnTheScreen();
   });
 
   it('shows no Volume card when the library is empty, bilingually', async () => {
