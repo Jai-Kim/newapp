@@ -79,3 +79,96 @@ describe('chapterReaderScreen — AI-content labeling', () => {
     ).toBeOnTheScreen();
   });
 });
+
+/**
+ * Bilingual chrome for the reading screen itself (issue #22, follow-up to
+ * #41): page navigation, the end-of-chapter screen, and the error state.
+ * Both languages must always render — the child's primary_language only
+ * decides which leads.
+ */
+describe('chapterReaderScreen — bilingual page navigation', () => {
+  it('shows the back/next labels bilingually on a non-final page, English-led', () => {
+    mockUseChapterReader.mockReturnValue(baseReader({
+      chapter: {
+        id: 'chapter-1',
+        title_en: 'The Quiet Forest',
+        title_ko: '조용한 숲',
+        pages: [
+          { page: 1, en: 'Once upon a time.', ko: '옛날 옛적에.' },
+          { page: 2, en: 'And then...', ko: '그리고...' },
+        ],
+      },
+      index: 0,
+    }));
+    setup(<ChapterReaderScreen />);
+
+    expect(screen.getByText('← Back')).toBeOnTheScreen();
+    expect(screen.getByText('← 뒤로')).toBeOnTheScreen();
+    expect(screen.getByText('Next →')).toBeOnTheScreen();
+    expect(screen.getByText('다음 →')).toBeOnTheScreen();
+  });
+
+  it('shows the back/next labels bilingually on the last page, Korean-led', () => {
+    mockUseChapterReader.mockReturnValue(baseReader({ lead: 'ko' }));
+    setup(<ChapterReaderScreen />);
+
+    expect(screen.getByText('← 뒤로')).toBeOnTheScreen();
+    expect(screen.getByText('← Back')).toBeOnTheScreen();
+    expect(screen.getByText('끝 →')).toBeOnTheScreen();
+    expect(screen.getByText('The end →')).toBeOnTheScreen();
+  });
+});
+
+describe('chapterReaderScreen — bilingual end screen', () => {
+  it('shows the end banner and the skip button bilingually, English-led', () => {
+    mockUseChapterReader.mockReturnValue(baseReader({ finished: true }));
+    setup(<ChapterReaderScreen />);
+
+    expect(screen.getByText('The end')).toBeOnTheScreen();
+    expect(screen.getByText('끝')).toBeOnTheScreen();
+    expect(screen.getByText('The Quiet Forest — goodnight.')).toBeOnTheScreen();
+    expect(screen.getByText('조용한 숲 — 안녕히 주무세요.')).toBeOnTheScreen();
+    expect(screen.getByText('Not tonight')).toBeOnTheScreen();
+    expect(screen.getByText('오늘 밤은 건너뛸게요')).toBeOnTheScreen();
+  });
+
+  it('shows the end banner and the skip button bilingually, Korean-led', () => {
+    mockUseChapterReader.mockReturnValue(baseReader({ finished: true, lead: 'ko' }));
+    setup(<ChapterReaderScreen />);
+
+    // The sign-off travels with its own title's language (issue #22), so the
+    // same pair of full sentences renders for either lead — only which one
+    // gets the emphasized style changes, which is the same shallow-presence
+    // convention `library-screen.test.tsx` already uses for its dual display.
+    expect(screen.getByText('끝')).toBeOnTheScreen();
+    expect(screen.getByText('The end')).toBeOnTheScreen();
+    expect(screen.getByText('조용한 숲 — 안녕히 주무세요.')).toBeOnTheScreen();
+    expect(screen.getByText('The Quiet Forest — goodnight.')).toBeOnTheScreen();
+    expect(screen.getByText('오늘 밤은 건너뛸게요')).toBeOnTheScreen();
+    expect(screen.getByText('Not tonight')).toBeOnTheScreen();
+  });
+});
+
+describe('chapterReaderScreen — bilingual error state', () => {
+  it('shows the bilingual fallback when the hook has no specific error message', () => {
+    mockUseChapterReader.mockReturnValue(baseReader({ chapter: null, error: null }));
+    setup(<ChapterReaderScreen />);
+
+    expect(screen.getByText('That chapter could not be opened.')).toBeOnTheScreen();
+    expect(screen.getByText('이 챕터를 열 수 없어요.')).toBeOnTheScreen();
+    const backLabel = screen.getByTestId('reader-back-label');
+    expect(backLabel.props.children).toContain('Back');
+    expect(backLabel.props.children).toContain('뒤로');
+  });
+
+  it('shows a real error message as-is, without the bilingual fallback', () => {
+    mockUseChapterReader.mockReturnValue(
+      baseReader({ chapter: null, error: 'Network request failed' }),
+    );
+    setup(<ChapterReaderScreen />);
+
+    expect(screen.getByText('Network request failed')).toBeOnTheScreen();
+    expect(screen.queryByText('That chapter could not be opened.')).not.toBeOnTheScreen();
+    expect(screen.queryByText('이 챕터를 열 수 없어요.')).not.toBeOnTheScreen();
+  });
+});
