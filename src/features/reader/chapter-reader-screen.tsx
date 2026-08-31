@@ -282,7 +282,7 @@ function TheEnd({
         <View className="flex-1 gap-6 p-4 pb-12">
           <TheEndBanner chapter={chapter} lead={lead} />
 
-          <LessonPicker name={name} busy={busy} onChoose={onQueue} />
+          <LessonPicker name={name} busy={busy} lead={lead} onChoose={onQueue} />
 
           <Pressable onPress={onSkip} testID="skip-tomorrow">
             <View className="items-center gap-0.5">

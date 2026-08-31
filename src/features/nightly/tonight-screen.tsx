@@ -68,6 +68,7 @@ export function TonightScreen() {
         name={nightly.name}
         busy={nightly.busy}
         savedOffline={nightly.savedOffline}
+        lead={nightly.child?.primary_language ?? 'en'}
         onQueue={nightly.queue}
       />
     );
@@ -118,12 +119,14 @@ function Body({
   name,
   busy,
   savedOffline,
+  lead,
   onQueue,
 }: {
   state: NightlyState;
   name: string;
   busy: boolean;
   savedOffline: boolean;
+  lead: 'en' | 'ko';
   onQueue: (lesson: string | undefined, situation: string | undefined) => void;
 }) {
   const router = useRouter();
@@ -173,7 +176,7 @@ function Body({
       );
 
     case 'empty':
-      return <LessonPicker name={name} busy={busy} onChoose={onQueue} />;
+      return <LessonPicker name={name} busy={busy} lead={lead} onChoose={onQueue} />;
 
     case 'offline_empty':
       return (
