@@ -9,22 +9,22 @@
 //
 // Deploy: supabase functions deploy submit-print-order
 
-import { createClient } from "jsr:@supabase/supabase-js@2";
+import { createClient } from 'jsr:@supabase/supabase-js@2';
 
-import { assertOwnsChild, requireUser, statusFor } from "../_shared/auth.ts";
-import { handlePreflight, jsonResponse } from "../_shared/cors.ts";
-import { completedVolumeChapterIds } from "../_shared/volumes.ts";
+import { assertOwnsChild, requireUser, statusFor } from '../_shared/auth.ts';
+import { handlePreflight, jsonResponse } from '../_shared/cors.ts';
+import { completedVolumeChapterIds } from '../_shared/volumes.ts';
 
-interface ShippingAddress {
+type ShippingAddress = {
   line1: string;
   line2?: string;
   city: string;
   state?: string;
   postal_code: string;
   country: string;
-}
+};
 
-interface Req {
+type Req = {
   child_id: string;
   volume_index: number;
   recipient_name: string;
@@ -32,17 +32,17 @@ interface Req {
   gift?: boolean;
   gift_message?: string;
   note?: string;
-}
+};
 
-const REQUIRED_ADDRESS_FIELDS = ["line1", "city", "postal_code", "country"] as const;
+const REQUIRED_ADDRESS_FIELDS = ['line1', 'city', 'postal_code', 'country'] as const;
 
 function missingAddressFields(address: unknown): string | null {
   const addr = (address ?? {}) as Record<string, unknown>;
   const missing = REQUIRED_ADDRESS_FIELDS.filter(
-    key => String(addr[key] ?? "").trim().length === 0,
+    (key) => String(addr[key] ?? '').trim().length === 0,
   );
   return missing.length > 0
-    ? `shipping address missing: ${missing.join(", ")}`
+    ? `shipping address missing: ${missing.join(', ')}`
     : null;
 }
 
@@ -54,7 +54,7 @@ function missingAddressFields(address: unknown): string | null {
 declare const EdgeRuntime: { waitUntil: (p: Promise<unknown>) => void } | undefined;
 
 function runInBackground(promise: Promise<unknown>): void {
-  if (typeof EdgeRuntime !== "undefined") {
+  if (typeof EdgeRuntime !== 'undefined') {
     EdgeRuntime.waitUntil(promise);
     return;
   }
@@ -74,25 +74,26 @@ async function notifyTeam(order: {
   volume_index: number;
   gift: boolean;
 }): Promise<void> {
-  const webhook = Deno.env.get("PRINT_ORDER_NOTIFY_WEBHOOK_URL");
+  const webhook = Deno.env.get('PRINT_ORDER_NOTIFY_WEBHOOK_URL');
   if (!webhook) {
     console.log(
       `[submit-print-order] new order ${order.id} for child ${order.child_id}, `
-      + `volume ${order.volume_index}${order.gift ? " (gift)" : ""} `
+      + `volume ${order.volume_index}${order.gift ? ' (gift)' : ''} `
       + `(no notify webhook configured, see PRINT_ORDER_NOTIFY_WEBHOOK_URL)`,
     );
     return;
   }
   try {
     await fetch(webhook, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         text: `New hardcover order — child ${order.child_id}, volume `
-          + `${order.volume_index}${order.gift ? " (gift)" : ""}. Order id ${order.id}.`,
+          + `${order.volume_index}${order.gift ? ' (gift)' : ''}. Order id ${order.id}.`,
       }),
     });
-  } catch (err) {
+  }
+  catch (err) {
     console.error(`[submit-print-order] notify failed for ${order.id}:`, err);
   }
 }
@@ -109,12 +110,12 @@ Deno.serve(async (req: Request) => {
 
     if (!child_id || !Number.isInteger(volume_index) || (volume_index as number) < 1) {
       return jsonResponse(
-        { ok: false, error: "child_id and a valid volume_index are required" },
+        { ok: false, error: 'child_id and a valid volume_index are required' },
         { status: 400 },
       );
     }
     if (!recipient_name || recipient_name.trim().length === 0) {
-      return jsonResponse({ ok: false, error: "recipient_name is required" }, { status: 400 });
+      return jsonResponse({ ok: false, error: 'recipient_name is required' }, { status: 400 });
     }
     const addressError = missingAddressFields(shipping_address);
     if (addressError) {
@@ -124,17 +125,17 @@ Deno.serve(async (req: Request) => {
     const user = await requireUser(req);
 
     const supabase = createClient(
-      Deno.env.get("SUPABASE_URL")!,
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+      Deno.env.get('SUPABASE_URL')!,
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
     );
     await assertOwnsChild(supabase, child_id, user.id);
 
     // The snapshot is computed here, from the real gate-enforcing view, and
     // never trusted from the client -- see 0007_print_orders.sql.
     const { data: readable, error: readErr } = await supabase
-      .from("child_readable_chapters")
-      .select("id,number")
-      .eq("child_id", child_id);
+      .from('child_readable_chapters')
+      .select('id,number')
+      .eq('child_id', child_id);
     if (readErr) {
       throw readErr;
     }
@@ -142,13 +143,13 @@ Deno.serve(async (req: Request) => {
     const chapterIds = completedVolumeChapterIds(readable ?? [], volume_index as number);
     if (!chapterIds) {
       return jsonResponse(
-        { ok: false, error: "that volume is not complete yet" },
+        { ok: false, error: 'that volume is not complete yet' },
         { status: 409 },
       );
     }
 
     const { data: order, error: insertErr } = await supabase
-      .from("print_orders")
+      .from('print_orders')
       .insert({
         child_id,
         volume_index,
@@ -160,17 +161,17 @@ Deno.serve(async (req: Request) => {
         note: note?.trim() || null,
         requested_by: user.id,
       })
-      .select("id,created_at")
+      .select('id,created_at')
       .single();
 
     if (insertErr) {
       // The one-live-order-per-volume index. A double-tap or a retry must not
       // hand-fulfil the same family's book twice.
-      if (insertErr.code === "23505") {
+      if (insertErr.code === '23505') {
         return jsonResponse({
           ok: true,
           already_ordered: true,
-          message: "this book has already been ordered",
+          message: 'this book has already been ordered',
         });
       }
       throw insertErr;
@@ -184,7 +185,8 @@ Deno.serve(async (req: Request) => {
     }));
 
     return jsonResponse({ ok: true, order_id: order.id, created_at: order.created_at });
-  } catch (err) {
+  }
+  catch (err) {
     return jsonResponse(
       { ok: false, error: err instanceof Error ? err.message : String(err) },
       { status: statusFor(err) },

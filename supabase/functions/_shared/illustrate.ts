@@ -7,25 +7,25 @@
 // explicitly which parts of the reference are identity and which are wardrobe
 // to be replaced. That wording is load-bearing; don't soften it.
 
-const GEMINI_BASE = "https://generativelanguage.googleapis.com/v1beta";
+const GEMINI_BASE = 'https://generativelanguage.googleapis.com/v1beta';
 
 // Spike A recommendation: Flash, not Pro. 3.5x cheaper, 3.2x faster, and closer
 // to the gouache house style. Pro is reserved for the printed keepsake.
-const MODEL = "gemini-2.5-flash-image";
+const MODEL = 'gemini-2.5-flash-image';
 
 /** The house art style. Must be byte-identical across every render, forever. */
 export const HOUSE_STYLE =
-  "Children's picture-book illustration in soft gouache: warm limited palette "
-  + "of cream, terracotta, sage and dusty teal; visible paper grain; gentle "
-  + "rounded shapes; soft diffuse lighting; no hard black outlines; painterly "
-  + "brush texture. Cosy, reassuring, bedtime-story mood.";
+  'Children\'s picture-book illustration in soft gouache: warm limited palette '
+  + 'of cream, terracotta, sage and dusty teal; visible paper grain; gentle '
+  + 'rounded shapes; soft diffuse lighting; no hard black outlines; painterly '
+  + 'brush texture. Cosy, reassuring, bedtime-story mood.';
 
-export interface IllustrateResult {
+export type IllustrateResult = {
   page: number;
   image_base64: string;
   mime_type: string;
   latency_ms: number;
-}
+};
 
 function buildPrompt(
   identityDescriptor: string,
@@ -67,7 +67,7 @@ export async function illustratePage(
   const started = Date.now();
 
   // Chunked conversion — a spread operator over a ~1.6MB image blows the stack.
-  let binary = "";
+  let binary = '';
   const CHUNK = 0x8000;
   for (let i = 0; i < identityPng.length; i += CHUNK) {
     binary += String.fromCharCode(...identityPng.subarray(i, i + CHUNK));
@@ -75,21 +75,21 @@ export async function illustratePage(
   const identityB64 = btoa(binary);
 
   const res = await fetch(`${GEMINI_BASE}/models/${MODEL}:generateContent`, {
-    method: "POST",
-    headers: { "x-goog-api-key": apiKey, "Content-Type": "application/json" },
+    method: 'POST',
+    headers: { 'x-goog-api-key': apiKey, 'Content-Type': 'application/json' },
     body: JSON.stringify({
       contents: [{
-        role: "user",
+        role: 'user',
         parts: [
           // Reference first, instruction second — leading with the prompt tends
           // to produce a fresh character instead of a re-render (Spike A).
-          { inline_data: { mime_type: "image/png", data: identityB64 } },
+          { inline_data: { mime_type: 'image/png', data: identityB64 } },
           { text: buildPrompt(identityDescriptor, scene, wardrobe) },
         ],
       }],
       generationConfig: {
-        responseModalities: ["IMAGE"],
-        imageConfig: { aspectRatio: "4:3" },
+        responseModalities: ['IMAGE'],
+        imageConfig: { aspectRatio: '4:3' },
       },
     }),
   });

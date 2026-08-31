@@ -35,7 +35,14 @@ const TABLE_FOR: Record<string, string> = {
   companion: 'COMPANION',
 };
 
-/** Keys of a top-level object literal assigned to `const NAME`. */
+/**
+ * Keys of a top-level object literal assigned to `const NAME`.
+ *
+ * Parses text, so it's only as good as `character.ts`'s literal formatting:
+ * 2-space indented keys, and each table closed by a `};` on its own line.
+ * Quote style is deliberately not part of that contract (bare, single- or
+ * double-quoted keys all match) — a formatter is free to change it.
+ */
 function serverKeys(source: string, constName: string): string[] {
   const start = source.indexOf(`const ${constName}`);
   if (start === -1) {
@@ -45,7 +52,13 @@ function serverKeys(source: string, constName: string): string[] {
   const end = source.indexOf('\n};', open);
   const body = source.slice(open, end);
 
-  return [...body.matchAll(/^ {2}"?([a-z][a-z-]*)"?:/gm)].map(m => m[1]);
+  const keys = [...body.matchAll(/^ {2}['"]?([a-z][a-z-]*)['"]?:/gm)].map(m => m[1]);
+  if (keys.length === 0) {
+    throw new Error(
+      `no keys parsed for ${constName} in ${SERVER_FILE} — did its formatting change?`,
+    );
+  }
+  return keys;
 }
 
 describe('character options', () => {

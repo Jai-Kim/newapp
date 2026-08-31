@@ -9,7 +9,7 @@
 // auto-chosen lesson is marked as such on the job, so the app can say "we
 // picked this one" instead of pretending the parent did.
 
-import { type SupabaseClient } from "jsr:@supabase/supabase-js@2";
+import type { SupabaseClient } from 'jsr:@supabase/supabase-js@2';
 
 /**
  * Everyday, age-neutral, and none of them frightening. Exported so
@@ -21,16 +21,16 @@ import { type SupabaseClient } from "jsr:@supabase/supabase-js@2";
  * through the app's own picker) is always screened.
  */
 export const FALLBACK_LESSONS = [
-  "trying again after something goes wrong",
-  "sharing something you don't want to share",
-  "being brave about something new",
-  "saying sorry and meaning it",
-  "noticing when someone else is sad",
-  "waiting for your turn",
-  "telling the truth when it's hard",
-  "asking for help",
-  "being kind to someone left out",
-  "finishing something you started",
+  'trying again after something goes wrong',
+  'sharing something you don\'t want to share',
+  'being brave about something new',
+  'saying sorry and meaning it',
+  'noticing when someone else is sad',
+  'waiting for your turn',
+  'telling the truth when it\'s hard',
+  'asking for help',
+  'being kind to someone left out',
+  'finishing something you started',
 ];
 
 /**
@@ -45,10 +45,10 @@ export async function pickFallbackLesson(
   childId: string,
 ): Promise<string> {
   const { data } = await supabase
-    .from("lessons_taught")
-    .select("lesson,created_at")
-    .eq("child_id", childId)
-    .order("created_at", { ascending: false })
+    .from('lessons_taught')
+    .select('lesson,created_at')
+    .eq('child_id', childId)
+    .order('created_at', { ascending: false })
     .limit(50);
 
   const seen = new Set((data ?? []).map((r) => r.lesson as string));
@@ -66,5 +66,5 @@ export async function pickFallbackLesson(
     }
   }
   return [...FALLBACK_LESSONS]
-    .sort((a, b) => (mostRecent.get(a) ?? "").localeCompare(mostRecent.get(b) ?? ""))[0];
+    .sort((a, b) => (mostRecent.get(a) ?? '').localeCompare(mostRecent.get(b) ?? ''))[0];
 }

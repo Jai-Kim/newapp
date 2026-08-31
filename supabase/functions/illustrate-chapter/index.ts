@@ -12,19 +12,19 @@
 //
 // Deploy: supabase functions deploy illustrate-chapter
 
-import { createClient } from "jsr:@supabase/supabase-js@2";
+import { createClient } from 'jsr:@supabase/supabase-js@2';
 
-import { assertOwnsChild, requireUser, statusFor } from "../_shared/auth.ts";
-import { handlePreflight, jsonResponse } from "../_shared/cors.ts";
-import { ChapterBlockedError, illustrateChapter } from "../_shared/illustrate-run.ts";
+import { assertOwnsChild, requireUser, statusFor } from '../_shared/auth.ts';
+import { handlePreflight, jsonResponse } from '../_shared/cors.ts';
+import { ChapterBlockedError, illustrateChapter } from '../_shared/illustrate-run.ts';
 
-interface Req {
+type Req = {
   chapter_id: string;
   /** Upper bound on illustrated pages. ADR-0002 settles on ~4. */
   illustrations?: number;
   /** Return image bytes in the response (spike harness). Off by default. */
   return_images?: boolean;
-}
+};
 
 Deno.serve(async (req: Request) => {
   const preflight = handlePreflight(req);
@@ -36,21 +36,21 @@ Deno.serve(async (req: Request) => {
     const { chapter_id, illustrations = 4, return_images = false } =
       (await req.json()) as Req;
     if (!chapter_id) {
-      return jsonResponse({ ok: false, error: "chapter_id required" }, { status: 400 });
+      return jsonResponse({ ok: false, error: 'chapter_id required' }, { status: 400 });
     }
 
     // Images cost money too — same gate as generate-chapter (issue #6).
     const user = await requireUser(req);
 
     const supabase = createClient(
-      Deno.env.get("SUPABASE_URL")!,
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+      Deno.env.get('SUPABASE_URL')!,
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
     );
 
     const { data: chapter, error: chErr } = await supabase
-      .from("chapters").select("child_id").eq("id", chapter_id).single();
+      .from('chapters').select('child_id').eq('id', chapter_id).single();
     if (chErr || !chapter) {
-      return jsonResponse({ ok: false, error: "chapter not found" }, { status: 404 });
+      return jsonResponse({ ok: false, error: 'chapter not found' }, { status: 404 });
     }
     await assertOwnsChild(supabase, chapter.child_id as string, user.id);
 
@@ -69,7 +69,8 @@ Deno.serve(async (req: Request) => {
       image_safety: result.image_safety,
       ...(return_images ? { images: result.images } : {}),
     }, { status: result.ok ? 200 : 207 });
-  } catch (err) {
+  }
+  catch (err) {
     if (err instanceof ChapterBlockedError) {
       return jsonResponse({ ok: false, error: err.message }, { status: 409 });
     }

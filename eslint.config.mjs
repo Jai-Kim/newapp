@@ -40,14 +40,13 @@ export default antfu(
       'cli/',
       // Deno Edge Functions & SQL — different runtime, no tsconfig coverage
       // (tsconfig.json excludes `supabase/` entirely; wiring up `deno check`
-      // in CI is a workflow change, Jai's call, not this config's). Three
-      // safety-critical files are un-ignored below via negation so basic
+      // in CI is a workflow change, Jai's call, not this config's). All of
+      // `supabase/functions/**` is un-ignored below via negation so basic
       // mechanical issues (unused imports, shadowing, formatting) are at
-      // least caught by ESLint even without type information.
+      // least caught by ESLint even without type information. Migrations
+      // and SQL stay ignored — this is TS-only.
       'supabase/**',
-      '!supabase/functions/_shared/safety.ts',
-      '!supabase/functions/_shared/crisis.ts',
-      '!supabase/functions/_shared/quota.ts',
+      '!supabase/functions/**/*.ts',
       'expo-env.d.ts',
       'migration/*',
     ],
@@ -176,19 +175,19 @@ export default antfu(
     },
   },
 
-  // The three Deno Edge Function files un-ignored above. `Deno` is a global
-  // this runtime provides (no plugin/environment ships it), and several
-  // functions here take 4-6 positional args mirroring the shape of the
-  // Anthropic/Supabase calls they wrap (a client, ids, provider parameters) —
-  // reshaping them into options objects would touch call sites in
-  // generate-chapter/enqueue-chapter, which is a real refactor and out of
-  // bounds for a lint-only, no-behaviour-change pass.
+  // All of supabase/functions/** un-ignored above. `Deno` is a global this
+  // runtime provides (no plugin/environment ships it), and several functions
+  // here take 4-6 positional args mirroring the shape of the Anthropic/
+  // Supabase calls they wrap (a client, ids, provider parameters) —
+  // reshaping them into options objects would touch call sites across
+  // generate-chapter/enqueue-chapter/illustrate-chapter, which is a real
+  // refactor and out of bounds for a lint-only, no-behaviour-change pass.
+  // Several Edge Function handlers also run long past the app's 110-line
+  // limit (request parsing, auth, and the actual work all live in one
+  // top-level handler, matching every existing entrypoint's shape) —
+  // splitting them is a structural change, not a lint fix.
   {
-    files: [
-      'supabase/functions/_shared/safety.ts',
-      'supabase/functions/_shared/crisis.ts',
-      'supabase/functions/_shared/quota.ts',
-    ],
+    files: ['supabase/functions/**/*.ts'],
     languageOptions: {
       globals: {
         Deno: 'readonly',
@@ -196,6 +195,7 @@ export default antfu(
     },
     rules: {
       'max-params': 'off',
+      'max-lines-per-function': 'off',
     },
   },
 

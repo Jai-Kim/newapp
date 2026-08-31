@@ -10,7 +10,7 @@
 // any authenticated user could pass someone else's child_id and read or write
 // another family's story.
 
-import { createClient, type SupabaseClient } from "jsr:@supabase/supabase-js@2";
+import { createClient, type SupabaseClient } from 'jsr:@supabase/supabase-js@2';
 
 export class AuthError extends Error {
   constructor(message: string, readonly status: number) {
@@ -23,17 +23,17 @@ export class AuthError extends Error {
  * invalid — never falls back to anonymous.
  */
 export async function requireUser(req: Request): Promise<{ id: string; email?: string }> {
-  const header = req.headers.get("Authorization") ?? "";
-  const jwt = header.replace(/^Bearer\s+/i, "").trim();
+  const header = req.headers.get('Authorization') ?? '';
+  const jwt = header.replace(/^Bearer\s+/i, '').trim();
   if (!jwt) {
-    throw new AuthError("missing Authorization header", 401);
+    throw new AuthError('missing Authorization header', 401);
   }
 
   // A client bound to the caller's token; getUser validates the signature and
   // expiry server-side rather than trusting anything we decode ourselves.
   const scoped: SupabaseClient = createClient(
-    Deno.env.get("SUPABASE_URL")!,
-    Deno.env.get("SUPABASE_ANON_KEY")!,
+    Deno.env.get('SUPABASE_URL')!,
+    Deno.env.get('SUPABASE_ANON_KEY')!,
     { global: { headers: { Authorization: `Bearer ${jwt}` } } },
   );
 
@@ -41,7 +41,7 @@ export async function requireUser(req: Request): Promise<{ id: string; email?: s
   if (error || !data.user) {
     // The anon key itself is a valid JWT, so an unauthenticated call lands here
     // rather than at the missing-header check above.
-    throw new AuthError("not signed in", 401);
+    throw new AuthError('not signed in', 401);
   }
   return { id: data.user.id, email: data.user.email ?? undefined };
 }
@@ -59,21 +59,21 @@ export async function assertOwnsChild(
   userId: string,
 ): Promise<void> {
   const { data, error } = await service
-    .from("children")
-    .select("id, families!inner(auth_user_id)")
-    .eq("id", childId)
+    .from('children')
+    .select('id, families!inner(auth_user_id)')
+    .eq('id', childId)
     .single();
 
   if (error || !data) {
     // Deliberately the same message as the ownership failure below: a probing
     // caller should not be able to tell "no such child" from "not yours".
-    throw new AuthError("child not found", 404);
+    throw new AuthError('child not found', 404);
   }
 
   const owner = (data as unknown as { families: { auth_user_id: string | null } })
     .families?.auth_user_id;
   if (owner !== userId) {
-    throw new AuthError("child not found", 404);
+    throw new AuthError('child not found', 404);
   }
 }
 

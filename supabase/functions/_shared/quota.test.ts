@@ -1,6 +1,6 @@
-import type { SupabaseClient } from "@supabase/supabase-js";
+import type { SupabaseClient } from '@supabase/supabase-js';
 
-import { loadQuotaConfig, QuotaExceededError, reserveGenerationSlot } from "./quota";
+import { loadQuotaConfig, QuotaExceededError, reserveGenerationSlot } from './quota';
 
 /**
  * The first unit test for a `_shared/` Deno function file in this repo.
@@ -9,7 +9,7 @@ import { loadQuotaConfig, QuotaExceededError, reserveGenerationSlot } from "./qu
  * any other module. `Deno.env` is stubbed globally for the config tests.
  */
 
-describe("loadQuotaConfig", () => {
+describe('loadQuotaConfig', () => {
   const originalDeno = (globalThis as { Deno?: unknown }).Deno;
 
   afterEach(() => {
@@ -22,7 +22,7 @@ describe("loadQuotaConfig", () => {
     };
   }
 
-  it("falls back to the documented defaults when nothing is set", () => {
+  it('falls back to the documented defaults when nothing is set', () => {
     stubEnv({});
     expect(loadQuotaConfig()).toEqual({
       rateLimitMax: 3,
@@ -31,11 +31,11 @@ describe("loadQuotaConfig", () => {
     });
   });
 
-  it("reads overrides from env", () => {
+  it('reads overrides from env', () => {
     stubEnv({
-      GENERATION_RATE_LIMIT_MAX: "5",
-      GENERATION_RATE_LIMIT_WINDOW_MS: "30000",
-      CHAPTER_MONTHLY_ALLOWANCE: "20",
+      GENERATION_RATE_LIMIT_MAX: '5',
+      GENERATION_RATE_LIMIT_WINDOW_MS: '30000',
+      CHAPTER_MONTHLY_ALLOWANCE: '20',
     });
     expect(loadQuotaConfig()).toEqual({
       rateLimitMax: 5,
@@ -44,28 +44,28 @@ describe("loadQuotaConfig", () => {
     });
   });
 
-  it("ignores an unparsable or non-positive override rather than trusting it", () => {
-    stubEnv({ GENERATION_RATE_LIMIT_MAX: "not-a-number", CHAPTER_MONTHLY_ALLOWANCE: "0" });
+  it('ignores an unparsable or non-positive override rather than trusting it', () => {
+    stubEnv({ GENERATION_RATE_LIMIT_MAX: 'not-a-number', CHAPTER_MONTHLY_ALLOWANCE: '0' });
     const config = loadQuotaConfig();
     expect(config.rateLimitMax).toBe(3);
     expect(config.monthlyAllowance).toBe(10);
   });
 });
 
-describe("quotaExceededError", () => {
-  it("carries a machine-readable code and warm bilingual copy", () => {
-    const err = new QuotaExceededError("monthly_quota_exceeded");
+describe('quotaExceededError', () => {
+  it('carries a machine-readable code and warm bilingual copy', () => {
+    const err = new QuotaExceededError('monthly_quota_exceeded');
     expect(err.status).toBe(429);
-    expect(err.code).toBe("monthly_quota_exceeded");
+    expect(err.code).toBe('monthly_quota_exceeded');
     expect(err.messageEn).toMatch(/this month's book is finished/i);
-    expect(err.messageKo).toContain("완성되었어요");
+    expect(err.messageKo).toContain('완성되었어요');
   });
 
-  it("toBody() is not a bare 429 — it carries the code and both languages", () => {
-    const err = new QuotaExceededError("rate_limited");
+  it('toBody() is not a bare 429 — it carries the code and both languages', () => {
+    const err = new QuotaExceededError('rate_limited');
     expect(err.toBody()).toEqual({
       ok: false,
-      code: "rate_limited",
+      code: 'rate_limited',
       error: err.messageEn,
       message_en: err.messageEn,
       message_ko: err.messageKo,
@@ -73,7 +73,7 @@ describe("quotaExceededError", () => {
   });
 });
 
-describe("reserveGenerationSlot", () => {
+describe('reserveGenerationSlot', () => {
   // An explicit config on every call, never the `= loadQuotaConfig()` default
   // — that default reads `Deno.env`, which does not exist in this Jest/Node
   // process, and none of these tests are about config loading (see the
@@ -84,40 +84,40 @@ describe("reserveGenerationSlot", () => {
     return { rpc: jest.fn().mockResolvedValue(rpcResult) } as unknown as SupabaseClient;
   }
 
-  it("resolves silently when the reservation succeeds", async () => {
-    const supabase = fakeSupabase({ data: "ok", error: null });
+  it('resolves silently when the reservation succeeds', async () => {
+    const supabase = fakeSupabase({ data: 'ok', error: null });
     await expect(
-      reserveGenerationSlot(supabase, "user-1", "child-1", config),
+      reserveGenerationSlot(supabase, 'user-1', 'child-1', config),
     ).resolves.toBeUndefined();
 
-    expect(supabase.rpc).toHaveBeenCalledWith("reserve_generation_attempt", {
-      p_user_id: "user-1",
-      p_child_id: "child-1",
+    expect(supabase.rpc).toHaveBeenCalledWith('reserve_generation_attempt', {
+      p_user_id: 'user-1',
+      p_child_id: 'child-1',
       p_rate_limit_max: 3,
       p_rate_limit_window_ms: 60_000,
       p_monthly_allowance: 10,
     });
   });
 
-  it("throws QuotaExceededError when the DB function reports rate_limited", async () => {
-    const supabase = fakeSupabase({ data: "rate_limited", error: null });
+  it('throws QuotaExceededError when the DB function reports rate_limited', async () => {
+    const supabase = fakeSupabase({ data: 'rate_limited', error: null });
     await expect(
-      reserveGenerationSlot(supabase, "user-1", "child-1", config),
+      reserveGenerationSlot(supabase, 'user-1', 'child-1', config),
     ).rejects.toThrow(QuotaExceededError);
   });
 
-  it("throws QuotaExceededError when the DB function reports monthly_quota_exceeded", async () => {
-    const supabase = fakeSupabase({ data: "monthly_quota_exceeded", error: null });
+  it('throws QuotaExceededError when the DB function reports monthly_quota_exceeded', async () => {
+    const supabase = fakeSupabase({ data: 'monthly_quota_exceeded', error: null });
     await expect(
-      reserveGenerationSlot(supabase, "user-1", "child-1", config),
-    ).rejects.toMatchObject({ code: "monthly_quota_exceeded" });
+      reserveGenerationSlot(supabase, 'user-1', 'child-1', config),
+    ).rejects.toMatchObject({ code: 'monthly_quota_exceeded' });
   });
 
-  it("rethrows a plain Postgres/RPC error untranslated", async () => {
-    const dbError = new Error("connection reset");
+  it('rethrows a plain Postgres/RPC error untranslated', async () => {
+    const dbError = new Error('connection reset');
     const supabase = fakeSupabase({ data: null, error: dbError });
     await expect(
-      reserveGenerationSlot(supabase, "user-1", "child-1", config),
+      reserveGenerationSlot(supabase, 'user-1', 'child-1', config),
     ).rejects.toBe(dbError);
   });
 });

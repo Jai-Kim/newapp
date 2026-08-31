@@ -14,10 +14,10 @@
 
 export const VOLUME_SIZE = 10;
 
-export interface VolumeChapter {
+export type VolumeChapter = {
   id: string;
   number: number;
-}
+};
 
 /**
  * The ordered chapter ids making up one complete (1-based) volume, or null if
@@ -31,5 +31,5 @@ export function completedVolumeChapterIds(
   const ordered = [...chapters].sort((a, b) => a.number - b.number);
   const start = (volumeIndex - 1) * VOLUME_SIZE;
   const slice = ordered.slice(start, start + VOLUME_SIZE);
-  return slice.length === VOLUME_SIZE ? slice.map(c => c.id) : null;
+  return slice.length === VOLUME_SIZE ? slice.map((c) => c.id) : null;
 }

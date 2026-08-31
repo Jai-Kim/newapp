@@ -15,12 +15,13 @@
 // run starts cold and rebuilds "the story so far" from the database alone —
 // which is exactly what Spike B proves.
 
-import Anthropic from "npm:@anthropic-ai/sdk@0.70.0";
-import { type SupabaseClient } from "jsr:@supabase/supabase-js@2";
+import type { SupabaseClient } from 'jsr:@supabase/supabase-js@2';
 
-import { reviewChapter, type SafetyVerdict } from "./safety.ts";
+import Anthropic from 'npm:@anthropic-ai/sdk@0.70.0';
 
-export interface ChapterPage {
+import { reviewChapter, type SafetyVerdict } from './safety.ts';
+
+export type ChapterPage = {
   page: number;
   en: string;
   ko: string;
@@ -28,22 +29,22 @@ export interface ChapterPage {
   wardrobe: string;
   /** True on ~4 pages: the emotional beats that carry a full illustration. */
   illustrated: boolean;
-}
+};
 
-export interface ChapterDelta {
+export type ChapterDelta = {
   new_characters: { name: string; role: string; traits: string }[];
   new_world: { name: string; type: string; description: string }[];
   threads_opened: { summary: string }[];
   threads_resolved: { id: string; how: string }[];
-}
+};
 
-export interface GeneratedChapter {
+export type GeneratedChapter = {
   title_en: string;
   title_ko: string;
   summary: string;
   pages: ChapterPage[];
   delta: ChapterDelta;
-}
+};
 
 const SYSTEM = `You are the storyteller for Storyloom, writing one chapter of an
 ongoing, serialized bedtime story for a specific child. The child is the hero.
@@ -85,7 +86,7 @@ be illustrated later.
 Return ONLY a JSON object matching the required schema. No prose outside it.`;
 
 /** The canon assembled from the DB — the ONLY story memory the model receives. */
-export interface Canon {
+export type Canon = {
   child: {
     first_name: string;
     age_band: string;
@@ -97,30 +98,30 @@ export interface Canon {
   characters: { name: string; role: string | null; traits: string | null }[];
   world: { name: string; type: string | null; description: string | null }[];
   next_number: number;
-}
+};
 
 export async function retrieveCanon(
   supabase: SupabaseClient,
   childId: string,
 ): Promise<Canon> {
   const { data: child, error: childErr } = await supabase
-    .from("children")
-    .select("first_name,age_band,primary_language,interests")
-    .eq("id", childId)
+    .from('children')
+    .select('first_name,age_band,primary_language,interests')
+    .eq('id', childId)
     .single();
 
   if (childErr || !child) {
-    throw new Error(`child ${childId} not found: ${childErr?.message ?? "no row"}`);
+    throw new Error(`child ${childId} not found: ${childErr?.message ?? 'no row'}`);
   }
 
   const [{ data: recent }, { data: threads }, { data: characters }, { data: world }] =
     await Promise.all([
-      supabase.from("chapters").select("number,title_en,summary")
-        .eq("child_id", childId).order("number", { ascending: false }).limit(5),
-      supabase.from("threads").select("id,summary,opened_chapter")
-        .eq("child_id", childId).eq("status", "open"),
-      supabase.from("characters").select("name,role,traits").eq("child_id", childId),
-      supabase.from("world").select("name,type,description").eq("child_id", childId),
+      supabase.from('chapters').select('number,title_en,summary')
+        .eq('child_id', childId).order('number', { ascending: false }).limit(5),
+      supabase.from('threads').select('id,summary,opened_chapter')
+        .eq('child_id', childId).eq('status', 'open'),
+      supabase.from('characters').select('name,role,traits').eq('child_id', childId),
+      supabase.from('world').select('name,type,description').eq('child_id', childId),
     ]);
 
   // TODO(post-spike): also pull top-k semantically related past chapters via
@@ -142,116 +143,116 @@ export function canonToPrompt(canon: Canon, lesson: string, situation?: string):
   const lines = [
     `Child: ${canon.child.first_name}, age band ${canon.child.age_band}, `
     + `primary language ${canon.child.primary_language}.`,
-    `Interests: ${(canon.child.interests ?? []).join(", ") || "none recorded"}.`,
-    `Tonight's lesson/situation: ${lesson} / ${situation ?? "none given"}`,
+    `Interests: ${(canon.child.interests ?? []).join(', ') || 'none recorded'}.`,
+    `Tonight's lesson/situation: ${lesson} / ${situation ?? 'none given'}`,
   ];
 
   lines.push(
     canon.recent_chapters.length
-      ? "Recent chapters (newest first):\n"
+      ? 'Recent chapters (newest first):\n'
         + canon.recent_chapters
-          .map((c) => `  ${c.number}. ${c.title_en ?? "(untitled)"} — ${c.summary}`)
-          .join("\n")
-      : "Recent chapters: none — this is the very first chapter.",
+          .map((c) => `  ${c.number}. ${c.title_en ?? '(untitled)'} — ${c.summary}`)
+          .join('\n')
+      : 'Recent chapters: none — this is the very first chapter.',
   );
 
   lines.push(
     canon.open_threads.length
-      ? "Open threads (must consider advancing/resolving; use the id when resolving):\n"
+      ? 'Open threads (must consider advancing/resolving; use the id when resolving):\n'
         + canon.open_threads
-          .map((t) => `  - [${t.id}] ${t.summary} (opened ch. ${t.opened_chapter ?? "?"})`)
-          .join("\n")
-      : "Open threads: none.",
+          .map((t) => `  - [${t.id}] ${t.summary} (opened ch. ${t.opened_chapter ?? '?'})`)
+          .join('\n')
+      : 'Open threads: none.',
   );
 
   lines.push(
     canon.characters.length
-      ? "Known characters:\n"
-        + canon.characters.map((c) => `  ${c.name} (${c.role ?? "?"}) — ${c.traits ?? ""}`).join("\n")
-      : "Known characters: none yet.",
+      ? 'Known characters:\n'
+        + canon.characters.map((c) => `  ${c.name} (${c.role ?? '?'}) — ${c.traits ?? ''}`).join('\n')
+      : 'Known characters: none yet.',
   );
 
   lines.push(
     canon.world.length
-      ? "Known places/objects:\n"
-        + canon.world.map((w) => `  ${w.name} (${w.type ?? "?"}) — ${w.description ?? ""}`).join("\n")
-      : "Known places/objects: none yet.",
+      ? 'Known places/objects:\n'
+        + canon.world.map((w) => `  ${w.name} (${w.type ?? '?'}) — ${w.description ?? ''}`).join('\n')
+      : 'Known places/objects: none yet.',
   );
 
   lines.push(`This is chapter number ${canon.next_number}.`);
-  return lines.join("\n");
+  return lines.join('\n');
 }
 
 const OUTPUT_SCHEMA = {
-  type: "object",
+  type: 'object',
   additionalProperties: false,
-  required: ["title_en", "title_ko", "summary", "pages", "delta"],
+  required: ['title_en', 'title_ko', 'summary', 'pages', 'delta'],
   properties: {
-    title_en: { type: "string" },
-    title_ko: { type: "string" },
-    summary: { type: "string", description: "English, 2-3 sentences, canonical for retrieval" },
+    title_en: { type: 'string' },
+    title_ko: { type: 'string' },
+    summary: { type: 'string', description: 'English, 2-3 sentences, canonical for retrieval' },
     pages: {
-      type: "array",
+      type: 'array',
       items: {
-        type: "object",
+        type: 'object',
         additionalProperties: false,
-        required: ["page", "en", "ko", "scene", "wardrobe", "illustrated"],
+        required: ['page', 'en', 'ko', 'scene', 'wardrobe', 'illustrated'],
         properties: {
-          page: { type: "integer" },
-          en: { type: "string" },
-          ko: { type: "string" },
-          scene: { type: "string" },
-          wardrobe: { type: "string" },
+          page: { type: 'integer' },
+          en: { type: 'string' },
+          ko: { type: 'string' },
+          scene: { type: 'string' },
+          wardrobe: { type: 'string' },
           illustrated: {
-            type: "boolean",
-            description: "True on exactly 4 pages — the emotional beats",
+            type: 'boolean',
+            description: 'True on exactly 4 pages — the emotional beats',
           },
         },
       },
     },
     delta: {
-      type: "object",
+      type: 'object',
       additionalProperties: false,
-      required: ["new_characters", "new_world", "threads_opened", "threads_resolved"],
+      required: ['new_characters', 'new_world', 'threads_opened', 'threads_resolved'],
       properties: {
         new_characters: {
-          type: "array",
+          type: 'array',
           items: {
-            type: "object",
+            type: 'object',
             additionalProperties: false,
-            required: ["name", "role", "traits"],
-            properties: { name: { type: "string" }, role: { type: "string" }, traits: { type: "string" } },
+            required: ['name', 'role', 'traits'],
+            properties: { name: { type: 'string' }, role: { type: 'string' }, traits: { type: 'string' } },
           },
         },
         new_world: {
-          type: "array",
+          type: 'array',
           items: {
-            type: "object",
+            type: 'object',
             additionalProperties: false,
-            required: ["name", "type", "description"],
+            required: ['name', 'type', 'description'],
             properties: {
-              name: { type: "string" },
-              type: { type: "string", enum: ["place", "object", "lore"] },
-              description: { type: "string" },
+              name: { type: 'string' },
+              type: { type: 'string', enum: ['place', 'object', 'lore'] },
+              description: { type: 'string' },
             },
           },
         },
         threads_opened: {
-          type: "array",
+          type: 'array',
           items: {
-            type: "object",
+            type: 'object',
             additionalProperties: false,
-            required: ["summary"],
-            properties: { summary: { type: "string" } },
+            required: ['summary'],
+            properties: { summary: { type: 'string' } },
           },
         },
         threads_resolved: {
-          type: "array",
+          type: 'array',
           items: {
-            type: "object",
+            type: 'object',
             additionalProperties: false,
-            required: ["id", "how"],
-            properties: { id: { type: "string" }, how: { type: "string" } },
+            required: ['id', 'how'],
+            properties: { id: { type: 'string' }, how: { type: 'string' } },
           },
         },
       },
@@ -264,9 +265,9 @@ export async function writeChapter(canonBlock: string): Promise<{
   usage: unknown;
   latency_ms: number;
 }> {
-  const apiKey = Deno.env.get("ANTHROPIC_API_KEY");
+  const apiKey = Deno.env.get('ANTHROPIC_API_KEY');
   if (!apiKey) {
-    throw new Error("ANTHROPIC_API_KEY not set");
+    throw new Error('ANTHROPIC_API_KEY not set');
   }
 
   const anthropic = new Anthropic({ apiKey });
@@ -275,25 +276,25 @@ export async function writeChapter(canonBlock: string): Promise<{
   // Structured outputs guarantee the shape parses, which is what makes the
   // delta safe to apply to the Story Bible without defensive re-parsing.
   const response = await anthropic.messages.create({
-    model: "claude-opus-5",
+    model: 'claude-opus-5',
     max_tokens: 16000,
     system: SYSTEM,
-    output_config: { format: { type: "json_schema", schema: OUTPUT_SCHEMA } },
-    messages: [{ role: "user", content: canonBlock }],
+    output_config: { format: { type: 'json_schema', schema: OUTPUT_SCHEMA } },
+    messages: [{ role: 'user', content: canonBlock }],
   });
 
   const latency_ms = Date.now() - started;
 
-  if (response.stop_reason === "refusal") {
-    throw new Error("generation was declined by safety classifiers");
+  if (response.stop_reason === 'refusal') {
+    throw new Error('generation was declined by safety classifiers');
   }
-  if (response.stop_reason === "max_tokens") {
-    throw new Error("generation hit max_tokens — chapter would be truncated");
+  if (response.stop_reason === 'max_tokens') {
+    throw new Error('generation hit max_tokens — chapter would be truncated');
   }
 
-  const text = response.content.find((b) => b.type === "text");
-  if (!text || text.type !== "text") {
-    throw new Error("no text block in response");
+  const text = response.content.find((b) => b.type === 'text');
+  if (!text || text.type !== 'text') {
+    throw new Error('no text block in response');
   }
 
   return { chapter: JSON.parse(text.text) as GeneratedChapter, usage: response.usage, latency_ms };
@@ -310,7 +311,7 @@ export async function persist(
   safety: SafetyVerdict,
 ) {
   const { data: inserted, error: chapterErr } = await supabase
-    .from("chapters")
+    .from('chapters')
     .insert({
       child_id: childId,
       number,
@@ -323,9 +324,9 @@ export async function persist(
       safety,
       // A blocked chapter is never offered for approval; everything else waits
       // for a parent. Nothing is ever written straight to child-readable.
-      review_status: safety.verdict === "blocked" ? "rejected" : "pending",
+      review_status: safety.verdict === 'blocked' ? 'rejected' : 'pending',
     })
-    .select("id")
+    .select('id')
     .single();
 
   if (chapterErr || !inserted) {
@@ -334,14 +335,14 @@ export async function persist(
 
   // A blocked chapter must not pollute the Story Bible — otherwise its
   // characters and threads become canon that future chapters build on.
-  if (safety.verdict === "blocked") {
+  if (safety.verdict === 'blocked') {
     return inserted.id;
   }
 
   const d = chapter.delta;
 
   if (d.new_characters.length) {
-    await supabase.from("characters").insert(
+    await supabase.from('characters').insert(
       d.new_characters.map((c) => ({
         child_id: childId, name: c.name, role: c.role, traits: c.traits,
         first_appeared_chapter: number,
@@ -349,28 +350,28 @@ export async function persist(
     );
   }
   if (d.new_world.length) {
-    await supabase.from("world").insert(
+    await supabase.from('world').insert(
       d.new_world.map((w) => ({
         child_id: childId, name: w.name, type: w.type, description: w.description,
       })),
     );
   }
   if (d.threads_opened.length) {
-    await supabase.from("threads").insert(
+    await supabase.from('threads').insert(
       d.threads_opened.map((t) => ({
-        child_id: childId, summary: t.summary, status: "open", opened_chapter: number,
+        child_id: childId, summary: t.summary, status: 'open', opened_chapter: number,
       })),
     );
   }
   for (const t of d.threads_resolved) {
     // Scoped to child_id as well as id: the id comes from model output, and a
     // resolve must never be able to touch another family's thread.
-    await supabase.from("threads")
-      .update({ status: "resolved", resolved_chapter: number })
-      .eq("id", t.id).eq("child_id", childId);
+    await supabase.from('threads')
+      .update({ status: 'resolved', resolved_chapter: number })
+      .eq('id', t.id).eq('child_id', childId);
   }
 
-  await supabase.from("lessons_taught").insert({
+  await supabase.from('lessons_taught').insert({
     child_id: childId, lesson, chapter_id: inserted.id,
   });
 
@@ -404,7 +405,7 @@ export async function generateChapterFor(
   //    reaches a parent. The storyteller is the wrong judge of its own output,
   //    so this is a separate call, not self-assessment.
   const safety = await reviewChapter(
-    Deno.env.get("ANTHROPIC_API_KEY")!,
+    Deno.env.get('ANTHROPIC_API_KEY')!,
     canon.child.age_band,
     chapter.title_en,
     chapter.pages,
