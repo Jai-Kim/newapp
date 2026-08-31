@@ -45,19 +45,26 @@ have a tracked GitHub issue.
   model before the canon grows. P1.
 - **Partial-failure handling** in the text → safety → images → persist pipeline. P1.
 - **Storage growth** — illustrations in Supabase Storage; model cost over time. P2.
-- **`supabase/functions/**` has no type-checking.** `tsconfig.json` excludes
-  `supabase/` entirely — Deno's `npm:`/`jsr:` specifiers and explicit `.ts`
-  import extensions don't resolve under this app's Node/Expo `tsconfig.json`.
-  ESLint now covers all of `supabase/functions/**` (every Edge Function
-  entrypoint and every `_shared/` module, formatting/mechanical rules only —
-  `max-params` and `max-lines-per-function` are relaxed there, same rationale
-  as everywhere else in this directory). What's still missing is real
-  type-checking: nothing here runs a `tsc`-equivalent pass, so a type error in
-  any of these files — including `safety.ts`, `crisis.ts`, and `quota.ts`, the
-  three functions that review/screen/gate what reaches a child or costs money
-  — would only surface at runtime. `TODO(Jai)`: closing that gap needs `deno
-  check` wired into CI — a `.github/workflows/*` change outside this doc's
-  scope. P1.
+- **`supabase/functions/**` has no type-checking wired into CI.** `tsconfig.json`
+  excludes `supabase/` entirely — Deno's `npm:`/`jsr:` specifiers and explicit
+  `.ts` import extensions don't resolve under this app's Node/Expo
+  `tsconfig.json`. ESLint covers all of `supabase/functions/**` (every Edge
+  Function entrypoint and every `_shared/` module, formatting/mechanical rules
+  only — `max-params` and `max-lines-per-function` are relaxed there, same
+  rationale as everywhere else in this directory), but lint alone doesn't
+  catch a type error. The **config half is now done**:
+  `supabase/functions/deno.jsonc` scopes a Deno project root to that directory
+  (strict mode on, the two Jest `_shared/*.test.ts` files excluded — they're
+  Node tests, not Deno modules), and `pnpm run check:functions` runs
+  `deno check` over the six Edge Function entrypoints, which — since every
+  `_shared/` module is reachable from at least one entrypoint's import graph —
+  type-checks the whole directory, including `safety.ts`, `crisis.ts`, and
+  `quota.ts`, the three functions that review/screen/gate what reaches a child
+  or costs money. **Not run yet**: `deno` isn't installed in the build
+  sandbox, so this hasn't actually been executed against the current code —
+  first run should happen before relying on it. `TODO(Jai)`: wiring
+  `check:functions` into CI is a deliberate `.github/workflows/*` change,
+  outside this doc's scope, once you've confirmed it passes. P1.
 
 ## Safety / privacy / legal
 

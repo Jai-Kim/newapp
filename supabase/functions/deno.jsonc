@@ -1,0 +1,23 @@
+// Deno project root, scoped to this directory only — the rest of the repo is
+// Node/Expo and untouched by this file. Lets `deno check` (see package.json's
+// `check:functions` script) resolve the `jsr:`/`npm:` specifiers and the
+// `Deno` global these Edge Functions use, since `tsconfig.json` excludes
+// `supabase/` entirely and can't resolve either.
+//
+// Not wired into CI — see docs/RISKS.md's `supabase/functions/**` type-check
+// entry. Run `pnpm run check:functions` locally; wiring it into a workflow is
+// a deliberate, separate decision.
+{
+  "compilerOptions": {
+    "strict": true
+  },
+  // The two `*.test.ts` files in `_shared/` are Jest/Node tests (bare
+  // `@supabase/supabase-js` specifier, extension-less relative imports) —
+  // not Deno modules, and not reachable from any Edge Function entrypoint's
+  // import graph, so `check:functions` never touches them. Excluded here too
+  // as a second guard against `deno check`/`deno lint` ever directory-walking
+  // over them directly.
+  "exclude": [
+    "_shared/*.test.ts"
+  ]
+}

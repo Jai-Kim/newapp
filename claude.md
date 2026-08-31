@@ -39,6 +39,7 @@ pnpm lint               # ESLint check
 pnpm type-check         # TypeScript validation
 pnpm test               # Run Jest tests
 pnpm check-all          # All quality checks
+pnpm check:functions    # Type-check supabase/functions/** with `deno check` (needs Deno installed; not run in CI — see docs/RISKS.md)
 ```
 
 **Environment-Specific:**
