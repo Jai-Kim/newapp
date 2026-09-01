@@ -173,3 +173,16 @@ export async function listChildren(): Promise<ChildRow[]> {
   }
   return data as ChildRow[];
 }
+
+export async function getChild(childId: string): Promise<ChildRow> {
+  const { data, error } = await supabase
+    .from('children')
+    .select('id,first_name,primary_language')
+    .eq('id', childId)
+    .single();
+
+  if (error) {
+    throw error;
+  }
+  return data as ChildRow;
+}

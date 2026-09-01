@@ -1,17 +1,23 @@
 import * as React from 'react';
 
-import { cleanup, screen, setup } from '@/lib/test-utils';
+import { cleanup, screen, setup, waitFor } from '@/lib/test-utils';
 import { ChapterReviewScreen } from './chapter-review-screen';
 
 /**
  * AI-content labeling (issue #12): a parent deciding whether to approve a
  * chapter should see, plainly, that it was AI-generated — before they
  * decide, not just after.
+ *
+ * Bilingual chrome (issue #22, follow-up to #41/#42/#43): this is the gate
+ * nothing reaches a child without passing through, so a Korean-dominant
+ * parent has to be able to read the decision, not just the story.
  */
 
 const mockGetChapterForReview = jest.fn();
 const mockSetChapterApproval = jest.fn();
 const mockSignImagePaths = jest.fn();
+const mockGetChild = jest.fn();
+const mockReadCachedChild = jest.fn();
 
 jest.mock('expo-router', () => ({
   // eslint-disable-next-line react/no-unnecessary-use-prefix -- mocking expo-router's actual export name
@@ -20,11 +26,36 @@ jest.mock('expo-router', () => ({
   useRouter: () => ({ back: jest.fn() }),
 }));
 
+jest.mock('@/lib/offline/chapter-cache', () => ({
+  readCachedChild: (...args: unknown[]) => mockReadCachedChild(...args),
+}));
+
 jest.mock('@/lib/supabase/chapters', () => ({
   getChapterForReview: (...args: unknown[]) => mockGetChapterForReview(...args),
+  getChild: (...args: unknown[]) => mockGetChild(...args),
   setChapterApproval: (...args: unknown[]) => mockSetChapterApproval(...args),
   signImagePaths: (...args: unknown[]) => mockSignImagePaths(...args),
 }));
+
+function chapter(overrides: Record<string, unknown> = {}) {
+  return {
+    id: 'chapter-1',
+    child_id: 'child-1',
+    title_en: 'The Quiet Forest',
+    title_ko: '조용한 숲',
+    lesson: null,
+    pages: [],
+    review_status: 'pending',
+    safety: { verdict: 'safe', concerns: [] },
+    ...overrides,
+  };
+}
+
+beforeEach(() => {
+  mockReadCachedChild.mockReturnValue(null);
+  mockSignImagePaths.mockResolvedValue({});
+  mockGetChild.mockResolvedValue({ id: 'child-1', first_name: 'Mina', primary_language: 'en' });
+});
 
 afterEach(() => {
   cleanup();
@@ -33,16 +64,7 @@ afterEach(() => {
 
 describe('chapterReviewScreen — AI-content labeling', () => {
   it('shows a bilingual AI-generated notice before the parent decides', async () => {
-    mockGetChapterForReview.mockResolvedValue({
-      id: 'chapter-1',
-      title_en: 'The Quiet Forest',
-      title_ko: '조용한 숲',
-      lesson: null,
-      pages: [],
-      review_status: 'pending',
-      safety: { verdict: 'safe', concerns: [] },
-    });
-    mockSignImagePaths.mockResolvedValue({});
+    mockGetChapterForReview.mockResolvedValue(chapter());
 
     setup(<ChapterReviewScreen />);
 
@@ -57,5 +79,100 @@ describe('chapterReviewScreen — AI-content labeling', () => {
     // Not yet approved, so it must not claim a parent already reviewed it.
     expect(await screen.findByTestId('approve')).toBeOnTheScreen();
     expect(screen.queryByText(/reviewed by a parent/)).not.toBeOnTheScreen();
+  });
+});
+
+describe('chapterReviewScreen — bilingual chrome (issue #22)', () => {
+  it('shows English-led chrome for an English-first child', async () => {
+    mockGetChapterForReview.mockResolvedValue(
+      chapter({
+        lesson: 'trying again after something goes wrong',
+        pages: [{ page: 1, en: 'Once upon a time.', ko: '옛날 옛적에.' }],
+      }),
+    );
+    mockGetChild.mockResolvedValue({ id: 'child-1', first_name: 'Mina', primary_language: 'en' });
+
+    setup(<ChapterReviewScreen />);
+
+    expect(await screen.findByTestId('approve')).toBeOnTheScreen();
+    expect(
+      screen.getByText(/Tonight's lesson · 오늘 밤의 교훈 — trying again after something goes wrong/),
+    ).toBeOnTheScreen();
+    expect(screen.getByText(/Page 1 · 1쪽/)).toBeOnTheScreen();
+    expect(screen.getByText('Approve for reading · 읽어도 좋아요')).toBeOnTheScreen();
+    expect(screen.getByText('Not this one · 이건 아니에요')).toBeOnTheScreen();
+  });
+
+  it('shows Korean-led chrome for a Korean-first child', async () => {
+    mockGetChapterForReview.mockResolvedValue(
+      chapter({
+        lesson: 'trying again after something goes wrong',
+        pages: [{ page: 1, en: 'Once upon a time.', ko: '옛날 옛적에.' }],
+      }),
+    );
+    mockGetChild.mockResolvedValue({ id: 'child-1', first_name: '미나', primary_language: 'ko' });
+
+    setup(<ChapterReviewScreen />);
+
+    expect(await screen.findByTestId('approve')).toBeOnTheScreen();
+    expect(
+      screen.getByText(/오늘 밤의 교훈 · Tonight's lesson — trying again after something goes wrong/),
+    ).toBeOnTheScreen();
+    expect(screen.getByText(/1쪽 · Page 1/)).toBeOnTheScreen();
+    expect(screen.getByText('읽어도 좋아요 · Approve for reading')).toBeOnTheScreen();
+    expect(screen.getByText('이건 아니에요 · Not this one')).toBeOnTheScreen();
+  });
+
+  it('uses a matching cached child instead of an extra fetch', async () => {
+    mockReadCachedChild.mockReturnValue({ id: 'child-1', first_name: 'Mina', primary_language: 'ko' });
+    mockGetChapterForReview.mockResolvedValue(chapter());
+
+    setup(<ChapterReviewScreen />);
+
+    expect(await screen.findByText('읽어도 좋아요 · Approve for reading')).toBeOnTheScreen();
+    expect(mockGetChild).not.toHaveBeenCalled();
+  });
+
+  it('falls back to fetching the child when the cache holds a different one', async () => {
+    mockReadCachedChild.mockReturnValue({ id: 'someone-else', first_name: 'Jun', primary_language: 'ko' });
+    mockGetChapterForReview.mockResolvedValue(chapter());
+    mockGetChild.mockResolvedValue({ id: 'child-1', first_name: 'Mina', primary_language: 'en' });
+
+    setup(<ChapterReviewScreen />);
+
+    expect(await screen.findByText('Approve for reading · 읽어도 좋아요')).toBeOnTheScreen();
+    expect(mockGetChild).toHaveBeenCalledWith('child-1');
+  });
+
+  it('shows a bilingual blocked banner and hides the decision when the filter blocked the chapter', async () => {
+    mockGetChapterForReview.mockResolvedValue(
+      chapter({ safety: { verdict: 'blocked', concerns: [] } }),
+    );
+
+    setup(<ChapterReviewScreen />);
+
+    expect(await screen.findByText('Blocked by the content filter')).toBeOnTheScreen();
+    expect(screen.getByText('안전 필터에 걸렸어요')).toBeOnTheScreen();
+    expect(
+      screen.getByText('This chapter can\'t be approved. Generate a new one instead.'),
+    ).toBeOnTheScreen();
+    expect(
+      screen.getByText('이 챕터는 승인할 수 없어요. 새로 만들어 주세요.'),
+    ).toBeOnTheScreen();
+    expect(screen.queryByTestId('approve')).not.toBeOnTheScreen();
+  });
+
+  it('sends the same approval value to the server regardless of which language leads', async () => {
+    mockGetChapterForReview.mockResolvedValue(chapter());
+    mockGetChild.mockResolvedValue({ id: 'child-1', first_name: '미나', primary_language: 'ko' });
+    mockSetChapterApproval.mockResolvedValue(undefined);
+
+    const { user } = setup(<ChapterReviewScreen />);
+
+    await user.press(await screen.findByTestId('approve'));
+
+    await waitFor(() => {
+      expect(mockSetChapterApproval).toHaveBeenCalledWith('chapter-1', true);
+    });
   });
 });
