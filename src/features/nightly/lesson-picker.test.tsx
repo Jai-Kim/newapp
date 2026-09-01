@@ -1,7 +1,8 @@
 import * as React from 'react';
 
 import { cleanup, screen, setup } from '@/lib/test-utils';
-import { LessonPicker, LESSONS } from './lesson-picker';
+import { LessonPicker } from './lesson-picker';
+import { LESSONS } from './lessons';
 
 /**
  * Bilingual chrome for the last screen before a parent commits to tomorrow
