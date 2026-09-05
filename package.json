@@ -48,7 +48,8 @@
     "e2e-test": "maestro test .maestro/ -e APP_ID=com.obytes.development",
     "e2e:web": "playwright test",
     "e2e:web:live": "cross-env E2E_MODE=live playwright test",
-    "e2e:web:report": "playwright show-report"
+    "e2e:web:report": "playwright show-report",
+    "taste-check:volume": "tsx scripts/generate-sample-volume.ts"
   },
   "dependencies": {
     "@expo-google-fonts/inter": "^0.4.2",
