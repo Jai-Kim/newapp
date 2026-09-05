@@ -16,6 +16,7 @@ import {
 } from '@/components/ui';
 import { LessonPicker } from '@/features/nightly/lesson-picker';
 import { useNightly } from '@/features/nightly/use-nightly';
+import { useProEntitlement } from '@/lib/purchases/use-pro-entitlement';
 
 /**
  * The home screen at bedtime.
@@ -27,6 +28,7 @@ import { useNightly } from '@/features/nightly/use-nightly';
 export function TonightScreen() {
   const router = useRouter();
   const nightly = useNightly();
+  const { isPro, loading: proLoading } = useProEntitlement();
   const { refresh } = nightly;
 
   // Coming back from the reader, the chapter just read is now read — and the
@@ -69,7 +71,10 @@ export function TonightScreen() {
         busy={nightly.busy}
         savedOffline={nightly.savedOffline}
         lead={nightly.child?.primary_language ?? 'en'}
+        isPro={isPro}
+        proLoading={proLoading}
         onQueue={nightly.queue}
+        onSubscribe={() => router.push('/paywall')}
       />
     );
   }
@@ -120,14 +125,20 @@ function Body({
   busy,
   savedOffline,
   lead,
+  isPro,
+  proLoading,
   onQueue,
+  onSubscribe,
 }: {
   state: NightlyState;
   name: string;
   busy: boolean;
   savedOffline: boolean;
   lead: 'en' | 'ko';
+  isPro: boolean;
+  proLoading: boolean;
   onQueue: (lesson: string | undefined, situation: string | undefined) => void;
+  onSubscribe: () => void;
 }) {
   const router = useRouter();
 
@@ -161,6 +172,14 @@ function Body({
       return <Writing job={state.job} name={name} />;
 
     case 'failed':
+      // Writing tonight's chapter again is the same "spend a chapter" action
+      // as requesting one for the first time, so it sits behind the same gate.
+      if (proLoading) {
+        return <ActivityIndicator />;
+      }
+      if (!isPro) {
+        return <SubscribePrompt lead={lead} onSubscribe={onSubscribe} />;
+      }
       return (
         <Card
           title="That one didn't come out"
@@ -176,6 +195,16 @@ function Body({
       );
 
     case 'empty':
+      // The one thing standing between "nothing queued" and the lesson
+      // picker: an active `pro` entitlement (issue #14, ADR-0003). Reading
+      // chapters already made never checks this — only asking for a new one
+      // does.
+      if (proLoading) {
+        return <ActivityIndicator />;
+      }
+      if (!isPro) {
+        return <SubscribePrompt lead={lead} onSubscribe={onSubscribe} />;
+      }
       return <LessonPicker name={name} busy={busy} lead={lead} onChoose={onQueue} />;
 
     case 'offline_empty':
@@ -336,6 +365,47 @@ function QuotaNotice({
     >
       <Text className="text-lg font-bold">{primary}</Text>
       <Text className="text-neutral-500">{secondary}</Text>
+    </View>
+  );
+}
+
+/**
+ * Stands in for the lesson picker / retry card when the family has no active
+ * `pro` entitlement (issue #14, ADR-0003) — asking for a chapter costs money
+ * at two paid providers, so this is the one gate in front of it. Framed as
+ * the start of this month's book, not a locked feature, and bilingual like
+ * every other nightly-flow notice (ADR-0001 §1).
+ */
+function SubscribePrompt({
+  lead,
+  onSubscribe,
+}: {
+  lead: 'en' | 'ko';
+  onSubscribe: () => void;
+}) {
+  const primary = lead === 'ko' ? '새 이야기를 시작할까요?' : 'Ready for a new chapter?';
+  const secondary = lead === 'ko' ? 'Ready for a new chapter?' : '새 이야기를 시작할까요?';
+  const bodyEn = 'Subscribing keeps about one book (10 chapters) coming every month — a bedtime rhythm, not a race.';
+  const bodyKo = '구독하면 한 달에 책 한 권 분량(약 10장)이 꾸준히 만들어져요. 서두르지 않는, 잠들기 전 편안한 리듬이에요.';
+  const bodyPrimary = lead === 'ko' ? bodyKo : bodyEn;
+  const bodySecondary = lead === 'ko' ? bodyEn : bodyKo;
+
+  return (
+    <View
+      testID="subscribe-prompt"
+      className="gap-4 rounded-xl border border-primary-300 p-5 dark:border-primary-700"
+    >
+      <View className="gap-1">
+        <Text className="text-xl font-bold">{primary}</Text>
+        <Text className="text-lg text-neutral-500">{secondary}</Text>
+      </View>
+      <Text className="text-neutral-600 dark:text-neutral-400">{bodyPrimary}</Text>
+      <Text className="text-neutral-500">{bodySecondary}</Text>
+      <Button
+        label={lead === 'ko' ? '책 시작하기 · $1.99' : 'Start your book · $1.99'}
+        onPress={onSubscribe}
+        testID="go-paywall"
+      />
     </View>
   );
 }

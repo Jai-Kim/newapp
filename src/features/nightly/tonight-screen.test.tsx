@@ -17,6 +17,11 @@ import { TonightScreen } from './tonight-screen';
 const mockEnqueueTomorrow = jest.fn(async () => ({ ok: true }));
 const mockGetNightlyState = jest.fn();
 const mockPush = jest.fn();
+// Defaults to entitled so the existing state-by-state tests below exercise
+// the lesson picker / retry card as before; the paywall-gate tests further
+// down flip this off on purpose.
+let mockIsPro = true;
+let mockProLoading = false;
 
 jest.mock('expo-router', () => ({
   useRouter: () => ({ push: mockPush, replace: jest.fn() }),
@@ -25,6 +30,10 @@ jest.mock('expo-router', () => ({
   useFocusEffect: (cb: () => void) => {
     require('react').useEffect(cb, [cb]);
   },
+}));
+
+jest.mock('@/lib/purchases/use-pro-entitlement', () => ({
+  useProEntitlement: () => ({ isPro: mockIsPro, loading: mockProLoading }),
 }));
 
 jest.mock('@/lib/supabase/chapters', () => ({
@@ -96,6 +105,8 @@ jest.mock('@/lib/supabase/nightly', () => {
 afterEach(() => {
   cleanup();
   jest.clearAllMocks();
+  mockIsPro = true;
+  mockProLoading = false;
 });
 
 const job = {
@@ -247,6 +258,59 @@ describe('tonightScreen', () => {
       // A real resource, not a placeholder.
       expect(screen.getByText(/109/)).toBeOnTheScreen();
       // The notice replaces the picker, and is not the generic red error box.
+      expect(screen.queryByText(/What should tomorrow be about\?/i)).not.toBeOnTheScreen();
+    });
+  });
+
+  describe('the paywall gate (issue #14, ADR-0003)', () => {
+    it('offers to subscribe instead of the lesson picker when nothing is queued and there is no active entitlement', async () => {
+      mockIsPro = false;
+      mockGetNightlyState.mockResolvedValue({ kind: 'empty' });
+      const { user } = setup(<TonightScreen />);
+
+      expect(await screen.findByTestId('subscribe-prompt')).toBeOnTheScreen();
+      expect(screen.queryByText(/What should tomorrow be about\?/i)).not.toBeOnTheScreen();
+
+      await user.press(screen.getByTestId('go-paywall'));
+      expect(mockPush).toHaveBeenCalledWith('/paywall');
+      // Never even attempts the network call an unentitled family can't spend.
+      expect(mockEnqueueTomorrow).not.toHaveBeenCalled();
+    });
+
+    it('offers to subscribe instead of the retry card when a chapter failed and there is no active entitlement', async () => {
+      mockIsPro = false;
+      mockGetNightlyState.mockResolvedValue({
+        kind: 'failed',
+        job: { ...job, status: 'failed', error: 'provider unavailable' },
+      });
+      setup(<TonightScreen />);
+
+      expect(await screen.findByTestId('subscribe-prompt')).toBeOnTheScreen();
+      expect(screen.queryByTestId('retry-job')).not.toBeOnTheScreen();
+    });
+
+    it('does not gate a chapter that is already ready to read', async () => {
+      mockIsPro = false;
+      mockGetNightlyState.mockResolvedValue({
+        kind: 'ready',
+        chapter: { id: 'ch-1', number: 1, title_en: 'Title', title_ko: '제목', pages: [] },
+      });
+      setup(<TonightScreen />);
+
+      // Reading chapters already made never depends on the entitlement
+      // (ADR-0003: families keep read access to books they've made).
+      expect(await screen.findByTestId('read-tonight')).toBeOnTheScreen();
+      expect(screen.queryByTestId('subscribe-prompt')).not.toBeOnTheScreen();
+    });
+
+    it('shows a spinner rather than the lesson picker while entitlement is still loading', async () => {
+      mockIsPro = false;
+      mockProLoading = true;
+      mockGetNightlyState.mockResolvedValue({ kind: 'empty' });
+      setup(<TonightScreen />);
+
+      await waitFor(() => expect(mockGetNightlyState).toHaveBeenCalled());
+      expect(screen.queryByTestId('subscribe-prompt')).not.toBeOnTheScreen();
       expect(screen.queryByText(/What should tomorrow be about\?/i)).not.toBeOnTheScreen();
     });
   });
