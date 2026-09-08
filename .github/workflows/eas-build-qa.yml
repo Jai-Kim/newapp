@@ -40,7 +40,45 @@ jobs:
       - name: ⏱️ EAS Build
         uses: ./.github/actions/eas-build
         with:
-          APP_ENV: staging
+          # Was `staging`, which is not a thing here: the composite action runs
+          # `pnpm prebuild:$APP_ENV` and `pnpm build:$APP_ENV:android`, and this
+          # repo only has development, preview and production. Any dispatch of
+          # this workflow failed at the prebuild step.
+          APP_ENV: preview
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
-          VERSION: ${{ github.event.release.tag_name }}
+          VERSION: ${{ github.event.release.tag_name || github.ref_name }}
           IOS: false # TODO: set as true when IOS account is ready
+
+      # The build is queued with --no-wait, so the job would otherwise end
+      # before there is anything to install. This surfaces the page to share
+      # and, once the build finishes, the APK itself.
+      - name: 🔗 Wait for the build and print the install link
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+        run: |
+          set -euo pipefail
+          for _ in $(seq 1 60); do
+            build=$(eas build:list --platform android --limit 1 --json --non-interactive)
+            status=$(echo "$build" | jq -r '.[0].status')
+            page=$(echo "$build" | jq -r '.[0].buildDetailsPageUrl // empty')
+            artifact=$(echo "$build" | jq -r '.[0].artifacts.buildUrl // empty')
+            echo "status=$status"
+            if [ "$status" = "FINISHED" ]; then
+              {
+                echo "### Android preview build ready"
+                echo ""
+                echo "- Install (APK): $artifact"
+                echo "- Build page: $page"
+              } >> "$GITHUB_STEP_SUMMARY"
+              echo "INSTALL_URL=$artifact"
+              echo "BUILD_PAGE=$page"
+              exit 0
+            fi
+            if [ "$status" = "ERRORED" ] || [ "$status" = "CANCELED" ]; then
+              echo "build $status — see $page"
+              exit 1
+            fi
+            sleep 30
+          done
+          echo "timed out waiting for the build; check the EAS dashboard"
+          exit 1
