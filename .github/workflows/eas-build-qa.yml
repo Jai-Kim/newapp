@@ -37,6 +37,16 @@ jobs:
       - name: 📦 Setup Node + PNPM + install deps
         uses: ./.github/actions/setup-node-pnpm-install
 
+      # eas-cli 23.x requires Node >= 22, and the shared setup action pins 20,
+      # so installing the CLI failed before the build was ever queued. Bumping
+      # it here rather than in the shared action keeps the blast radius to this
+      # workflow — though Node 20 is deprecated on runners generally, so the
+      # shared pin is worth revisiting on its own.
+      - name: ⬆️ Node 22 for eas-cli
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
       - name: ⏱️ EAS Build
         uses: ./.github/actions/eas-build
         with:
