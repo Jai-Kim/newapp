@@ -8,8 +8,14 @@ import { useProEntitlement } from './use-pro-entitlement';
 const mockGetCustomerInfo = jest.fn();
 const mockUnsubscribe = jest.fn();
 let mockListener: ((info: CustomerInfo) => void) | null = null;
+// These tests are about the configured path; the unconfigured one has its own
+// describe at the bottom.
+let mockConfigured = true;
 
 jest.mock('./client', () => ({
+  get isRevenueCatConfigured() {
+    return mockConfigured;
+  },
   getCustomerInfo: (...args: unknown[]) => mockGetCustomerInfo(...(args as [])),
   hasProEntitlement: (info: CustomerInfo) =>
     (info as unknown as { entitlements: { active: Record<string, unknown> } })
@@ -79,5 +85,29 @@ describe('useProEntitlement', () => {
 
     unmount();
     expect(mockUnsubscribe).toHaveBeenCalled();
+  });
+});
+
+describe('useProEntitlement with no RevenueCat key', () => {
+  beforeEach(() => {
+    mockConfigured = false;
+  });
+  afterEach(() => {
+    mockConfigured = true;
+  });
+
+  it('does not gate the product when there is nothing to sell', async () => {
+    const { result } = renderHook(() => useProEntitlement());
+
+    // Locking every family behind a paywall that cannot take payment leaves
+    // them with no way through at all. An app that cannot charge must not
+    // charge — this is the safe direction to fail.
+    expect(result.current.isPro).toBe(true);
+    expect(result.current.loading).toBe(false);
+  });
+
+  it('does not call RevenueCat at all', () => {
+    renderHook(() => useProEntitlement());
+    expect(mockGetCustomerInfo).not.toHaveBeenCalled();
   });
 });

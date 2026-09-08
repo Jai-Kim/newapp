@@ -30,6 +30,9 @@ jest.mock('@/lib/offline/chapter-cache', () => ({
 }));
 
 jest.mock('@/lib/purchases/client', () => ({
+  // These tests exercise the paywall itself, which only exists when there is
+  // something to sell.
+  isRevenueCatConfigured: true,
   getCustomerInfo: (...args: unknown[]) => mockGetCustomerInfo(...(args as [])),
   hasProEntitlement: (info: { entitlements: { active: Record<string, unknown> } }) =>
     info.entitlements.active.pro !== undefined,

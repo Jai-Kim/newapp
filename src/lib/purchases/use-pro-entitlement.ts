@@ -3,6 +3,7 @@ import * as React from 'react';
 import {
   getCustomerInfo,
   hasProEntitlement,
+  isRevenueCatConfigured,
   subscribeToCustomerInfo,
 } from './client';
 
@@ -16,10 +17,18 @@ import {
  * need to poll or refetch by hand.
  */
 export function useProEntitlement(): { isPro: boolean; loading: boolean } {
-  const [isPro, setIsPro] = React.useState(false);
-  const [loading, setLoading] = React.useState(true);
+  // With no RevenueCat key there is nothing to sell, and gating the product
+  // behind a paywall that cannot take payment locks every family out with no
+  // way through. An app that cannot charge must not charge — this is the safe
+  // direction to fail, and the missing key is already warned about loudly at
+  // import time in client.ts.
+  const [isPro, setIsPro] = React.useState(!isRevenueCatConfigured);
+  const [loading, setLoading] = React.useState(isRevenueCatConfigured);
 
   React.useEffect(() => {
+    if (!isRevenueCatConfigured) {
+      return;
+    }
     let cancelled = false;
 
     getCustomerInfo()
