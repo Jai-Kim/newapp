@@ -47,17 +47,24 @@ jobs:
         with:
           node-version: 22
 
-      - name: ⏱️ EAS Build
-        uses: ./.github/actions/eas-build
+      - name: 📦 Setup EAS
+        uses: expo/expo-github-action@v8
         with:
-          # Was `staging`, which is not a thing here: the composite action runs
-          # `pnpm prebuild:$APP_ENV` and `pnpm build:$APP_ENV:android`, and this
-          # repo only has development, preview and production. Any dispatch of
-          # this workflow failed at the prebuild step.
-          APP_ENV: preview
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      # Deliberately NOT ./.github/actions/eas-build. That action runs
+      # `pnpm prebuild:$APP_ENV` on the runner, and prebuild loads
+      # app.config.ts -> env.ts, which validates the full client env strictly.
+      # Satisfying it here would mean duplicating every EXPO_PUBLIC_* value
+      # into GitHub secrets, alongside the copies eas.json already points at
+      # (`environment: preview`). EAS runs prebuild in the cloud with that
+      # environment, so the runner does not need any of it.
+      - name: 📱 Queue the Android preview build
+        env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
-          VERSION: ${{ github.event.release.tag_name || github.ref_name }}
-          IOS: false # TODO: set as true when IOS account is ready
+        run: |
+          eas build             --profile preview             --platform android             --non-interactive             --no-wait             --message "preview ${{ github.ref_name }}"
 
       # The build is queued with --no-wait, so the job would otherwise end
       # before there is anything to install. This surfaces the page to share
