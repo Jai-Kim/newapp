@@ -1,4 +1,4 @@
-# Storyloom — build plan & progress
+# Dodam — build plan & progress
 
 Snapshot of what we're building and where we are. Update as phases complete.
 A standalone visual version is at [`docs/progress.html`](./progress.html).

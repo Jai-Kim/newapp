@@ -163,6 +163,20 @@ export default antfu(
     },
   },
 
+  // Jest test files. A `describe` body is a list of cases, not a function doing
+  // work — the 110-line limit exists to stop a component growing too many
+  // responsibilities, and splitting a suite to satisfy it makes the tests
+  // harder to read. Same reasoning as the e2e block below.
+  //
+  // NOTE: PR #46 adds this same block. Whichever lands second will conflict
+  // here; keep one copy.
+  {
+    files: ['**/*.test.ts', '**/*.test.tsx'],
+    rules: {
+      'max-lines-per-function': 'off',
+    },
+  },
+
   // Testing Library rules — component tests only. Playwright specs live in
   // e2e/ and are excluded below: they drive a real browser, so rules about
   // `screen` queries and `render` results describe a different tool entirely.

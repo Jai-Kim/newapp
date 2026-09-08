@@ -1,4 +1,4 @@
-// Storyloom — is a left-behind job ours to pick up again?
+// Dodam — is a left-behind job ours to pick up again?
 
 /**
  * Whether a job the worker left behind should be picked up again.

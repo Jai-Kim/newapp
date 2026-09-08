@@ -1,4 +1,4 @@
-// Storyloom — crisis resource directory (issue #13).
+// Dodam — crisis resource directory (issue #13).
 //
 // Kept as its own data-only module, deliberately separate from the
 // classification logic in crisis.ts/crisis-response.ts, so a wrong phone

@@ -101,8 +101,8 @@ describe('enqueueTomorrow', () => {
         category: 'self_harm',
         message_en: 'Thank you for telling us.',
         message_ko: '말씀해 주셔서 감사해요.',
-        disclaimer_en: 'Storyloom is not a crisis service.',
-        disclaimer_ko: 'Storyloom은 위기 상담 서비스가 아니에요.',
+        disclaimer_en: 'Dodam is not a crisis service.',
+        disclaimer_ko: '도담은 위기 상담 서비스가 아니에요.',
         resources: [
           {
             region: 'kr',

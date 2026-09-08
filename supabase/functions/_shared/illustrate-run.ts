@@ -1,4 +1,4 @@
-// Storyloom — illustrating a stored chapter, end to end.
+// Dodam — illustrating a stored chapter, end to end.
 //
 // Extracted from the illustrate-chapter handler for the same reason as the
 // storyteller core: the queue worker runs this with no user session, straight

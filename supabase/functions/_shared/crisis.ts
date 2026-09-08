@@ -1,4 +1,4 @@
-// Storyloom — crisis-input screening (issue #13).
+// Dodam — crisis-input screening (issue #13).
 //
 // safety.ts reviews generated OUTPUT: it checks a finished chapter for
 // content that shouldn't be shown to a child. It has no opinion about what a

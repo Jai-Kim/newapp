@@ -23,7 +23,7 @@ point a parent types a situation for tonight's chapter:
 
 ### Why this exists
 
-Storyloom turns whatever a parent types into a bedtime story. Almost always
+Dodam turns whatever a parent types into a bedtime story. Almost always
 that is exactly right — a scary hospital visit, a pet dying, a new school, a
 divorce, a child's ordinary fear of the dark are precisely what a gentle
 story can help with, and the app should say yes to all of them.
@@ -46,7 +46,7 @@ could otherwise become a story about it.
   - acknowledges what they wrote, without repeating a diagnosis-shaped label
     back at them ("abuse", "self-harm") — the app is not qualified to
     diagnose anything;
-  - says plainly that Storyloom writes bedtime stories and this is not the
+  - says plainly that Dodam writes bedtime stories and this is not the
     right tool for what was described;
   - lists real, named resources to contact instead.
 - The message never says or implies that anyone has been contacted on the
@@ -58,7 +58,7 @@ could otherwise become a story about it.
 Shown next to the situation field at all times, not only after something is
 blocked:
 
-> Storyloom writes bedtime stories. It is not medical, psychological, or
+> Dodam writes bedtime stories. It is not medical, psychological, or
 > therapeutic advice, and it is not a crisis service.
 
 ### How the screener decides
@@ -100,7 +100,7 @@ before launch.
   clear signals and hands off to a human resource.
 - It does not contact anyone on the family's behalf.
 - It is not a mandatory-reporting mechanism. **TODO(Jai):** if Korean or US
-  law creates a mandatory-reporting obligation that applies to Storyloom as
+  law creates a mandatory-reporting obligation that applies to Dodam as
   an app operator, that is a legal question this draft does not attempt to
   answer.
 - It has not been verified against a real model call in this environment (no
@@ -122,7 +122,7 @@ this only has Korea and the US today.
 
 ### 왜 이 정책이 필요한가요
 
-Storyloom은 부모님이 입력한 내용을 동화로 만들어요. 대부분의 경우 이것은
+도담은 부모님이 입력한 내용을 동화로 만들어요. 대부분의 경우 이것은
 정확히 맞는 방식이에요 — 무서운 병원 방문, 반려동물의 죽음, 새 학교, 이혼,
 아이의 평범한 어둠에 대한 두려움 같은 것들은 부드러운 이야기가 도움이 될 수
 있는 바로 그런 상황이고, 앱은 이런 요청에 응답해야 해요.
@@ -143,7 +143,7 @@ Storyloom은 부모님이 입력한 내용을 동화로 만들어요. 대부분�
 - 부모님께는 영어와 한국어 둘 다로 된 메시지가 표시되며, 이 메시지는:
   - 적어주신 내용을 인정하되, "학대", "자해" 같은 진단적인 표현을 그대로
     돌려드리지 않아요 — 앱은 어떤 것도 진단할 자격이 없어요;
-  - Storyloom은 잠자리 동화를 쓰는 서비스이고, 지금 설명하신 상황에는 맞는
+  - 도담은 잠자리 동화를 쓰는 서비스이고, 지금 설명하신 상황에는 맞는
     도구가 아니라는 것을 분명히 말해요;
   - 대신 연락할 수 있는 실제 연락처를 안내해요.
 - 이 메시지는 누군가에게 대신 연락했다고 말하거나 암시하지 않으며, 비밀을
@@ -154,7 +154,7 @@ Storyloom은 부모님이 입력한 내용을 동화로 만들어요. 대부분�
 
 상황 입력란 옆에 항상 표시돼요 — 무언가가 차단된 후에만 나타나는 것이 아니에요:
 
-> Storyloom은 잠자리 동화를 쓰는 서비스예요. 의료, 심리, 치료 상담이
+> 도담은 잠자리 동화를 쓰는 서비스예요. 의료, 심리, 치료 상담이
 > 아니며, 위기 상담 서비스도 아니에요.
 
 ### 판단 방식
@@ -194,7 +194,7 @@ Storyloom은 부모님이 입력한 내용을 동화로 만들어요. 대부분�
   사람이 제공하는 도움으로 안내할 뿐이에요.
 - 가족을 대신해 누군가에게 연락하지 않아요.
 - 의무 신고 메커니즘이 아니에요. **Jai 확인 필요:** 한국이나 미국 법이
-  Storyloom과 같은 앱 운영자에게 의무 신고 의무를 부과하는지는 이 초안이
+  도담과 같은 앱 운영자에게 의무 신고 의무를 부과하는지는 이 초안이
   다루지 않는 법률적 질문이에요.
 - 이 빌드 환경에서는 실제 모델 호출로 검증되지 않았어요(네트워크 접근과
   API 키가 없음) — 판단 로직은 시뮬레이션된 결과에 대해 단위 테스트가

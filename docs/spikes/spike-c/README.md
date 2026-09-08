@@ -99,7 +99,7 @@ support and the inevitable retries.
 
 ## Free tier: 3 chapters, and the number is not arbitrary
 
-**The moat is invisible in chapter 1.** Storyloom's entire differentiator is that
+**The moat is invisible in chapter 1.** Dodam's entire differentiator is that
 tonight continues last night — and a one-chapter trial shows a parent exactly
 what every competitor already does: a nice one-off story. The "oh, it *remembered*"
 moment is the product, and it first happens at the start of chapter 2.

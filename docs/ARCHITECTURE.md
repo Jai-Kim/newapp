@@ -1,4 +1,4 @@
-# Technical Architecture — Storyloom (working title)
+# Technical Architecture — Dodam (working title)
 
 Status: Draft v1 · Owner: Claude (eng) · Date: Aug 2026
 
@@ -8,7 +8,7 @@ Status: Draft v1 · Owner: Claude (eng) · Date: Aug 2026
 
 The moat is **memory that lives outside the model's context window.** Incumbents
 fail at continuity because they rely on the prompt/context to "remember."
-Storyloom keeps a durable, structured **Story Bible** in a database and does
+Dodam keeps a durable, structured **Story Bible** in a database and does
 *retrieval-augmented storytelling*: fetch the relevant canon, inject it into the
 generation prompt, generate the chapter, then write new events back to the
 Bible. This is what a one-off generator structurally cannot copy.

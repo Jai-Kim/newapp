@@ -20,7 +20,7 @@ Console (`docs/play-closed-testing.md`, step 4).
 
 ### English
 
-> Hey! I've been building a bedtime-story app called Storyloom — it writes
+> Hey! I've been building a bedtime-story app called Dodam — it writes
 > and illustrates a story starring your kid, in English and Korean, and it
 > remembers what happened last time. I'm about to submit it to the Play
 > Store, and Google requires a small closed test first. Would you be up for
@@ -33,7 +33,7 @@ Console (`docs/play-closed-testing.md`, step 4).
 
 ### 한국어
 
-> 안녕하세요! 제가 요즘 Storyloom이라는 잠자리 동화 앱을 만들고 있어요 —
+> 안녕하세요! 제가 요즘 도담이라는 잠자리 동화 앱을 만들고 있어요 —
 > 아이가 주인공인 동화를 영어와 한국어로 써주고 그림도 그려주는데, 지난
 > 이야기를 기억해서 이어가요. 곧 플레이스토어에 제출하려고 하는데, 그전에
 > 구글이 요구하는 소규모 비공개 테스트를 먼저 해야 해요. 2주 정도
@@ -52,7 +52,7 @@ Console (`docs/play-closed-testing.md`, step 4).
 
 1. Open this link on the Android phone you'll test with: [OPT-IN LINK].
 2. Tap **"Become a tester"** and accept.
-3. Tap the Play Store link on that same page and install Storyloom like any
+3. Tap the Play Store link on that same page and install Dodam like any
    other app.
 4. Open the app once, so it counts as an active install — you don't need to
    finish setting up a child profile right away.
@@ -66,7 +66,7 @@ Console (`docs/play-closed-testing.md`, step 4).
 
 1. 테스트에 사용하실 안드로이드 폰에서 이 링크를 열어주세요: [OPT-IN LINK]
 2. **"테스터 되기"**를 눌러 동의해 주세요.
-3. 같은 페이지의 플레이스토어 링크를 눌러 다른 앱처럼 Storyloom을
+3. 같은 페이지의 플레이스토어 링크를 눌러 다른 앱처럼 도담을
    설치해 주세요.
 4. 설치 후 앱을 한 번 열어주세요 — 실제 설치로 인정되려면 필요해요. 아이
    프로필을 바로 다 만드실 필요는 없어요.

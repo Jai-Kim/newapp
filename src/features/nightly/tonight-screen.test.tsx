@@ -222,8 +222,8 @@ describe('tonightScreen', () => {
         category: 'self_harm',
         messageEn: 'Thank you for telling us.',
         messageKo: '말씀해 주셔서 감사해요.',
-        disclaimerEn: 'Storyloom is not a crisis service.',
-        disclaimerKo: 'Storyloom은 위기 상담 서비스가 아니에요.',
+        disclaimerEn: 'Dodam is not a crisis service.',
+        disclaimerKo: '도담은 위기 상담 서비스가 아니에요.',
         resources: [
           {
             region: 'kr',

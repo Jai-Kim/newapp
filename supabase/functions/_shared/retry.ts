@@ -1,4 +1,4 @@
-// Storyloom — retrying a provider call that failed for reasons of its own.
+// Dodam — retrying a provider call that failed for reasons of its own.
 //
 // Chapter generation already gets three attempts, spread across sweeps of the
 // queue (see queue.ts). Locking a character sheet had none: a parent who

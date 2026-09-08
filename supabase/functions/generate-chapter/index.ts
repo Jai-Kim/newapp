@@ -1,4 +1,4 @@
-// Storyloom — generate-chapter Edge Function.
+// Dodam — generate-chapter Edge Function.
 //
 // The on-demand path: a parent asking for a chapter right now. The work itself
 // lives in `_shared/generate.ts`, because the queue worker runs exactly the

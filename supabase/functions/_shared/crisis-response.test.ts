@@ -207,8 +207,8 @@ describe('crisisDetectedError', () => {
     expect(err.status).toBe(422);
     expect(err.code).toBe('crisis_detected');
     expect(err.category).toBe('self_harm');
-    expect(err.messageEn).toMatch(/storyloom writes bedtime stories/i);
-    expect(err.messageKo).toContain('Storyloom은 잠자리 동화를 쓰는');
+    expect(err.messageEn).toMatch(/dodam writes bedtime stories/i);
+    expect(err.messageKo).toContain('도담은 잠자리 동화를 쓰는');
     expect(err.resources).toEqual(CRISIS_RESOURCES);
   });
 

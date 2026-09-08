@@ -1,4 +1,4 @@
-// Storyloom — server-side mirror of src/features/reader/volumes.ts's grouping
+// Dodam — server-side mirror of src/features/reader/volumes.ts's grouping
 // (issue #22, ADR-0003).
 //
 // Duplicated rather than imported: Edge Functions run on Deno and cannot

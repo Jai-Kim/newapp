@@ -1,4 +1,4 @@
-# Product Requirements Document — Storyloom (working title)
+# Product Requirements Document — Dodam (working title)
 
 Status: Draft v2 · Owner: Jai (product) + Claude (execution) · Date: Aug 2026
 
@@ -18,7 +18,7 @@ child never gets to live in an ongoing world.
 
 ## 2. Insight & wedge
 
-**Wedge: the storybook that remembers.** Storyloom is an ongoing, serialized
+**Wedge: the storybook that remembers.** Dodam is an ongoing, serialized
 story world. The child is the recurring hero; characters, places, and unresolved
 threads persist night to night; the parent steers the lesson of each chapter.
 This reframes the product from a commodity generator (novelty churn) into a
@@ -53,7 +53,7 @@ the model's context window, in our own data store.
 
 - Parent sets up a **child profile** (first name, age band, primary language, a
   guided character look, interests).
-- Each night: pick a **lesson/situation** → Storyloom generates an **illustrated,
+- Each night: pick a **lesson/situation** → Dodam generates an **illustrated,
   bilingual chapter** (English + Korean on every page) where the child is the
   hero, ready to read together. Generation is **pre-computed** so bedtime is
   instant.
@@ -106,7 +106,7 @@ PIPA, crisis-input policy, heavy-user cost.
 
 ## 11. Open decisions
 
-- **Name.** "Storyloom" is a placeholder. Decide before store submission.
+- **Name.** "Dodam" is a placeholder. Decide before store submission.
 - **First store.** Decided: **Google Play first**.
 - **Pricing / model.** Decided: **books, not a feed** (ADR-0003).
 - **Character look at launch:** guided prompt-described picker (photo deferred).

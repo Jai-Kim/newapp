@@ -1,6 +1,6 @@
 # How We're Building This (with Claude)
 
-A short record of the tools and workflow behind Storyloom, since "build a real
+A short record of the tools and workflow behind Dodam, since "build a real
 product via Claude" is an explicit goal.
 
 ## Roles

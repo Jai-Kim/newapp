@@ -1,4 +1,4 @@
-// Storyloom — the child's locked character identity.
+// Dodam — the child's locked character identity.
 //
 // A parent cannot write a good character prompt. Spike A showed the difference
 // between a sheet that holds and one that drifts is entirely in wording that no

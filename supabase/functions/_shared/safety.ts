@@ -1,4 +1,4 @@
-// Storyloom — content filter (Spike D).
+// Dodam — content filter (Spike D).
 //
 // Runs AFTER generation and BEFORE anything is offered to a parent for review.
 // Deliberately a separate model call rather than trusting the storyteller to

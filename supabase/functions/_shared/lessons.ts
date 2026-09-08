@@ -1,4 +1,4 @@
-// Storyloom — what tonight's chapter is about.
+// Dodam — what tonight's chapter is about.
 //
 // The parent chooses this at the end of the previous night's read. This file is
 // only the FALLBACK for the night they didn't: pre-generation cannot wait for a

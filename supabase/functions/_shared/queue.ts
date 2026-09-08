@@ -1,4 +1,4 @@
-// Storyloom — the pre-generation worker (issue #9).
+// Dodam — the pre-generation worker (issue #9).
 //
 // A chapter takes ~93s to write and ~9s per illustration. Nobody watches that
 // at bedtime, and if a provider is down at 8pm there is no story at all. So the
