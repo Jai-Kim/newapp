@@ -1,4 +1,4 @@
-// Storyloom — the server-side spend guard for chapter generation (issue #6).
+// Dodam — the server-side spend guard for chapter generation (issue #6).
 //
 // generate-chapter and enqueue-chapter already require a signed-in owner
 // (auth.ts) — that stops an anonymous or cross-family caller. It does not

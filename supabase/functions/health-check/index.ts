@@ -1,4 +1,4 @@
-// Storyloom — health-check Edge Function
+// Dodam — health-check Edge Function
 //
 // Spike 0's done-condition: prove the server layer can reach Supabase, Claude,
 // and the image provider using SERVER-SIDE keys only. Nothing here touches the

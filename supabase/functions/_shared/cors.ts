@@ -1,4 +1,4 @@
-// Shared CORS handling for Storyloom Edge Functions.
+// Shared CORS handling for Dodam Edge Functions.
 //
 // Expo Router runs the app on web as well as native, so browser callers hit
 // these functions cross-origin and send a preflight first. Without an OPTIONS

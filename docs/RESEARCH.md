@@ -24,7 +24,7 @@ barely enough context to maintain consistency within a single story, let alone
 remember that last Tuesday's bedtime adventure ended with Captain Elephant
 promising to return to the Cloud Kingdom." **Cross-night memory + an evolving,
 serialized story world is open** — and structurally hard for one-off generators.
-Storyloom targets exactly this.
+Dodam targets exactly this.
 
 ## 3. Character consistency (top technical risk) — state of the art 2026
 

@@ -1,4 +1,4 @@
-// Storyloom — page illustration.
+// Dodam — page illustration.
 //
 // Implements the identity/wardrobe split that Spike A proved (ADR-0001 §5):
 // the child's LOCKED identity comes from a reference image, the wardrobe comes

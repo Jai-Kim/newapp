@@ -1,4 +1,4 @@
-# Roadmap — Storyloom (working title)
+# Roadmap — Dodam (working title)
 
 Status: Draft v1 · Horizon: August 2026 (4 weeks) · Goal: submit to a store with
 a genuinely useful v1.

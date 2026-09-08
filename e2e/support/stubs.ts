@@ -45,17 +45,17 @@ const MONTHLY_QUOTA_COPY = {
  * classification logic is exercised.
  */
 const CRISIS_CARE_COPY = {
-  en: 'Thank you for telling us. Storyloom writes bedtime stories — this isn\'t '
+  en: 'Thank you for telling us. Dodam writes bedtime stories — this isn\'t '
     + 'the right place for what you\'ve just described, so no chapter was '
     + 'written. Please reach out to one of these instead:',
-  ko: '말씀해 주셔서 감사해요. Storyloom은 잠자리 동화를 쓰는 곳이라, 지금 나눠주신 '
+  ko: '말씀해 주셔서 감사해요. 도담은 잠자리 동화를 쓰는 곳이라, 지금 나눠주신 '
     + '내용에는 맞지 않아서 챕터를 만들지 않았어요. 대신 아래 연락처로 도움을 '
     + '요청해 주세요:',
 };
 const CRISIS_DISCLAIMER = {
-  en: 'Storyloom writes bedtime stories. It is not medical, psychological, or '
+  en: 'Dodam writes bedtime stories. It is not medical, psychological, or '
     + 'therapeutic advice, and it is not a crisis service.',
-  ko: 'Storyloom은 잠자리 동화를 쓰는 서비스예요. 의료, 심리, 치료 상담이 아니며, '
+  ko: '도담은 잠자리 동화를 쓰는 서비스예요. 의료, 심리, 치료 상담이 아니며, '
     + '위기 상담 서비스도 아니에요.',
 };
 const CRISIS_RESOURCES_FIXTURE = [

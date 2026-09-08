@@ -1,4 +1,4 @@
-// Storyloom — lock-character Edge Function.
+// Dodam — lock-character Edge Function.
 //
 // Turns a parent's structured choices into the child's LOCKED identity: it
 // draws the character model sheet, has it reviewed, stores it in the private

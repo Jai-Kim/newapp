@@ -1,4 +1,4 @@
-// Storyloom — illustrate-chapter Edge Function.
+// Dodam — illustrate-chapter Edge Function.
 //
 // Deliberately SEPARATE from generate-chapter. Text takes ~93s and images take
 // ~9s each; folding them into one request would push a single call past two

@@ -10,8 +10,8 @@
  * docs/sensitive-topics-policy.md. Not legally cleared.
  */
 export const SENSITIVE_TOPIC_DISCLAIMER = {
-  en: 'Storyloom writes bedtime stories. It is not medical, psychological, or '
+  en: 'Dodam writes bedtime stories. It is not medical, psychological, or '
     + 'therapeutic advice, and it is not a crisis service.',
-  ko: 'Storyloom은 잠자리 동화를 쓰는 서비스예요. 의료, 심리, 치료 상담이 아니며, '
+  ko: '도담은 잠자리 동화를 쓰는 서비스예요. 의료, 심리, 치료 상담이 아니며, '
     + '위기 상담 서비스도 아니에요.',
 };

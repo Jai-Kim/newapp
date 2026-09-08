@@ -1,8 +1,8 @@
-# Storyloom (working title)
+# Dodam (working title)
 
 **The bedtime storybook that remembers.**
 
-Storyloom turns your child into the recurring hero of an ongoing, illustrated
+Dodam turns your child into the recurring hero of an ongoing, illustrated
 story world that *persists and grows every night* — and lets the parent steer
 the lesson of each new chapter. Months of chapters become printed keepsake
 volumes.
@@ -11,7 +11,7 @@ volumes.
 
 ## The one-sentence wedge
 
-Every other AI story app generates *one-off* books; **Storyloom builds a
+Every other AI story app generates *one-off* books; **Dodam builds a
 persistent, serialized story world that remembers what happened last night** —
 the gap the market has explicitly not closed.
 

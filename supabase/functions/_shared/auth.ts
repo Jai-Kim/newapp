@@ -1,4 +1,4 @@
-// Storyloom — caller identity and authorization for Edge Functions.
+// Dodam — caller identity and authorization for Edge Functions.
 //
 // Issue #6: generate-chapter spends real money at a paid provider, and the anon
 // key ships in the app bundle, so it is public. CORS does not help — curl

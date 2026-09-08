@@ -19,7 +19,7 @@
 -- Schema
 -- ===========================================================================
 
--- Storyloom — Story Bible schema (the persistent-memory moat)
+-- Dodam — Story Bible schema (the persistent-memory moat)
 -- The baseline every numbered migration below it builds on.
 -- Embedding dimension below assumes a 1536-dim model; change if you pick another.
 -- Bilingual (EN+KO) is built in: chapters store page-aligned dual-language content.
@@ -137,7 +137,7 @@ create policy "own children" on children
 -- Policies
 -- ===========================================================================
 
--- Storyloom — RLS policies for the child-scoped Story Bible tables.
+-- Dodam — RLS policies for the child-scoped Story Bible tables.
 --
 -- schema.sql enables RLS on every table and defines policies for `families` and
 -- `children`, then leaves this NOTE:

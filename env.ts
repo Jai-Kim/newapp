@@ -80,7 +80,7 @@ const SCHEMES = {
   production: 'storyloom',
 } as const;
 
-const NAME = 'storyloom';
+const NAME = 'Dodam';
 
 // Check if strict validation is required (before prebuild)
 const STRICT_ENV_VALIDATION = process.env.STRICT_ENV_VALIDATION === '1';

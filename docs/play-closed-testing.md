@@ -41,7 +41,7 @@ these thresholds before and could again):
 | Path | What it takes | Trade-off |
 |---|---|---|
 | **Run the closed test** | Recruit 12 people (`docs/play-tester-onboarding.md`), keep them opted in for 14 straight days | Free, but costs 2+ calendar weeks before production access is even possible — start this as early as the app is installable, not when it's polished |
-| **Register an organization developer account** | A registered business entity (D-U-N-S number verification, ~$25 one-time fee, same as today's personal-account fee) | Understood to be **exempt** from the 12/14-day closed-testing gate — `TODO(Jai)`: confirm this is still current Play Console policy and whether Storyloom has (or should get) a business entity to register under, since that's a legal/business decision, not a technical one |
+| **Register an organization developer account** | A registered business entity (D-U-N-S number verification, ~$25 one-time fee, same as today's personal-account fee) | Understood to be **exempt** from the 12/14-day closed-testing gate — `TODO(Jai)`: confirm this is still current Play Console policy and whether Dodam has (or should get) a business entity to register under, since that's a legal/business decision, not a technical one |
 
 Registering an org account, if viable, is the faster path — it removes the
 14-day floor entirely. Whether Jai has (or wants to set up) a business

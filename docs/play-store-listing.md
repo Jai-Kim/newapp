@@ -20,7 +20,7 @@ enforces character limits on these fields — counts below are approximate;
 
 ### App name
 
-Storyloom
+Dodam
 
 ### Short description (~80 chars)
 
@@ -28,10 +28,10 @@ Bedtime stories starring your child — bilingual, and picked up night after nig
 
 ### Full description (~4000 chars)
 
-Storyloom writes and illustrates a bedtime chapter starring your own child —
+Dodam writes and illustrates a bedtime chapter starring your own child —
 tonight, and picks up right where last night left off.
 
-**A story that remembers.** Storyloom isn't a pile of one-off tales. Each
+**A story that remembers.** Dodam isn't a pile of one-off tales. Each
 chapter continues your child's story — the same characters, the same world,
 carrying threads forward night to night.
 
@@ -55,7 +55,7 @@ a grandparent.
 device — read it on a plane, in a basement bedroom, wherever bedtime finds
 you.
 
-**A gentle, honest space.** Storyloom is a bedtime-story generator, not a
+**A gentle, honest space.** Dodam is a bedtime-story generator, not a
 therapist and not a crisis service. If what you type touches something
 serious, we'll say so plainly and point you to real help — never a cheerful
 story where one doesn't belong.
@@ -64,7 +64,7 @@ This is an early build. We'd love to hear what you and your family think.
 
 ### What's new (first closed-test build)
 
-Welcome to the very first build of Storyloom — thank you for testing with
+Welcome to the very first build of Dodam — thank you for testing with
 us. In this build: create your child's profile, generate tonight's chapter,
 and read it together. Expect rough edges; tell us what breaks.
 
@@ -74,7 +74,12 @@ and read it together. Expect rough edges; tell us what breaks.
 
 ### 앱 이름
 
-Storyloom
+도담
+
+<sub>Play lists each language separately, so the Korean listing carries the
+Korean name. 도담 is from 도담도담 — a child growing steadily and well — which
+is the whole promise of the product in one word. The English listing stays
+"Dodam".</sub>
 
 ### 짧은 설명 (약 80자)
 
@@ -82,10 +87,10 @@ Storyloom
 
 ### 자세한 설명 (약 4000자)
 
-Storyloom은 우리 아이가 주인공인 동화를 오늘 밤을 위해 쓰고 그려드립니다 —
+도담은 우리 아이가 주인공인 동화를 오늘 밤을 위해 쓰고 그려드립니다 —
 그리고 어젯밤 이야기가 멈춘 바로 그 지점부터 이어갑니다.
 
-**기억하는 이야기.** Storyloom은 그때그때 흩어진 이야기 모음이 아닙니다.
+**기억하는 이야기.** 도담은 그때그때 흩어진 이야기 모음이 아닙니다.
 매 챕터는 아이의 이야기를 이어갑니다 — 같은 등장인물, 같은 세계관이 밤마다
 계속됩니다.
 
@@ -109,7 +114,7 @@ Storyloom은 우리 아이가 주인공인 동화를 오늘 밤을 위해 쓰고
 와이파이가 잘 안 되는 방에서도, 잠자리 이야기가 필요한 어디서든 읽을 수
 있습니다.
 
-**따뜻하고 정직한 공간.** Storyloom은 잠자리 이야기를 만들어드리는
+**따뜻하고 정직한 공간.** 도담은 잠자리 이야기를 만들어드리는
 서비스이며, 상담사나 위기 상담 서비스가 아닙니다. 입력하신 내용에 심각한
 상황이 담겨 있다면 저희가 분명히 알려드리고 실제 도움을 받을 수 있는
 곳으로 안내해 드립니다 — 어울리지 않는 곳에 밝은 이야기를 지어드리지
@@ -119,7 +124,7 @@ Storyloom은 우리 아이가 주인공인 동화를 오늘 밤을 위해 쓰고
 
 ### 새로운 기능 (첫 비공개 테스트 빌드)
 
-Storyloom의 첫 빌드에 오신 것을 환영합니다 — 테스트에 참여해 주셔서
+도담의 첫 빌드에 오신 것을 환영합니다 — 테스트에 참여해 주셔서
 감사합니다. 이번 빌드에서는: 아이 프로필 만들기, 오늘 밤 챕터
 생성하기, 함께 읽기를 해보실 수 있어요. 아직 다듬어지지 않은 부분이 있을
 수 있습니다 — 무엇이 잘 안 되는지 알려주세요.

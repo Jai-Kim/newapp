@@ -13,7 +13,7 @@ import {
 
 /**
  * Input-side crisis screening (issue #13): a situation that discloses
- * something Storyloom shouldn't turn into a bedtime story must yield a warm,
+ * something Dodam shouldn't turn into a bedtime story must yield a warm,
  * bilingual care notice with real resources — not a chapter, not a spent
  * provider call, not a consumed quota slot. An ordinary sad or scary topic,
  * which is exactly what this app is for, must still queue normally.

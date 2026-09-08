@@ -1,4 +1,4 @@
-// Storyloom — submit-print-order Edge Function (issue #22, ADR-0003, slice 4).
+// Dodam — submit-print-order Edge Function (issue #22, ADR-0003, slice 4).
 //
 // Concierge print: at Volume completion a parent can ask for the hardcover.
 // There is no print-on-demand integration yet -- the first 100 are fulfilled

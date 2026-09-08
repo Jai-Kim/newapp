@@ -41,7 +41,7 @@ live server-side per `docs/ARCHITECTURE.md §5`.
 
 ## 3. Kickoff prompt (paste into Claude Code)
 
-> You are the engineering co-founder on Storyloom. First read `docs/PRD.md`,
+> You are the engineering co-founder on Dodam. First read `docs/PRD.md`,
 > `docs/ARCHITECTURE.md`, `docs/ROADMAP.md`, and `docs/WEEK-1-SPIKES.md` — they
 > are the source of truth. We are executing the Week 1 build/no-build gate. Work
 > on feature branches and open a PR into `main` after each spike; update the gate

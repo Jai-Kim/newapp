@@ -1,4 +1,4 @@
-// Storyloom — enqueue-chapter Edge Function (issue #9).
+// Dodam — enqueue-chapter Edge Function (issue #9).
 //
 // The point of this function is what it does NOT do: it does not wait. It
 // validates, writes a job row, hands the actual generation to a background
