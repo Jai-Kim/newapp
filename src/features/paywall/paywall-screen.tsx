@@ -1,6 +1,6 @@
 import type { PurchasesPackage } from 'react-native-purchases';
-import { useRouter } from 'expo-router';
 
+import { useRouter } from 'expo-router';
 import * as React from 'react';
 import {
   ActivityIndicator,
@@ -11,16 +11,8 @@ import {
   View,
 } from '@/components/ui';
 
-import { messageOf } from '@/lib/errors';
+import { usePaywall } from '@/features/paywall/use-paywall';
 import { readCachedChild } from '@/lib/offline/chapter-cache';
-import {
-  getProPackage,
-  hasProEntitlement,
-  isUserCancelledPurchase,
-  purchaseProPackage,
-  restorePurchases as restorePurchasesRequest,
-} from '@/lib/purchases/client';
-import { useProEntitlement } from '@/lib/purchases/use-pro-entitlement';
 
 type Lead = 'en' | 'ko';
 
@@ -118,82 +110,24 @@ function SubscribedCard({ lead }: { lead: Lead }) {
 export function PaywallScreen() {
   const router = useRouter();
   const lead: Lead = readCachedChild()?.primary_language ?? 'en';
-  const { isPro, loading: proLoading } = useProEntitlement();
+  const paywall = usePaywall(pair(
+    lead,
+    'No previous subscription found on this account.',
+    '이 계정에서 이전 구독 내역을 찾지 못했어요.',
+  )[0]);
+  const {
+    isPro,
+    pkg,
+    offerLoading,
+    purchasing,
+    restoring,
+    error,
+    restoreNotice,
+    subscribe,
+    restore,
+  } = paywall;
 
-  const [pkg, setPkg] = React.useState<PurchasesPackage | null>(null);
-  const [offerLoading, setOfferLoading] = React.useState(true);
-  const [purchasing, setPurchasing] = React.useState(false);
-  const [restoring, setRestoring] = React.useState(false);
-  const [error, setError] = React.useState<string | null>(null);
-  const [restoreNotice, setRestoreNotice] = React.useState<string | null>(null);
-
-  React.useEffect(() => {
-    if (isPro) {
-      return;
-    }
-    let cancelled = false;
-    getProPackage()
-      .then((p) => {
-        if (!cancelled) {
-          setPkg(p);
-        }
-      })
-      .catch(() => {})
-      .finally(() => {
-        if (!cancelled) {
-          setOfferLoading(false);
-        }
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [isPro]);
-
-  const subscribe = async () => {
-    if (pkg === null) {
-      return;
-    }
-    setPurchasing(true);
-    setError(null);
-    try {
-      await purchaseProPackage(pkg);
-      router.back();
-    }
-    catch (e) {
-      if (!isUserCancelledPurchase(e)) {
-        setError(messageOf(e));
-      }
-    }
-    finally {
-      setPurchasing(false);
-    }
-  };
-
-  const restore = async () => {
-    setRestoring(true);
-    setError(null);
-    setRestoreNotice(null);
-    try {
-      const info = await restorePurchasesRequest();
-      if (hasProEntitlement(info)) {
-        router.back();
-        return;
-      }
-      setRestoreNotice(pair(
-        lead,
-        'No previous subscription found on this account.',
-        '이 계정에서 이전 구독 내역을 찾지 못했어요.',
-      )[0]);
-    }
-    catch (e) {
-      setError(messageOf(e));
-    }
-    finally {
-      setRestoring(false);
-    }
-  };
-
-  if (proLoading) {
+  if (paywall.proLoading) {
     return (
       <View className="flex-1 items-center justify-center">
         <ActivityIndicator />

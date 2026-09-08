@@ -13,7 +13,9 @@ jest.mock('./client', () => ({
   getCustomerInfo: (...args: unknown[]) => mockGetCustomerInfo(...(args as [])),
   hasProEntitlement: (info: CustomerInfo) =>
     (info as unknown as { entitlements: { active: Record<string, unknown> } })
-      .entitlements.active.pro !== undefined,
+      .entitlements
+      .active
+      .pro !== undefined,
   subscribeToCustomerInfo: (listener: (info: CustomerInfo) => void) => {
     mockListener = listener;
     return mockUnsubscribe;
