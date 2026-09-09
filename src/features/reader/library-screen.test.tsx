@@ -2,7 +2,7 @@ import type { ChildReadableChapter } from '@/lib/supabase/types';
 
 import * as React from 'react';
 
-import { cleanup, screen, setup, waitFor } from '@/lib/test-utils';
+import { cleanup, screen, setup } from '@/lib/test-utils';
 import { LibraryScreen } from './library-screen';
 
 /**
@@ -103,8 +103,7 @@ describe('libraryScreen — Volume progress', () => {
     );
     const { user } = setup(<LibraryScreen />);
 
-    await waitFor(() =>
-      expect(screen.getByTestId('volume-complete')).toBeOnTheScreen());
+    expect(await screen.findByTestId('volume-complete')).toBeOnTheScreen();
     expect(screen.getByText('10 of 10 chapters')).toBeOnTheScreen();
     expect(screen.getByText('Your book is ready!')).toBeOnTheScreen();
     expect(screen.getByText('책이 완성되었어요!')).toBeOnTheScreen();
@@ -127,8 +126,7 @@ describe('libraryScreen — Volume progress', () => {
     );
     setup(<LibraryScreen />);
 
-    await waitFor(() =>
-      expect(screen.getByTestId('volume-complete')).toBeOnTheScreen());
+    expect(await screen.findByTestId('volume-complete')).toBeOnTheScreen();
     expect(screen.getByText('책이 완성되었어요!')).toBeOnTheScreen();
     expect(screen.getByText('Your book is ready!')).toBeOnTheScreen();
   });
@@ -142,7 +140,7 @@ describe('libraryScreen — Volume progress', () => {
     );
     setup(<LibraryScreen />);
 
-    await waitFor(() => expect(screen.getByText('Volume 2')).toBeOnTheScreen());
+    expect(await screen.findByText('Volume 2')).toBeOnTheScreen();
     expect(screen.getByText('1 of 10 chapters')).toBeOnTheScreen();
     expect(screen.queryByTestId('volume-complete')).not.toBeOnTheScreen();
   });

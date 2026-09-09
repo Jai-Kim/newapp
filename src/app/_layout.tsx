@@ -50,7 +50,7 @@ export default function RootLayout() {
         <Stack.Screen name="library" options={{ title: 'All chapters' }} />
         <Stack.Screen name="privacy" options={{ title: 'Privacy & data' }} />
         <Stack.Screen
-          name="print-order/[volumeIndex]"
+          name="print-order/[volume]"
           options={{ title: 'Order the hardcover' }}
         />
         {/* No header — the reader should be the whole screen at bedtime. */}
