@@ -62,7 +62,7 @@ function PrintOrderConfirmation({ result, lead, onDone }: PrintOrderConfirmation
   );
 }
 
-function PrintOrderPriceNotice({ lead }: { lead: Lead }) {
+function PrintOrderPriceNotice() {
   return (
     <View className="gap-2 rounded-lg border border-neutral-200 p-4 dark:border-neutral-700">
       <Text className="text-neutral-600 dark:text-neutral-400">
@@ -126,7 +126,7 @@ function PrintOrderForm(props: PrintOrderFormProps) {
             </Text>
           </View>
 
-          <PrintOrderPriceNotice lead={lead} />
+          <PrintOrderPriceNotice />
 
           <Checkbox
             testID="print-order-gift"
@@ -220,9 +220,11 @@ function PrintOrderForm(props: PrintOrderFormProps) {
  */
 export function PrintOrderScreen() {
   const router = useRouter();
-  const { childId, volumeIndex, lead: leadParam } = useLocalSearchParams<{
+  // `volume` is the route's dynamic segment (src/app/print-order/[volume].tsx),
+  // so the key here is the filename. The URL is unchanged: /print-order/1.
+  const { volume: volumeIndex, childId, lead: leadParam } = useLocalSearchParams<{
     childId?: string;
-    volumeIndex?: string;
+    volume?: string;
     lead?: string;
   }>();
   const lead: Lead = leadParam === 'ko' ? 'ko' : 'en';
