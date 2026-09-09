@@ -13,6 +13,7 @@ import { hydrateAuth } from '@/features/auth/use-auth-store';
 
 import { APIProvider } from '@/lib/api';
 import { loadSelectedTheme } from '@/lib/hooks/use-selected-theme';
+import { usePurchasesAuthSync } from '@/lib/purchases/use-purchases-auth-sync';
 // Import  global CSS file
 import '../global.css';
 
@@ -50,8 +51,12 @@ export default function RootLayout() {
         <Stack.Screen name="library" options={{ title: 'All chapters' }} />
         <Stack.Screen name="privacy" options={{ title: 'Privacy & data' }} />
         <Stack.Screen
-          name="print-order/[volumeIndex]"
+          name="print-order/[volume]"
           options={{ title: 'Order the hardcover' }}
+        />
+        <Stack.Screen
+          name="paywall"
+          options={{ title: 'Subscribe', presentation: 'modal' }}
         />
         {/* No header — the reader should be the whole screen at bedtime. */}
         <Stack.Screen name="read/[id]" options={{ headerShown: false }} />
@@ -62,6 +67,7 @@ export default function RootLayout() {
 
 function Providers({ children }: { children: React.ReactNode }) {
   const theme = useThemeConfig();
+  usePurchasesAuthSync();
   return (
     <GestureHandlerRootView
       style={styles.container}

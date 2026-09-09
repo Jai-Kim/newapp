@@ -66,7 +66,7 @@ describe('assertNotProductionSupabase (issue #19)', () => {
   });
 });
 
-describe('EXPO_PUBLIC_APP_IDENTITY (issue #22, follow-up to #35)', () => {
+describe('eXPO_PUBLIC_APP_IDENTITY (issue #22, follow-up to #35)', () => {
   const ORIGINAL_ENV = process.env;
 
   beforeEach(() => {

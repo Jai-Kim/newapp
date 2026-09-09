@@ -15,9 +15,9 @@ const mockBack = jest.fn();
 
 // jest.mock factories are hoisted above the file, so anything they close over
 // has to be named `mock*` to be allowed through.
-let mockSearchParams: { childId?: string; volumeIndex?: string; lead?: string } = {
+let mockSearchParams: { childId?: string; volume?: string; lead?: string } = {
   childId: 'child-1',
-  volumeIndex: '1',
+  volume: '1',
   lead: 'en',
 };
 
@@ -33,7 +33,7 @@ jest.mock('@/lib/supabase/print-orders', () => ({
 afterEach(() => {
   cleanup();
   jest.clearAllMocks();
-  mockSearchParams = { childId: 'child-1', volumeIndex: '1', lead: 'en' };
+  mockSearchParams = { childId: 'child-1', volume: '1', lead: 'en' };
 });
 
 async function fillRequiredFields(user: ReturnType<typeof setup>['user']) {

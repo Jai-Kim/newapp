@@ -1,7 +1,9 @@
+import type { Volume } from '@/features/reader/volumes';
 import type { ChildReadableChapter } from '@/lib/supabase/types';
-import { useRouter } from 'expo-router';
 
+import { useRouter } from 'expo-router';
 import * as React from 'react';
+
 import {
   ActivityIndicator,
   Button,
@@ -11,8 +13,7 @@ import {
   Text,
   View,
 } from '@/components/ui';
-
-import { currentVolume, type Volume, VOLUME_SIZE } from '@/features/reader/volumes';
+import { currentVolume, VOLUME_SIZE } from '@/features/reader/volumes';
 import { messageOf } from '@/lib/errors';
 import {
   cacheChild,
