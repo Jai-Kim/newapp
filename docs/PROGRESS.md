@@ -44,7 +44,7 @@ legally cleared, and every one has open `TODO(Jai)` items.
 | [`docs/privacy-store-disclosures.md`](./privacy-store-disclosures.md) | Facts for Google Play's Data Safety form and Apple's App Privacy label |
 | [`docs/runbook-environments.md`](./runbook-environments.md) | Separating dev/staging from production Supabase (issue #19) |
 | [`docs/play-closed-testing.md`](./play-closed-testing.md) | Google Play closed-testing run sheet, 12-tester/14-day rule, org-account exemption (issue #11) |
-| [`docs/play-store-listing.md`](./play-store-listing.md) | Draft bilingual EN+KO Play Store listing copy, no price stated |
+| [`docs/launch/store-listing.md`](./launch/store-listing.md) | Draft bilingual EN+KO Play Store listing copy, no price stated |
 | [`docs/play-data-safety.md`](./play-data-safety.md) | Play Console Data safety form worksheet, derived from the two privacy docs above |
 | [`docs/play-tester-onboarding.md`](./play-tester-onboarding.md) | Bilingual recruiting message, tester install steps, opt-in tracker |
 

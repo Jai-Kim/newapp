@@ -47,7 +47,7 @@ not week 4.
 - Bugfix + polish from test feedback; empty/error states; onboarding cleanup.
 - EAS Build → `.aab` (+ `.ipa`); EAS Submit to **Google Play** (iOS if ready).
 - Store listing: name, icon, screenshots, description, privacy forms — draft
-  copy at [`docs/play-store-listing.md`](./play-store-listing.md), Data
+  copy at [`docs/launch/store-listing.md`](./launch/store-listing.md), Data
   safety form worksheet at [`docs/
   play-data-safety.md`](./play-data-safety.md).
 - **Milestone: submitted for review.** Then expand rollout toward the first 100.
