@@ -37,10 +37,70 @@ jobs:
       - name: 📦 Setup Node + PNPM + install deps
         uses: ./.github/actions/setup-node-pnpm-install
 
-      - name: ⏱️ EAS Build
-        uses: ./.github/actions/eas-build
+      # eas-cli 23.x requires Node >= 22, and the shared setup action pins 20,
+      # so installing the CLI failed before the build was ever queued. Bumping
+      # it here rather than in the shared action keeps the blast radius to this
+      # workflow — though Node 20 is deprecated on runners generally, so the
+      # shared pin is worth revisiting on its own.
+      - name: ⬆️ Node 22 for eas-cli
+        uses: actions/setup-node@v4
         with:
-          APP_ENV: staging
+          node-version: 22
+
+      - name: 📦 Setup EAS
+        uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      # Deliberately NOT ./.github/actions/eas-build. That action runs
+      # `pnpm prebuild:$APP_ENV` on the runner, and prebuild loads
+      # app.config.ts -> env.ts, which validates the full client env strictly.
+      # Satisfying it here would mean duplicating every EXPO_PUBLIC_* value
+      # into GitHub secrets, alongside the copies eas.json already points at
+      # (`environment: preview`). EAS runs prebuild in the cloud with that
+      # environment, so the runner does not need any of it.
+      - name: 📱 Queue the Android preview build
+        env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
-          VERSION: ${{ github.event.release.tag_name }}
-          IOS: false # TODO: set as true when IOS account is ready
+        run: |
+          eas build             --profile preview             --platform android             --non-interactive             --no-wait             --message "preview ${{ github.ref_name }}"
+
+      # The build is queued with --no-wait, so the job would otherwise end
+      # before there is anything to install. This surfaces the page to share
+      # and, once the build finishes, the APK itself.
+      - name: 🔗 Wait for the build and print the install link
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+          OWNER: jai-kim
+          SLUG: dodam
+        run: |
+          set -euo pipefail
+          for _ in $(seq 1 60); do
+            build=$(eas build:list --platform android --limit 1 --json --non-interactive)
+            status=$(echo "$build" | jq -r '.[0].status')
+            artifact=$(echo "$build" | jq -r '.[0].artifacts.buildUrl // empty')
+            # `buildDetailsPageUrl` is not in eas-cli 23's JSON output, so the
+            # page link is built from the id rather than read.
+            id=$(echo "$build" | jq -r '.[0].id')
+            page="https://expo.dev/accounts/${OWNER}/projects/${SLUG}/builds/${id}"
+            echo "status=$status"
+            if [ "$status" = "FINISHED" ]; then
+              {
+                echo "### Android preview build ready"
+                echo ""
+                echo "- Install (APK): $artifact"
+                echo "- Build page: $page"
+              } >> "$GITHUB_STEP_SUMMARY"
+              echo "INSTALL_URL=$artifact"
+              echo "BUILD_PAGE=$page"
+              exit 0
+            fi
+            if [ "$status" = "ERRORED" ] || [ "$status" = "CANCELED" ]; then
+              echo "build $status — see $page"
+              exit 1
+            fi
+            sleep 30
+          done
+          echo "timed out waiting for the build; check the EAS dashboard"
+          exit 1

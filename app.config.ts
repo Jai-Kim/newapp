@@ -8,8 +8,11 @@ import 'tsx/cjs';
 // eslint-disable-next-line perfectionist/sort-imports
 import Env from './env';
 
-const EXPO_ACCOUNT_OWNER = 'obytes';
-const EAS_PROJECT_ID = 'c3e1075b-6fe7-4686-aa49-35b46a229044';
+// Dodam's own EAS project, under Jai's account. Was the Obytes starter's
+// project, which this account cannot build against — `eas build` failed with
+// "Entity not authorized: AppEntity[c3e1075b-…]" until this changed.
+const EXPO_ACCOUNT_OWNER = 'jai-kim';
+const EAS_PROJECT_ID = 'b6e7c499-c9b8-4f83-aabe-2040a3e806be';
 
 const appIconBadgeConfig: AppIconBadgeConfig = {
   enabled: Env.EXPO_PUBLIC_APP_ENV !== 'production',
@@ -33,7 +36,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   description: `${Env.EXPO_PUBLIC_NAME} Mobile App`,
   owner: EXPO_ACCOUNT_OWNER,
   scheme: Env.EXPO_PUBLIC_SCHEME,
-  slug: 'obytesapp',
+  slug: 'dodam',
   version: Env.EXPO_PUBLIC_VERSION.toString(),
   orientation: 'portrait',
   icon: './assets/icon.png',
