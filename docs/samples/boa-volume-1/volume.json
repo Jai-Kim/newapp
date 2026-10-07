@@ -1,0 +1,452 @@
+{
+  "child_id": "9b726bd5-fcf3-40f4-a817-ff6d5f47b584",
+  "email": "boa-sample-357e62540f584a68b73240c8a121a9b5@storyloom-e2e.example.com",
+  "chapters": [
+    {
+      "number": 1,
+      "lesson": "being brave about something new",
+      "situation": "first day at a new kindergarten",
+      "title_en": "Boa and the Rainy First Day",
+      "title_ko": "보아와 비 오는 첫날",
+      "summary": "On a rainy first morning at Padoso Kindergarten by the sea, Boa is too nervous to let go of her mother's hand. A little gull named Miru taps at the window, and one brave breath at a time, Boa steps inside, draws the sea, and shares shell-shaped cookies with a new friend named Sol.",
+      "pages": 8,
+      "latency_s": 78,
+      "safety": "safe",
+      "chapter_id": "35d75618-629f-4f7a-9cd5-53e4ff007d0c",
+      "delta": {
+        "new_characters": [
+          {
+            "name": "Miru",
+            "role": "A small grey-and-white gull who visits the kindergarten window on rainy days",
+            "traits": "Curious, encouraging, appears whenever it rains; once shy of the window herself"
+          },
+          {
+            "name": "Sol",
+            "role": "Boa's first friend at Padoso Kindergarten",
+            "traits": "Two braids, bold, loves drawing details, easy to talk to"
+          },
+          {
+            "name": "Mom",
+            "role": "Boa's mother",
+            "traits": "Calm, kneels to eye level, bakes with Boa"
+          }
+        ],
+        "new_world": [
+          {
+            "name": "Padoso Kindergarten",
+            "type": "place",
+            "description": "A seaside kindergarten with big windows where gulls land; Boa's new school"
+          },
+          {
+            "name": "Boa's little drawing pad",
+            "type": "object",
+            "description": "A pocket-sized sketch pad Boa carries; now holds a sea drawing made half by her and half by Sol"
+          },
+          {
+            "name": "Shell cookies",
+            "type": "object",
+            "description": "Butter cookies shaped like seashells that Boa and her mom bake together"
+          }
+        ],
+        "threads_opened": [
+          {
+            "summary": "Miru the gull returns to the window on every rainy day — what does she want to show Boa?"
+          },
+          {
+            "summary": "Boa and Sol's shared drawing has begun; they may keep adding to it together"
+          },
+          {
+            "summary": "Boa's classmates loved the shell cookies — a chance to bake for the class"
+          }
+        ],
+        "threads_resolved": []
+      }
+    },
+    {
+      "number": 2,
+      "lesson": "noticing when someone else is sad",
+      "situation": null,
+      "title_en": "Boa and the Quiet Corner",
+      "title_ko": "보아와 조용한 구석자리",
+      "summary": "On a rainy morning Boa brings a tin of shell cookies to share with her whole class at Padoso Kindergarten, and everyone is delighted — except one boy, Haru, sitting quietly by the coat hooks. When Miru the gull taps the window and tilts her head toward the corner, Boa follows her gaze, notices Haru's sadness, and sits beside him with a cookie and her drawing pad until he tells her he misses his grandmother on Haetseom Island.",
+      "pages": 7,
+      "latency_s": 85,
+      "safety": "safe",
+      "chapter_id": "ca6c39b7-415c-4a8a-94a2-a429825edd3d",
+      "delta": {
+        "new_characters": [
+          {
+            "name": "Haru",
+            "role": "A quiet classmate at Padoso Kindergarten who becomes Boa's friend",
+            "traits": "Wears a grey hoodie, speaks little at first, misses his grandmother on Haetseom Island, draws small careful islands"
+          }
+        ],
+        "new_world": [
+          {
+            "name": "Haetseom",
+            "type": "place",
+            "description": "A small island out at sea, visible from Padoso Kindergarten on clear days; Haru's grandmother lives there in a house with a red roof, reached by a boat that doesn't run in bad weather"
+          }
+        ],
+        "threads_opened": [
+          {
+            "summary": "Boa and Mom plan to bake shell cookies to send to Haru's grandmother on Haetseom — will the children make the boat trip when the rain stops?"
+          },
+          {
+            "summary": "Haru has joined Boa and Sol's shared drawing; the three are becoming a trio"
+          }
+        ],
+        "threads_resolved": [
+          {
+            "id": "c427ea15-5b81-430c-bca7-af888367f501",
+            "how": "Miru tapped the rainy window and tilted her head toward the corner — what she wanted to show Boa was a person she hadn't noticed yet: Haru, sitting sad and alone."
+          },
+          {
+            "id": "d584a587-00cc-4a52-a6ff-8b209986e720",
+            "how": "Boa brought a full tin of shell cookies from home and shared one with every child in the class."
+          }
+        ]
+      }
+    },
+    {
+      "number": 3,
+      "lesson": "sharing something you don't want to share",
+      "situation": null,
+      "title_en": "Boa and the Cookie Tin for Haetseom",
+      "title_ko": "보아와 해뜨섬으로 가는 쿠키 통",
+      "summary": "The rain finally thins and the boat to Haetseom runs again, so Boa and Mom bake a tin of shell cookies for Haru's grandmother. When Haru asks if they can send the sea drawing too, Boa doesn't want to give up her favorite page — until she chooses to tear it out, add a red-roofed house to it, and let all three friends sign it. On Haetseom, Grandmother pins the drawing to her window, and back home the trio begins a brand-new page together.",
+      "pages": 7,
+      "latency_s": 94,
+      "safety": "safe",
+      "chapter_id": "93465c96-62e6-41dc-9de7-6a7ad6bc4ca4",
+      "delta": {
+        "new_characters": [
+          {
+            "name": "Haru's Grandmother",
+            "role": "Haru's grandmother, who lives on Haetseom Island",
+            "traits": "Flowered scarf, waves with both arms, pins children's drawings to her window, says cookies taste like the sea"
+          }
+        ],
+        "new_world": [
+          {
+            "name": "White shells from Haetseom",
+            "type": "object",
+            "description": "Three smooth white shells, one given by Haru's grandmother to each child as a keepsake"
+          },
+          {
+            "name": "Grandmother's window on Haetseom",
+            "type": "place",
+            "description": "A sunlit kitchen window on Haetseom where the children's shared sea drawing now hangs, glowing when the light comes through"
+          }
+        ],
+        "threads_opened": [
+          {
+            "summary": "A brand-new shared page has begun on the boat home — waves by Sol, an island by Haru, a window by Boa; the trio may keep filling it"
+          },
+          {
+            "summary": "Grandmother's window now holds their drawing; the children may visit Haetseom again to see it"
+          }
+        ],
+        "threads_resolved": [
+          {
+            "id": "80c3a995-2eb5-467d-af63-966b01b2a840",
+            "how": "The rain thinned, the boat ran, and Boa, Sol, Haru and Mom carried the tin of shell cookies to Haetseom themselves"
+          },
+          {
+            "id": "288a3556-9ad8-4843-bfff-6cdb11a4815a",
+            "how": "Boa gave the shared sea drawing away to Haru's grandmother after adding a red-roofed house, and the three signed it together before starting a fresh page"
+          },
+          {
+            "id": "c4a83b89-0909-491e-98e9-873d535598a9",
+            "how": "The three signed the drawing side by side and travelled to Haetseom together — they are now firmly a trio"
+          }
+        ]
+      }
+    },
+    {
+      "number": 4,
+      "lesson": "trying again after something goes wrong",
+      "situation": "learning to ride a bike",
+      "title_en": "Boa and the Sea-Blue Bicycle",
+      "title_ko": "보아와 바다빛 자전거",
+      "summary": "On a grey Saturday, Boa gets a small sea-blue bicycle and falls on her very first try along Padogil, the harbor path, scraping her knee and deciding she can never ride. Mom kneels to eye level and reminds her that their first batch of shell cookies burned, Miru the gull lands on the handlebar, and Sol and Haru arrive in raincoats to count her off. After three more tries Boa rides, and the friends finish their shared drawing by adding a tiny girl on a blue bicycle, pinning it in the kindergarten window facing Haetseom.",
+      "pages": 7,
+      "latency_s": 95,
+      "safety": "safe",
+      "chapter_id": "52b2a953-9729-4c2f-b206-ad645dcef402",
+      "delta": {
+        "new_characters": [],
+        "new_world": [
+          {
+            "name": "Boa's sea-blue bicycle",
+            "type": "object",
+            "description": "A small bicycle the colour of deep sea, with a silver bell on the handlebar that rings like a gull's hello"
+          },
+          {
+            "name": "Padogil",
+            "type": "place",
+            "description": "The flat harbour path that runs along the seawall near Boa's home, past the fishing boats — where Boa learned to ride"
+          }
+        ],
+        "threads_opened": [
+          {
+            "summary": "Boa can ride now and wants to go further along Padogil — perhaps far enough to reach the boat dock or ride with Sol and Haru"
+          }
+        ],
+        "threads_resolved": [
+          {
+            "id": "67f36dcd-0fdd-42a6-ac7e-48649cc489c7",
+            "how": "The trio finished the shared page by adding a curving path and a tiny girl on a sea-blue bicycle, then pinned it in the kindergarten window facing Haetseom"
+          }
+        ]
+      }
+    },
+    {
+      "number": 5,
+      "lesson": "telling the truth when it's hard",
+      "situation": null,
+      "title_en": "Boa and the Shell That Broke",
+      "title_ko": "보아와 반으로 갈라진 조개",
+      "summary": "Boa finally rides all the way down Padogil to the boat dock with Sol and Haru to send their new drawing to Haru's grandmother on Haetseom. Racing to be first, she drops Haru's white keepsake shell and it cracks in two, and she hides the pieces in her pocket while everyone wonders where it went. With Miru watching from the handlebar, Boa chooses to tell the hard truth — and the broken shell becomes a shell the two friends share.",
+      "pages": 8,
+      "latency_s": 98,
+      "safety": "safe",
+      "chapter_id": "fb60ab9c-04f0-4da0-9f0d-65c7f9b84cd4",
+      "delta": {
+        "new_characters": [
+          {
+            "name": "Jo Ajusshi",
+            "role": "The boatman who runs the little ferry from the dock to Haetseom",
+            "traits": "Navy work jacket and cap, loud kind laugh, carries letters and parcels for the island"
+          }
+        ],
+        "new_world": [
+          {
+            "name": "The boat dock at the end of Padogil",
+            "type": "place",
+            "description": "The far end of the harbour path where Jo Ajusshi's little ferry loads crates and letters for Haetseom; Boa's first long bicycle destination"
+          },
+          {
+            "name": "Boa and Haru's half-shells",
+            "type": "object",
+            "description": "Haru's white Haetseom shell, cracked in two when Boa dropped it — now one half kept by Haru and one by Boa, a shared keepsake"
+          }
+        ],
+        "threads_opened": [
+          {
+            "summary": "Jo Ajusshi hinted that Haru's grandmother wants to see the children themselves — a boat trip to Haetseom may be coming"
+          }
+        ],
+        "threads_resolved": [
+          {
+            "id": "757f6c0d-cfca-45ab-a653-358c960696b4",
+            "how": "Boa rode the whole length of Padogil with Sol and Haru and reached the boat dock, where they sent their new drawing to Haetseom"
+          }
+        ]
+      }
+    },
+    {
+      "number": 6,
+      "lesson": "waiting for your turn",
+      "situation": null,
+      "title_en": "Boa and the Boat That Took Turns",
+      "title_ko": "보아와 차례를 지키는 배",
+      "summary": "On a clear morning the ferry finally runs and Jo Ajusshi takes Boa, Sol and Haru across to Haetseom, where each child gets a turn to steer — and Boa draws the last shell, so she must wait until last. While she waits she opens her drawing pad and discovers the sea has things to show her, and on the island she waits again to let Haru hug his grandmother first, before seeing their drawing glowing in the kitchen window.",
+      "pages": 7,
+      "latency_s": 114,
+      "safety": "safe",
+      "chapter_id": "3094c24a-dd3b-41cd-a978-ecf0ff0bc577",
+      "delta": {
+        "new_characters": [],
+        "new_world": [
+          {
+            "name": "Grandmother's kitchen on Haetseom",
+            "type": "place",
+            "description": "A warm island kitchen smelling of butter and salt, with an oven, a wooden table, and the sunlit window where the children's drawing hangs"
+          },
+          {
+            "name": "Gull-shaped cookie cutter",
+            "type": "object",
+            "description": "A tin cutter shaped like a flying gull, given to the children by Haru's grandmother for a new kind of cookie"
+          },
+          {
+            "name": "The stone jetty on Haetseom",
+            "type": "place",
+            "description": "The small stone landing where Jo Ajusshi's ferry ties up and Grandmother waves with both arms"
+          }
+        ],
+        "threads_opened": [
+          {
+            "summary": "Grandmother promised to come to the mainland to see the kindergarten window herself — now it is the children's turn to wait for her visit"
+          },
+          {
+            "summary": "The children have a new gull-shaped cookie cutter to bake with back home"
+          }
+        ],
+        "threads_resolved": [
+          {
+            "id": "fdc6e35e-e3e3-4de4-8914-a98aeb5dba04",
+            "how": "Boa, Sol and Haru sailed to Haetseom and saw their shared drawing glowing in Grandmother's sunlit kitchen window"
+          },
+          {
+            "id": "92fbd4ab-eb40-4df9-9637-e46c765b1303",
+            "how": "Jo Ajusshi ferried the three children across on a calm clear day, exactly as Grandmother had asked"
+          }
+        ]
+      }
+    },
+    {
+      "number": 7,
+      "lesson": "asking for help",
+      "situation": null,
+      "title_en": "Boa and the Word That Was Hard to Say",
+      "title_ko": "보아와 하기 어려운 한마디",
+      "summary": "A letter arrives saying Haru's grandmother will come on Saturday's boat, so Boa decides to bake gull-shaped cookies all by herself as a surprise. The dough crumbles, the cutter sticks, and the baking tray sits too high — until Miru taps the rainy window and Boa finally says the hardest words of all: \"Help me, please.\" Mom kneels to eye level, Sol and Haru arrive in raincoats, and together they fill a tin with flying gull cookies for Saturday.",
+      "pages": 7,
+      "latency_s": 91,
+      "safety": "safe",
+      "chapter_id": "e2e8cdcd-c3af-4ec4-b925-1f4c76c736f8",
+      "delta": {
+        "new_characters": [],
+        "new_world": [
+          {
+            "name": "Boa's home kitchen",
+            "type": "place",
+            "description": "A warm seaside kitchen with a rain-streaked window, a high shelf where the baking trays live, and a stool Boa stands on to reach the counter"
+          },
+          {
+            "name": "Gull cookies",
+            "type": "object",
+            "description": "Golden butter cookies shaped like flying gulls, made with Grandmother's tin cutter and packed in a tin for her visit"
+          },
+          {
+            "name": "Grandmother's letter",
+            "type": "object",
+            "description": "A letter carried up Padogil by Jo Ajusshi announcing that Haru's grandmother will arrive on Saturday's boat"
+          }
+        ],
+        "threads_opened": [
+          {
+            "summary": "Boa wants to ride her sea-blue bicycle down Padogil to the dock on Saturday to meet Grandmother's boat with the tin of gull cookies"
+          }
+        ],
+        "threads_resolved": [
+          {
+            "id": "8a11fb3f-d0d7-4a28-ad98-1be56a1d819c",
+            "how": "The children finally used Grandmother's gull-shaped cutter, baking two dozen gull cookies at Boa's house and packing them in a tin for her visit"
+          }
+        ]
+      }
+    },
+    {
+      "number": 8,
+      "lesson": "being kind to someone left out",
+      "situation": null,
+      "title_en": "Boa and the Girl at the End of the Jetty",
+      "title_ko": "보아와 부두 끝에 서 있던 아이",
+      "summary": "On a clear Saturday, Boa finally rides her sea-blue bicycle down Padogil to the dock with the tin of gull cookies, and Haru's grandmother arrives on Jo Ajusshi's boat and waves with both arms. While everyone crowds around Grandmother, Boa notices a girl named Nari standing alone at the end of the jetty with a bag and no one to greet her — so Boa opens the cookie tin, and by evening there are four names on the new drawing in the kindergarten window.",
+      "pages": 7,
+      "latency_s": 96,
+      "safety": "safe",
+      "chapter_id": "d2293b41-110a-48ea-913c-1677425c389e",
+      "delta": {
+        "new_characters": [
+          {
+            "name": "Nari",
+            "role": "A girl who moves from Haetseom to the mainland to live with her aunt, and becomes the fourth friend",
+            "traits": "Quiet at first, holds her bag with both hands, watched Grandmother's window every morning from Haetseom, smiles with round surprised eyes"
+          },
+          {
+            "name": "Nari's aunt",
+            "role": "Nari's guardian on the mainland",
+            "traits": "Warm and a little flustered, hurries down Padogil, thanks the children"
+          }
+        ],
+        "new_world": [
+          {
+            "name": "The four-name drawing",
+            "type": "object",
+            "description": "The kindergarten window drawing, now with a small girl holding a bag added at its edge and four children's names written underneath"
+          }
+        ],
+        "threads_opened": [
+          {
+            "summary": "Nari will start at Padoso Kindergarten — the friends want her first day to feel like a welcome, not a waiting"
+          }
+        ],
+        "threads_resolved": [
+          {
+            "id": "fe4f4752-d983-417f-ba16-4408302d42f3",
+            "how": "Grandmother crossed on Saturday's boat and walked up Padogil that evening to see the kindergarten window and the children's drawing herself"
+          },
+          {
+            "id": "5df10c6a-4127-4514-8cdf-63e2b76ddd37",
+            "how": "Boa rode her sea-blue bicycle the whole way down Padogil with the tin of gull cookies in the basket and met Grandmother's boat at the dock — and shared the cookies with Nari"
+          }
+        ]
+      }
+    },
+    {
+      "number": 9,
+      "lesson": "saying sorry and meaning it",
+      "situation": null,
+      "title_en": "Boa and the Sorry That Meant It",
+      "title_ko": "보아와 진짜 미안해",
+      "summary": "On Nari's rainy first day at Padoso Kindergarten, Boa has planned the perfect welcome poster — until she rubs out the small yellow square Nari draws in the corner, saying it isn't the sea. A quick mumbled sorry changes nothing, so Boa kneels to eye level the way Mom does and says a real one, and learns the yellow square was Grandmother's lit window on Haetseom, the light Nari watched every morning. The four friends draw it again, big and glowing, and Nari's first day becomes a welcome.",
+      "pages": 8,
+      "latency_s": 88,
+      "safety": "safe",
+      "chapter_id": "e6a54470-fccb-4a6b-9f24-334902b6a58b",
+      "delta": {
+        "new_characters": [],
+        "new_world": [
+          {
+            "name": "The welcome poster",
+            "type": "object",
+            "description": "A large kindergarten window drawing made for Nari's first day: the sea, a red-roofed house on Haetseom with a glowing yellow window at its centre, a gull flying towards it, and four names with WELCOME written beside Nari's"
+          }
+        ],
+        "threads_opened": [
+          {
+            "summary": "Nari misses seeing Grandmother's window light up each morning from Haetseom — the friends may find a way to send her a light or a message across the water"
+          }
+        ],
+        "threads_resolved": [
+          {
+            "id": "5d43f61b-ccff-4974-aa0b-263afc9ff059",
+            "how": "Nari's first day at Padoso Kindergarten ended as a true welcome: after Boa apologised properly and asked what Nari's drawing meant, all four children drew Grandmother's lit window at the centre of a welcome poster with Nari's name and WELCOME under it"
+          }
+        ]
+      }
+    },
+    {
+      "number": 10,
+      "lesson": "finishing something you started",
+      "situation": null,
+      "title_en": "Boa and the Light That Took Four Days",
+      "title_ko": "보아와 나흘 걸린 불빛",
+      "summary": "When Nari says the sea outside her new window looks dark at night without Grandmother's lit window on Haetseom, Boa decides to build a glowing paper lantern-window for the kindergarten glass so its light can shine across the water. The work is long and Boa nearly quits halfway, until Mom kneels to eye level and shows her that a finished thing is only made one row at a time. On the fourth evening the window glows, and Nari — and Grandmother on Haetseom — both have a light again.",
+      "pages": 7,
+      "latency_s": 90,
+      "safety": "safe",
+      "chapter_id": "58974c6c-7078-47cc-bde4-624d69acb00a",
+      "delta": {
+        "new_characters": [],
+        "new_world": [
+          {
+            "name": "The hundred-square light window",
+            "type": "object",
+            "description": "A large paper mosaic of a hundred coloured squares — deep sea blue, sunset pink, cloud white — with one warm yellow square at its centre, fixed to the kindergarten glass with a lamp behind it so it glows across the water to Haetseom"
+          }
+        ],
+        "threads_opened": [],
+        "threads_resolved": [
+          {
+            "id": "76baed74-83da-46ce-b365-fd603c2fd343",
+            "how": "Over four days the four friends build a glowing hundred-square paper window at the kindergarten, one row a day; its yellow centre shines across the water so Nari can see a light from her new bedroom window, and Grandmother sees it back from Haetseom"
+          }
+        ]
+      }
+    }
+  ]
+}

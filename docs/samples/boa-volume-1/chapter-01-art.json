@@ -1,0 +1,60 @@
+{
+  "ok": true,
+  "chapter_id": "35d75618-629f-4f7a-9cd5-53e4ff007d0c",
+  "illustrated": [
+    1,
+    3,
+    5,
+    8
+  ],
+  "blocked": [],
+  "failed": [],
+  "results": [
+    {
+      "page": 1,
+      "image_path": "illustrations/9b726bd5-fcf3-40f4-a817-ff6d5f47b584/ch1/p1.png",
+      "latency_ms": 10546
+    },
+    {
+      "page": 3,
+      "image_path": "illustrations/9b726bd5-fcf3-40f4-a817-ff6d5f47b584/ch1/p3.png",
+      "latency_ms": 8232
+    },
+    {
+      "page": 5,
+      "image_path": "illustrations/9b726bd5-fcf3-40f4-a817-ff6d5f47b584/ch1/p5.png",
+      "latency_ms": 10150
+    },
+    {
+      "page": 8,
+      "image_path": "illustrations/9b726bd5-fcf3-40f4-a817-ff6d5f47b584/ch1/p8.png",
+      "latency_ms": 8258
+    }
+  ],
+  "image_safety": [
+    {
+      "page": 1,
+      "verdict": "safe",
+      "issue": null,
+      "latency_ms": 2664
+    },
+    {
+      "page": 3,
+      "verdict": "safe",
+      "issue": null,
+      "latency_ms": 2525
+    },
+    {
+      "page": 5,
+      "verdict": "safe",
+      "issue": null,
+      "latency_ms": 2599
+    },
+    {
+      "page": 8,
+      "verdict": "safe",
+      "issue": null,
+      "latency_ms": 2612
+    }
+  ]
+}
