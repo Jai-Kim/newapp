@@ -1,7 +1,7 @@
 # Google Play closed testing — run sheet (issue #11)
 
 Internal ops doc. English-only — nothing here is user-facing copy. Companion
-docs: `docs/play-store-listing.md` (bilingual store copy), `docs/
+docs: `docs/launch/store-listing.md` (bilingual store copy), `docs/
 play-data-safety.md` (Data safety form worksheet), `docs/
 play-tester-onboarding.md` (bilingual tester instructions + recruiting
 message + opt-in tracker).
@@ -140,7 +140,7 @@ build that crashes on open.
    (`docs/play-data-safety.md`), the content-rating questionnaire (below),
    and the target-audience/Families declaration the data-safety worksheet
    flags as undecided.
-6. **`TODO(Jai)`** — Store listing: paste in `docs/play-store-listing.md`'s
+6. **`TODO(Jai)`** — Store listing: paste in `docs/launch/store-listing.md`'s
    EN copy as the default listing, then add Korean as a second listing
    language with the KO copy from the same file.
 7. Recruit 12 testers (`docs/play-tester-onboarding.md`'s recruiting

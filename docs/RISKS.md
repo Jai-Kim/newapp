@@ -14,7 +14,7 @@ have a tracked GitHub issue.
   channel; start the clock ~Week 3; or register an org account to be exempt. P0.
   *(issue #11)* Repo-side prep implemented — `docs/play-closed-testing.md` (run
   sheet, org-account alternative, content-rating answers), `docs/
-  play-store-listing.md` (bilingual store copy, no price stated),
+  launch/store-listing.md` (bilingual store copy, no price stated),
   `docs/play-data-safety.md` (Data safety form worksheet), `docs/
   play-tester-onboarding.md` (bilingual recruiting message + opt-in tracker).
   **Still entirely Jai's to run**: nothing here can recruit testers, create the
@@ -96,5 +96,5 @@ have a tracked GitHub issue.
 - **First-100 bilingual audience match** — is the reachable friends-&-family cohort
   actually bilingual? Pressure-test now that EN+KO is core. P1.
 - **Store listing localization** (EN + KO). P2. Draft copy exists —
-  `docs/play-store-listing.md` — but is unreviewed by a native Korean
+  `docs/launch/store-listing.md` — but is unreviewed by a native Korean
   speaker and needs screenshots/graphics before it can ship.

@@ -3,9 +3,14 @@
 **Status: engineering draft for review — not marketing- or legally-cleared.**
 Written as a solid starting point for Jai and any reviewer, not a finished
 listing. The Korean has not been checked by a native-speaker reviewer — same
-standing as `docs/privacy-policy.md`'s Korean. States no price anywhere:
-the paywall (slice 3, ADR-0003) is gated on Jai's RevenueCat setup and isn't
-built yet, so nothing here should imply a cost.
+standing as `docs/privacy-policy.md`'s Korean.
+
+The copy still states no price. That is now a choice rather than a constraint:
+the paywall shipped in #46 ($1.99 for 3 months, then $1.99/month — ADR-0003),
+but Play already shows the in-app purchase range on the listing automatically,
+and a price written into the description goes stale the moment it differs by
+country. Say "subscription" in words if you want it mentioned; leave numbers
+to Play.
 
 Paste the **English** block in as Play Console's default listing language,
 then add **Korean** as a second store listing language (Console → Store
@@ -133,7 +138,7 @@ is the whole promise of the product in one word. The English listing stays
 
 ## Notes for Jai
 
-- No price is stated anywhere in this copy — the paywall isn't built. Add
+- No price is stated anywhere in this copy, deliberately — see the header. Add
   pricing language only once slice 3 (RevenueCat) is live and Jai has set
   final numbers.
 - **`TODO(Jai)`**: none of the Korean copy in this file has been checked by a
