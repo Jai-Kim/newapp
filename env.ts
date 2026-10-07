@@ -30,6 +30,13 @@ const envSchema = z.object({
   EXPO_PUBLIC_SUPABASE_URL: z.string().url(),
   EXPO_PUBLIC_SUPABASE_ANON_KEY: z.string(),
 
+  // RevenueCat's PUBLIC SDK key (issue #14, ADR-0003) — safe on the client,
+  // the same way the Supabase anon key is: it identifies the app to
+  // RevenueCat, it does not authorize anything by itself. The secret-key
+  // side (webhooks, server-to-server) has no client env var and isn't
+  // wired up in this slice.
+  EXPO_PUBLIC_REVENUECAT_KEY: z.string(),
+
   // Environment guard (issue #19) — see docs/runbook-environments.md. Unset
   // until a second (staging) Supabase project exists; the guard below no-ops
   // without it.
@@ -100,6 +107,7 @@ const _env: z.infer<typeof envSchema> = {
   EXPO_PUBLIC_VAR_BOOL: process.env.EXPO_PUBLIC_VAR_BOOL === 'true',
   EXPO_PUBLIC_SUPABASE_URL: process.env.EXPO_PUBLIC_SUPABASE_URL ?? '',
   EXPO_PUBLIC_SUPABASE_ANON_KEY: process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY ?? '',
+  EXPO_PUBLIC_REVENUECAT_KEY: process.env.EXPO_PUBLIC_REVENUECAT_KEY ?? '',
   EXPO_PUBLIC_PROD_SUPABASE_PROJECT_REF: process.env.EXPO_PUBLIC_PROD_SUPABASE_PROJECT_REF,
   APP_BUILD_ONLY_VAR: process.env.APP_BUILD_ONLY_VAR,
 };
