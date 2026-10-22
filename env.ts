@@ -155,6 +155,71 @@ assertNotProductionSupabase({
   prodProjectRef: _env.EXPO_PUBLIC_PROD_SUPABASE_PROJECT_REF,
 });
 
+/** RevenueCat's public SDK keys. Anything else cannot take a real payment. */
+const LIVE_REVENUECAT_PREFIXES = ['goog_', 'appl_'] as const;
+
+/**
+ * Refuses to build production with a RevenueCat key that cannot charge anyone.
+ *
+ * Two different failures, both of which look fine until someone checks the
+ * bank:
+ *
+ *   absent  `isRevenueCatConfigured` is false, and `useProEntitlement` then
+ *           treats everyone as subscribed — deliberately, so a missing key
+ *           cannot lock families out of an app that has nothing to sell. In
+ *           production that same kindness gives the whole product away.
+ *   test_   RevenueCat's Test Store key. The paywall renders, the purchase
+ *           flow completes, and no money moves. Worse than absent, because
+ *           every "is the key set?" check passes.
+ *
+ * So presence is not the test; the prefix is.
+ *
+ * Deliberately NOT inside `getValidatedEnv`: that only runs under
+ * STRICT_ENV_VALIDATION, which the `prebuild:*` scripts set but an EAS cloud
+ * build does not — so a schema rule here would never execute on the one build
+ * that matters. This throws on import, like the Supabase guard above.
+ *
+ * Keyed on APP_ENV, not APP_IDENTITY: a `closed-testing` build runs
+ * APP_ENV=preview with APP_IDENTITY=production (docs/runbook-environments.md),
+ * and may legitimately carry a test key.
+ */
+export function assertProductionRevenueCatKey(params: {
+  appEnv: string;
+  revenueCatKey: string | undefined;
+}): void {
+  const { appEnv, revenueCatKey } = params;
+  if (appEnv !== 'production') {
+    return;
+  }
+
+  const key = revenueCatKey?.trim() ?? '';
+  if (LIVE_REVENUECAT_PREFIXES.some(prefix => key.startsWith(prefix))) {
+    return;
+  }
+
+  const found = key === ''
+    ? 'is empty or unset'
+    : key.startsWith('test_')
+      ? 'is a Test Store key (test_…), which simulates purchases and takes no money'
+      : `starts with "${key.slice(0, 5)}…", which is not a public SDK key`;
+
+  throw new Error(
+    `❌ Refusing to build production: EXPO_PUBLIC_REVENUECAT_KEY ${found}.\n`
+    + `   A production build must carry a live public SDK key — `
+    + `${LIVE_REVENUECAT_PREFIXES.join(' or ')} — or the paywall cannot charge `
+    + `anyone and every family gets the product free.\n`
+    + `   Set it on the EAS production environment:\n`
+    + `     eas env:set --environment production --name EXPO_PUBLIC_REVENUECAT_KEY \\\n`
+    + `       --visibility plaintext --type string --scope project\n`
+    + `   Preview and development may use a test_ key; production may not.`,
+  );
+}
+
+assertProductionRevenueCatKey({
+  appEnv: _env.EXPO_PUBLIC_APP_ENV,
+  revenueCatKey: _env.EXPO_PUBLIC_REVENUECAT_KEY,
+});
+
 function getValidatedEnv(env: z.infer<typeof envSchema>) {
   const parsed = envSchema.safeParse(env);
 

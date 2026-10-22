@@ -1,4 +1,8 @@
-import { assertNotProductionSupabase, supabaseProjectRef } from './env';
+import {
+  assertNotProductionSupabase,
+  assertProductionRevenueCatKey,
+  supabaseProjectRef,
+} from './env';
 
 describe('supabaseProjectRef', () => {
   it('extracts the ref from a hosted Supabase URL', () => {
@@ -138,5 +142,148 @@ describe('eXPO_PUBLIC_APP_IDENTITY (issue #22, follow-up to #35)', () => {
     expect(Env.EXPO_PUBLIC_APP_ENV).toBe('development');
     expect(Env.EXPO_PUBLIC_APP_IDENTITY).toBe('development');
     expect(Env.EXPO_PUBLIC_PACKAGE).toBe('com.storyloom.development');
+  });
+});
+
+describe('assertProductionRevenueCatKey', () => {
+  const LIVE_ANDROID = 'goog_abcdefghijklmnopqrstuvwxyz';
+  const LIVE_IOS = 'appl_abcdefghijklmnopqrstuvwxyz';
+  const TEST_STORE = 'test_pUwtlTRIYrarVbhcYzHufVhn';
+
+  describe('production', () => {
+    it('accepts a live Google Play SDK key', () => {
+      expect(() => assertProductionRevenueCatKey({
+        appEnv: 'production',
+        revenueCatKey: LIVE_ANDROID,
+      })).not.toThrow();
+    });
+
+    it('accepts a live App Store SDK key', () => {
+      expect(() => assertProductionRevenueCatKey({
+        appEnv: 'production',
+        revenueCatKey: LIVE_IOS,
+      })).not.toThrow();
+    });
+
+    it('rejects a Test Store key, which charges nobody', () => {
+      // The dangerous case: the paywall renders and the purchase flow
+      // completes, so every "is the key set?" check passes while no money
+      // moves. The message has to name it, or someone will spend an afternoon.
+      expect(() => assertProductionRevenueCatKey({
+        appEnv: 'production',
+        revenueCatKey: TEST_STORE,
+      })).toThrow(/Test Store key/);
+    });
+
+    it('rejects an empty key', () => {
+      expect(() => assertProductionRevenueCatKey({
+        appEnv: 'production',
+        revenueCatKey: '',
+      })).toThrow(/empty or unset/);
+    });
+
+    it('rejects an unset key', () => {
+      expect(() => assertProductionRevenueCatKey({
+        appEnv: 'production',
+        revenueCatKey: undefined,
+      })).toThrow(/empty or unset/);
+    });
+
+    it('rejects a whitespace-only key', () => {
+      // dotenv parses `EXPO_PUBLIC_REVENUECAT_KEY= ` as ' ', not undefined.
+      expect(() => assertProductionRevenueCatKey({
+        appEnv: 'production',
+        revenueCatKey: '   ',
+      })).toThrow(/empty or unset/);
+    });
+
+    it('rejects a secret key, which must never be an EXPO_PUBLIC_ var', () => {
+      expect(() => assertProductionRevenueCatKey({
+        appEnv: 'production',
+        revenueCatKey: 'sk_livexxxxxxxxxxxxxxxxxxxx',
+      })).toThrow(/not a public SDK key/);
+    });
+
+    it('says how to fix it, not just that it is wrong', () => {
+      expect(() => assertProductionRevenueCatKey({
+        appEnv: 'production',
+        revenueCatKey: TEST_STORE,
+      })).toThrow(/eas env:set --environment production/);
+    });
+  });
+
+  describe('every other environment', () => {
+    it.each(['preview', 'development', 'staging'])(
+      'lets %s use a Test Store key',
+      (appEnv) => {
+        expect(() => assertProductionRevenueCatKey({
+          appEnv,
+          revenueCatKey: TEST_STORE,
+        })).not.toThrow();
+      },
+    );
+
+    it.each(['preview', 'development', 'staging'])(
+      'lets %s have no key at all',
+      (appEnv) => {
+        // Preview builds routinely run without one; the runtime treats an
+        // unconfigured RevenueCat as "nothing to sell, so no gate".
+        expect(() => assertProductionRevenueCatKey({
+          appEnv,
+          revenueCatKey: '',
+        })).not.toThrow();
+      },
+    );
+  });
+});
+
+describe('the RevenueCat guard runs on import', () => {
+  const ORIGINAL_ENV = process.env;
+
+  beforeEach(() => {
+    jest.resetModules();
+    process.env = { ...ORIGINAL_ENV };
+  });
+
+  afterAll(() => {
+    process.env = ORIGINAL_ENV;
+  });
+
+  /**
+   * The property that actually closes the hole. Validation inside
+   * `getValidatedEnv` only runs under STRICT_ENV_VALIDATION, which the
+   * `prebuild:*` scripts set and an EAS cloud build does not — so a rule
+   * placed there would never fire on the one build that matters.
+   */
+  it('throws for a production build with a test key, with STRICT off', () => {
+    process.env.EXPO_PUBLIC_APP_ENV = 'production';
+    process.env.EXPO_PUBLIC_REVENUECAT_KEY = 'test_pUwtlTRIYrarVbhcYzHufVhn';
+    delete process.env.STRICT_ENV_VALIDATION;
+
+    expect(() => require('./env')).toThrow(/Test Store key/);
+  });
+
+  it('throws for a production build with no key, with STRICT off', () => {
+    process.env.EXPO_PUBLIC_APP_ENV = 'production';
+    delete process.env.EXPO_PUBLIC_REVENUECAT_KEY;
+    delete process.env.STRICT_ENV_VALIDATION;
+
+    expect(() => require('./env')).toThrow(/empty or unset/);
+  });
+
+  it('loads a preview build with a test key', () => {
+    process.env.EXPO_PUBLIC_APP_ENV = 'preview';
+    process.env.EXPO_PUBLIC_REVENUECAT_KEY = 'test_pUwtlTRIYrarVbhcYzHufVhn';
+    delete process.env.STRICT_ENV_VALIDATION;
+
+    expect(() => require('./env')).not.toThrow();
+  });
+
+  it('loads a production build with a live key', () => {
+    process.env.EXPO_PUBLIC_APP_ENV = 'production';
+    process.env.EXPO_PUBLIC_REVENUECAT_KEY = 'goog_abcdefghijklmnopqrstuvwxyz';
+    delete process.env.STRICT_ENV_VALIDATION;
+
+    expect(() => require('./env')).not.toThrow();
   });
 });
