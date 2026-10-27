@@ -72,7 +72,7 @@ jobs:
       - name: 📱 Queue the Android build
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
-          PROFILE: ${{ inputs.profile || 'preview' }}
+          PROFILE: closed-testing
         run: |
           eas build \
             --profile "$PROFILE" \
