@@ -30,7 +30,8 @@ yarn-error.log
 *.orig.*
 
 # EAS
-.easignore
+# .easignore is intentionally tracked: it decides what EAS uploads, so it
+# has to reach CI. Ignoring it meant every CI build shipped the whole repo.
 
 # Supabase CLI local state (project ref, service versions) — written by `link`
 supabase/.temp/
