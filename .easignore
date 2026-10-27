@@ -1,0 +1,49 @@
+# What EAS Build does NOT need to compile the app.
+#
+# Without this the upload was 112 MB, of which ~56 MB was docs/ — spike
+# illustration sheets and Boa's sample Volume, several megabytes per PNG.
+# None of it is imported by the app; it was being shipped to a build server
+# to be thrown away, and on a slow connection it made the upload the longest
+# part of the build.
+#
+# .easignore replaces .gitignore for the build archive, so the usual
+# gitignored paths have to be repeated here.
+
+# --- repository history: 72 MB, and the build server has no use for it ---
+# This is what kept the archive at 56.9 MB even after docs/ was excluded.
+# EAS reads the commit metadata before archiving, so excluding it here costs
+# nothing but the upload.
+.git/
+
+# --- normal build output, as .gitignore ---
+node_modules/
+.expo/
+dist/
+web-build/
+coverage/
+*.log
+
+# --- docs and research: the bulk of it ---
+docs/
+
+# --- tests and tooling that never run on the build server ---
+e2e/
+playwright-report/
+test-results/
+blob-report/
+.playwright/
+maestro/
+.maestro/
+
+# --- backend, deployed separately via the Supabase CLI ---
+supabase/
+
+# --- local editor and OS noise ---
+.vscode/
+.idea/
+.DS_Store
+**/.DS_Store
+**/__pycache__/
+
+# --- secrets: never in a build archive ---
+.env.e2e

@@ -15,6 +15,12 @@ name: EAS QA Build (Android & IOS) (EAS)
 
 on:
   workflow_dispatch:
+    inputs:
+      profile:
+        description: eas.json build profile
+        type: choice
+        default: preview
+        options: [preview, closed-testing, production]
   release:
     types: [published]
 
@@ -60,11 +66,20 @@ jobs:
       # into GitHub secrets, alongside the copies eas.json already points at
       # (`environment: preview`). EAS runs prebuild in the cloud with that
       # environment, so the runner does not need any of it.
-      - name: 📱 Queue the Android preview build
+      # Runs here rather than on a laptop because the project archive is tens
+      # of megabytes and the upload, not the build, is the slow part on a
+      # domestic connection. A CI runner clones the repo directly.
+      - name: 📱 Queue the Android build
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+          PROFILE: ${{ inputs.profile || 'closed-testing' }}
         run: |
-          eas build             --profile preview             --platform android             --non-interactive             --no-wait             --message "preview ${{ github.ref_name }}"
+          eas build \
+            --profile "$PROFILE" \
+            --platform android \
+            --non-interactive \
+            --no-wait \
+            --message "$PROFILE ${{ github.ref_name }}"
 
       # The build is queued with --no-wait, so the job would otherwise end
       # before there is anything to install. This surfaces the page to share
