@@ -87,7 +87,7 @@
     "react-native-keyboard-controller": "^1.18.5",
     "react-native-mmkv": "~4.1.1",
     "react-native-nitro-modules": "^0.33.2",
-    "react-native-purchases": "^8.11.4",
+    "react-native-purchases": "^10.16.0",
     "react-native-reanimated": "~4.1.6",
     "react-native-restart": "0.0.27",
     "react-native-safe-area-context": "5.6.2",
@@ -147,8 +147,10 @@
       "reactNativeDirectoryCheck": {
         "listUnknownPackages": false,
         "exclude": [
+          "react-native-edge-to-edge",
           "react-native-restart"
-        ]
+        ],
+        "//": "react-native-edge-to-edge is deprecated upstream ('Set edgeToEdgeEnabled=true in android/gradle.properties instead'), so React Native Directory now marks it unmaintained. We cannot simply drop it: src/components/ui/focus-aware-status-bar.tsx still imports SystemBars, which styles the Android navigation bar as well as the status bar — expo-status-bar covers only the status bar, so swapping it is a visual change across 18 screens that needs a device to verify. Excluded until that migration is done on its own."
       }
     },
     "install": {

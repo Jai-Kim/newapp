@@ -83,9 +83,14 @@ describe('withRetry', () => {
     });
 
     await expect(withRetry(work, { baseDelayMs: 20 })).rejects.toThrow();
-    // First call is immediate; the two retries wait, and the second waits longer.
-    expect(delays[1]).toBeGreaterThanOrEqual(15);
-    expect(delays[2]).toBeGreaterThan(delays[1]);
+
+    // Lower bounds only, never `delays[2] > delays[1]`. Comparing the two
+    // measured gaps to each other flakes under load: a slow first gap (GC, a
+    // busy CI runner) can exceed a healthy second one and fail a correct
+    // implementation. Load can only ever push a wall-clock gap up, so a floor
+    // is the assertion that survives it.
+    expect(delays[1]).toBeGreaterThanOrEqual(15); // first retry waits ~20ms
+    expect(delays[2]).toBeGreaterThanOrEqual(35); // second doubles, to ~40ms
   });
 });
 
